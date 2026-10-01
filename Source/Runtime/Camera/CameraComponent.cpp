@@ -25,8 +25,8 @@ void UCameraComponent::UpdateMovement(float DeltaTime)
     if (FInputSystem::IsKeyDown(EKeyCode::S)) NewLocation -= Transform.GetForward() * MoveSpeed * DeltaTime;
     if (FInputSystem::IsKeyDown(EKeyCode::A)) NewLocation -= Transform.GetRight() * MoveSpeed * DeltaTime;
     if (FInputSystem::IsKeyDown(EKeyCode::D)) NewLocation += Transform.GetRight() * MoveSpeed * DeltaTime;
-    if (FInputSystem::IsKeyDown(EKeyCode::Q)) NewLocation -= Transform.GetUp() * MoveSpeed * DeltaTime;
-    if (FInputSystem::IsKeyDown(EKeyCode::E)) NewLocation += Transform.GetUp() * MoveSpeed * DeltaTime;
+    if (FInputSystem::IsKeyDown(EKeyCode::Q)) NewLocation -= FVector(0.0f, 0.0f, 1.0f) * MoveSpeed * DeltaTime;
+    if (FInputSystem::IsKeyDown(EKeyCode::E)) NewLocation += FVector(0.0f, 0.0f, 1.0f) * MoveSpeed * DeltaTime;
     if (NewLocation != Transform.Location)
         SetRelativeLocation(NewLocation);
 }

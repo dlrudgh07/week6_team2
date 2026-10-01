@@ -353,7 +353,8 @@ void UAssetManager::CreateParticleMaterial()
 
 void UAssetManager::Shutdown()
 {
-	//AssetMap.Empty();
+	// 에셋 객체는 GUObjectArray 정리 때 삭제되므로 여기서는 참조만 비운다.
+	AssetMap.Empty();
 }
 
 

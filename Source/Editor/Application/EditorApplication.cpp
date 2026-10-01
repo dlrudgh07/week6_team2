@@ -135,6 +135,7 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   SettingsPanel = EditorUI->AddEditorPanel<FSettingsPanel>();
   ViewportsPanel = EditorUI->AddEditorPanel<FViewportsPanel>();
   EditorUI->AddEditorPanel<FStatsPanel>();
+  ContentDrawerPanel = EditorUI->AddEditorPanel<FContentDrawerPanel>();
 
   OutlineRenderer = MakeUnique<FOutlineRenderer>();
   OutlineRenderer->Init(Renderer.get());

@@ -6,7 +6,7 @@
 
 bool FContentDrawerPanel::Init()
 {
-	return false;
+	return true;
 }
 
 void FContentDrawerPanel::Tick(float DeltaTime)

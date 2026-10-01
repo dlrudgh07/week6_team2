@@ -250,8 +250,10 @@ FViewCamera ApplyCameraMovement(const FViewCamera& Current, const FCameraMoveInp
 {
     assert(DeltaTime >= 0.0f);
     FViewCamera Result = Current;
-    const FVector LocalTranslation{Input.MoveAxis.X + Input.ZoomDelta, Input.MoveAxis.Y, Input.MoveAxis.Z};
-    Result.Transform.Location = Add(Result.Transform.Location, Scale(Rotate(Current.Transform.Rotation, LocalTranslation), DeltaTime));
+    // 전후·좌우는 카메라 기준, 상하(Q/E)는 월드 Z축 기준으로 이동한다.
+    const FVector LocalTranslation{Input.MoveAxis.X + Input.ZoomDelta, Input.MoveAxis.Y, 0.0f};
+    const FVector WorldTranslation = Add(Rotate(Current.Transform.Rotation, LocalTranslation), FVector{0.0f, 0.0f, Input.MoveAxis.Z});
+    Result.Transform.Location = Add(Result.Transform.Location, Scale(WorldTranslation, DeltaTime));
 
     if (Input.MouseDelta.X != 0.0f || Input.MouseDelta.Y != 0.0f)
     {
