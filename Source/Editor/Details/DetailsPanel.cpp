@@ -542,7 +542,8 @@ namespace
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SetNextItemWidth(-1.0f);
 
-					const char* SamplerItems[] = { "Linear Clamp", "Linear Wrap" };
+					const char* SamplerItems[] = { "Linear Clamp", "Linear Wrap", "Point Clamp" };
+					static_assert(IM_COUNTOF(SamplerItems) == static_cast<int>(ESamplerState::Count), "SamplerItems must match ESamplerState");
 					int SamplerIndex = Effective ? static_cast<int>(Effective->SamplerState) : static_cast<int>(ESamplerState::LinearClamp);
 					if (ImGui::BeginCombo("##SamplerState", SamplerItems[SamplerIndex]))
 					{
