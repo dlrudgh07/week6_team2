@@ -1,0 +1,613 @@
+{
+    "Version": 2,
+    "Actors": [
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_0",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Ryo/Ryo.obj",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                -0.8370704650878906,
+                                3.992539405822754,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                47.2239875793457,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_0",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Nijika/Nijika.obj",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                0.47741222381591797,
+                                1.6865895986557007,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.5049079656600952,
+                                20.562999725341797,
+                                -1.3456599712371826
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_0",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Hitori/Hitori.obj",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                -0.7999634742736816,
+                                -3.3991634845733643,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                -54.72976303100586,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_0",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Ikuyo/Ikuyo.obj",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                0.5202531814575195,
+                                -1.291604995727539,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                -19.43857192993164,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "ATextRenderActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "TextRenderComponent_0",
+                    "Class": "UTextRenderComponent",
+                    "Properties": {
+                        "Text": "Bocchi The Rock!",
+                        "TextSize": 1.899999976158142,
+                        "Font": "Assets/Fonts/NanumWild.json",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                0.02067708969116211,
+                                -0.018096327781677246,
+                                3.341200828552246
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_0",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cylinder",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                0.6089410781860352,
+                                0.0,
+                                -0.16037201881408691
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                3.448404312133789,
+                                5.507157802581787,
+                                0.31752777099609375
+                            ]
+                        },
+                        "OverrideMaterials": [
+                            {
+                                "Base": "DefaultMaterial",
+                                "BaseColor": [
+                                    1.0,
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ],
+                                "UVScrollSpeed": [
+                                    0.0,
+                                    0.0
+                                ],
+                                "SamplerState": "LinearClamp",
+                                "BlendState": "Opaque",
+                                "Textures": [
+                                    "Assets/Checker.png"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                1.2922616004943848,
+                                7.2009124755859375,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                2.435110092163086,
+                                5.8880295753479,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                3.6157002449035645,
+                                4.580591201782227,
+                                -0.0006747245788574219
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 4,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                4.565215587615967,
+                                3.136049747467041,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                5.213976860046387,
+                                0.8100137710571289,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                4.816908836364746,
+                                -0.3659456968307495,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                4.586562633514404,
+                                -1.6785047054290771,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                4.412385940551758,
+                                -3.1198978424072266,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                3.2810864448547363,
+                                -4.554314613342285,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                2.8582653999328613,
+                                -5.769141674041748,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AParticleActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_0",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                1.8996806144714355,
+                                -6.132045745849609,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,31 @@
+BasedOnStyle: Microsoft
+UseTab: ForContinuationAndIndentation
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 4
+ColumnLimit: 200
+
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: None
+
+BinPackArguments: false
+BinPackParameters: OnePerLine
+AlignAfterOpenBracket: DontAlign
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+PenaltyBreakBeforeFirstCallParameter: 100
+
+SortIncludes: Never
+ReflowComments: false
+MaxEmptyLinesToKeep: 1
+
+# Group logical steps inside functions with a short comment and a blank line.
+# These groups must be written by the author; the formatter only preserves them.
