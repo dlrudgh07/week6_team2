@@ -89,6 +89,10 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   MainWindowSC = MainWindowCtx.Swapchain.get();
   Windows.Add(std::move(MainWindowCtx));
 
+  // 로딩 중에도 메시지를 처리하므로 창이 생긴 시점부터 실행 상태로 둔다.
+  // 로딩 도중 창을 닫으면 WM_QUIT가 이 값을 false로 바꾸고, Run은 바로 종료된다.
+  bIsRunning = true;
+
   FRenderResourceManager::Init();
 
   LOG(Info, "Initialize ImGui...");
@@ -111,7 +115,8 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   // 애셋 초기화 및 진행률 연동
   LOG(Info, "Initialize AssetManager...");
   UAssetManager::Get().Init([this](float Ratio, const FString& AssetName) {
-    if (LoadingScreen) {
+    // 창이 이미 닫혔으면 파괴된 창에 그리지 않는다.
+    if (LoadingScreen && bIsRunning) {
       LoadingScreen->SetProgress(Ratio);
       LoadingScreen->SetStatusText(AssetName);
       LoadingScreen->Tick(0.016f);
@@ -200,7 +205,6 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   SettingsPanel->SetViewportAdapter(&MultipleViewportsAdapter);
 
   ViewportsPanel->SetViewportAdapter(&MultipleViewportsAdapter);
-  bIsRunning = true;
   return true;
 }
 
