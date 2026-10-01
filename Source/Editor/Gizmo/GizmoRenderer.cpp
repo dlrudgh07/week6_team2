@@ -69,6 +69,10 @@ void FGizmoRenderer::OnRender(
 	const int HoveredAxis = Gizmo.GetHoveredAxis();
 
 	const FVector GizmoLocation = Gizmo.GetRenderLocationForView(CameraLocation, bCameraOrthographic);
+
+	// View마다 화면상 크기가 같도록 균일 배율을 먼저 적용한다.
+	FMatrix ViewScale = FMatrix::Identity;
+	ViewScale.M[0][0] = ViewScale.M[1][1] = ViewScale.M[2][2] = FGizmo::ComputeScreenScale(GizmoLocation, ViewProj);
 	// 축 3개
 	RenderCommand::BindMesh(AxisMesh);
 	Transform.Location = GizmoLocation;
@@ -92,7 +96,7 @@ void FGizmoRenderer::OnRender(
 		}
 
 		FGizmoData Data{};
-		Data.World = World;
+		Data.World = ViewScale * World;
 		Data.ViewProj = ViewProj;
 		Data.Color = (i == HoveredAxis)
 			? FVector4(1.0f, 1.0f, 0.0f, 1.0f)     // hover 시 노랑
@@ -107,7 +111,7 @@ void FGizmoRenderer::OnRender(
 		Transform.Rotation = FRotator(0.0f, 0.0f, 0.0f);
 
 		FGizmoData SphereData{};
-		SphereData.World = Transform.GetLocalMatrix();
+		SphereData.World = ViewScale * Transform.GetLocalMatrix();
 		SphereData.ViewProj = ViewProj;
 		SphereData.Color = (6 == HoveredAxis)
 			? FVector4(1.0f, 1.0f, 0.0f, 1.0f)     // hover 시 노랑
@@ -132,7 +136,7 @@ void FGizmoRenderer::OnRender(
 		FMatrix Trans = FMatrix::MakeTranslation(GizmoLocation);
 
 		FGizmoData Data{};
-		Data.World = Scale * Rot * Trans;
+		Data.World = ViewScale * Scale * Rot * Trans;
 		Data.ViewProj = ViewProj;
 		Data.Color = (6 == HoveredAxis)
 			? FVector4(1.0f, 1.0f, 0.0f, 1.0f)     // hover 시 노랑

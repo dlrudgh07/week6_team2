@@ -59,10 +59,13 @@ public:
 	inline FVector GetScale() const { return Target ? Target->GetRelativeScale3D() : FVector(0, 0, 0); }
 
 	FVector GetRenderLocation() const;
-	// 원근 View에서만 카메라 거리에 맞춰 크기 보정 위치를 구하고 직교 View는 월드 위치를 유지한다.
+	// 대상의 월드 위치를 표시 위치로 쓴다. 화면 크기 보정은 ComputeScreenScale이 맡는다.
 	FVector GetRenderLocationForView(const FVector& CameraLocation, bool bCameraOrthographic) const;
 	FVector GetCameraLocation() const;
 	FVector GetAxisDirection(int Axis) const;
+
+	// 카메라 거리·투영과 무관하게 화면상 크기가 일정하도록 Location에 적용할 월드 배율을 구한다.
+	static float ComputeScreenScale(const FVector& Location, const FMatrix& ViewProj);
 private:
 	EGizmoMode Mode = EGizmoMode::Location;
 	EGizmoSpace Space = EGizmoSpace::Local;
@@ -77,6 +80,7 @@ private:
 	FVector DragStartLocation;
 	FRotator DragStartRotation;
 	FVector DragStartScale;
+	float DragStartViewScale = 1.0f;
 	FVector DragAxisDirection;
 	FVector DragStartRenderLocation;
 
@@ -84,6 +88,7 @@ private:
 
 	FVector ViewCameraLocation{};
 	bool bViewCameraOrthographic = false;
+	float ViewScale = 1.0f;
 
 	float DragStartAngle;
 	float RingRadius = 1.0f;

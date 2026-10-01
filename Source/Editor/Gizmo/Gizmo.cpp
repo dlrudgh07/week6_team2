@@ -15,6 +15,21 @@ static const int AXIS_SCREEN = 6;   // 3축 자유 이동
 
 static const float AxisLength = 1.5f;
 static const float HitPixels = 12.0f;
+// Gizmo Mesh 1단위가 차지할 NDC 높이 (2.0이 View 전체 높이)
+static const float GizmoScreenSize = 0.2f;
+
+// 행 벡터 ViewProj에서 Location의 clip W와 NDC Y축 배율을 꺼내 화면 크기를 고정한다.
+// 원근은 W가 카메라 깊이, 직교는 W가 1이므로 두 투영을 같은 식으로 처리한다.
+float FGizmo::ComputeScreenScale(const FVector& Location, const FMatrix& ViewProj)
+{
+	const float W = Location.X * ViewProj.M[0][3] + Location.Y * ViewProj.M[1][3]
+		+ Location.Z * ViewProj.M[2][3] + ViewProj.M[3][3];
+	const float YScale = sqrtf(ViewProj.M[0][1] * ViewProj.M[0][1]
+		+ ViewProj.M[1][1] * ViewProj.M[1][1] + ViewProj.M[2][1] * ViewProj.M[2][1]);
+	if (YScale < 1e-6f || fabsf(W) < 1e-6f)
+		return 1.0f;
+	return GizmoScreenSize * fabsf(W) / YScale;
+}
 
 // 입력 View의 카메라 조건으로 축 선택과 드래그를 갱신한다.
 void FGizmo::Update(const FRay& MouseRay, const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH, bool bMouseDown, const FVector& CameraLocation, const bool bCameraOrthographic)
@@ -22,12 +37,14 @@ void FGizmo::Update(const FRay& MouseRay, const FVector2& MousePos, const FMatri
 	ViewCameraLocation = CameraLocation;
 	bViewCameraOrthographic = bCameraOrthographic;
 
-	if (!Target) // 만약 현재 타겟이 없다면 
+	if (!Target) // 만약 현재 타겟이 없다면
 	{
 		HoveredAxis = -1;
 		DraggingAxis = -1;
 		return;
 	}
+
+	ViewScale = ComputeScreenScale(GetRenderLocation(), ViewProj);
 
 	if (DraggingAxis >= 0) // 만약 드래그 중인 축이 있다면
 	{
@@ -71,7 +88,7 @@ int FGizmo::PickLinearAxis(const FVector2& MousePos, const FMatrix& ViewProj, in
 	for (int i = 0; i < 3; ++i)
 	{
 		FVector2 Start = WorldToScreen(Origin, ViewProj, ScreenW, ScreenH);
-		FVector2 End = WorldToScreen(Origin + GetAxisDirection(i) * AxisLength, ViewProj, ScreenW, ScreenH);
+		FVector2 End = WorldToScreen(Origin + GetAxisDirection(i) * (AxisLength * ViewScale), ViewProj, ScreenW, ScreenH);
 
 		float Dist = DistanceToSegment(MousePos, Start, End);
 		if (Dist < BestDist)
@@ -88,6 +105,7 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 {
 	const FVector Origin = GetRenderLocation();
 	const int Segments = 32;
+	const float ScaledRingRadius = RingRadius * ViewScale;
 
 	int Best = -1;
 	float BestDist = HitPixels;
@@ -104,8 +122,8 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 		{
 			float theta = (float)s / Segments * 2.0f * PI;
 			FVector worldPos = Origin
-				+ u * (RingRadius * cosf(theta))
-				+ v * (RingRadius * sinf(theta));
+				+ u * (ScaledRingRadius * cosf(theta))
+				+ v * (ScaledRingRadius * sinf(theta));
 
 			FVector2 screenPos = WorldToScreen(worldPos, ViewProj, ScreenW, ScreenH);
 
@@ -129,7 +147,7 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 	FVector u = FVector(0, 0, 1).Cross(Forward).Normalized();
 	FVector v = Forward.Cross(u);
 
-	const float ScreenRingRadius = RingRadius * 1.3f;  
+	const float ScreenRingRadius = ScaledRingRadius * 1.3f;
 
 	FVector2 prev;
 	bool bHasPrev = false;
@@ -169,6 +187,7 @@ void FGizmo::BeginDrag(int Axis, const FRay& MouseRay, const FVector2& MousePos)
 	DragStartRenderLocation = GetRenderLocation();    
 	DragStartRotation = GetRotation();
 	DragStartScale = GetScale();
+	DragStartViewScale = ViewScale;
 
 	DragAxisDirection = GetAxisDirection(Axis);
 	FVector axis = DragAxisDirection;
@@ -258,7 +277,8 @@ void FGizmo::UpdateDrag(const FRay& MouseRay, const FVector2& MousePos)
 		Target->SetRelativeLocation(DragStartLocation + DragAxisDirection * amount);
 	else   // Scale
 	{
-		float factor = 1.0f + amount;
+		// 월드 거리 대신 기즈모 크기 단위로 환산해 카메라 거리와 무관하게 같은 드래그 감도를 유지한다.
+		float factor = 1.0f + amount / DragStartViewScale;
 		if (factor < 0.01f) factor = 0.01f;
 
 		FVector NewScale = DragStartScale;
@@ -324,7 +344,7 @@ FVector FGizmo::GetRenderLocation() const
 	return GetRenderLocationForView(ViewCameraLocation, bViewCameraOrthographic);
 }
 
-// 직교에서는 대상 위치, 원근에서는 카메라 앞 일정 거리로 표시 위치를 정한다.
+// 대상의 월드 위치를 표시 위치로 쓴다. 화면 크기 보정은 ComputeScreenScale이 맡는다.
 FVector FGizmo::GetRenderLocationForView(const FVector& CameraLocation, const bool bCameraOrthographic) const
 {
 	if (!Target)
