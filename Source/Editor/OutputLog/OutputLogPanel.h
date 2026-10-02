@@ -2,7 +2,7 @@
 
 #include <format>
 #include "Editor/EditorUI/EditorPanel.h"
-#include "Core/EngineLog.h"
+#include "Logging/LogMacros.h"
 
 
 
@@ -12,7 +12,7 @@ struct FLogData
 	ImVec4 Color;
 };
 
-class FOutputLogPanel : public IEditorPanel, public ILogSink
+class FOutputLogPanel : public IEditorPanel, public FOutputDevice
 {
 public:
 	bool Init() override;
@@ -42,6 +42,6 @@ private:
 	bool                  AutoScroll;
 	bool                  ScrollToBottom;
 
-	// Inherited via ILogSink
-	void OnLog(ELogVerbosity, const FString& Message) override;
+	// Inherited via FOutputDevice
+	void Serialize(ELogVerbosity, const FString& Message) override;
 };

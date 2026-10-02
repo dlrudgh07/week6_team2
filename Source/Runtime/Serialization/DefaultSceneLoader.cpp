@@ -13,7 +13,7 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StaticMesh.h"
-#include "Core/EngineLog.h"
+#include "Logging/LogMacros.h"
 
 bool FDefaultSceneLoader::LoadScene(UWorld* World, const FString& Path, std::function<void(float)> OnProgress)
 {
@@ -81,7 +81,7 @@ bool FDefaultSceneLoader::LoadScene(UWorld* World, const FString& Path, std::fun
 						FTransform CamTransform = World->GetMainCamera()->GetActorTransform();
 						CamTransform.Location = FVector(X, Y, Z);
 						if (World->GetMainCamera()->GetRootComponent())
-							World->GetMainCamera()->GetRootComponent()->SetTransform(CamTransform);
+							World->GetMainCamera()->GetRootComponent()->SetRelativeTransform(CamTransform);
 					}
 				}
 			}
@@ -99,7 +99,7 @@ bool FDefaultSceneLoader::LoadScene(UWorld* World, const FString& Path, std::fun
 						FTransform CamTransform = World->GetMainCamera()->GetActorTransform();
 						CamTransform.Rotation = FRotator(Deg1, Deg2, Deg0);
 						if (World->GetMainCamera()->GetRootComponent())
-							World->GetMainCamera()->GetRootComponent()->SetTransform(CamTransform);
+							World->GetMainCamera()->GetRootComponent()->SetRelativeTransform(CamTransform);
 					}
 				}
 			}

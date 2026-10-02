@@ -18,10 +18,10 @@
 //Desc.Usage = D3D11_USAGE_DEFAULT;
 //Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 //
-//PanoramaTexture = RenderCommand::CreateTexture2D(Desc, Pixels);
+//PanoramaTexture = FRenderCommand::CreateTexture2D(Desc, Pixels);
 //stbi_image_free(Pixels);
 
-FImageData ImageLoader::Load(const FString& Path)
+FImageData FImageLoader::Load(const FString& Path)
 {
 	FImageData Result;
 
@@ -46,7 +46,7 @@ FImageData ImageLoader::Load(const FString& Path)
 	return Result;
 }
 
-FImageData ImageLoader::LoadHDR(const FString& Path)
+FImageData FImageLoader::LoadHDR(const FString& Path)
 {
 	FImageData Result;
 
@@ -71,7 +71,7 @@ FImageData ImageLoader::LoadHDR(const FString& Path)
 	return Result;
 }
 
-FImageData ImageLoader::LoadAuto(const FString& Path)
+FImageData FImageLoader::LoadAuto(const FString& Path)
 {
 	const fs::path Ext = fs::path(Path).extension();
 	if (Ext == ".hdr" || Ext == ".HDR") return LoadHDR(Path);

@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "Editor/OutputLog/OutputLogPanel.h"
 
-#include "Core/StatOverlay.h"
+#include "Stats/StatOverlay.h"
 
 static int TextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
@@ -184,7 +184,7 @@ void FOutputLogPanel::ExecCommand(const FString& CommandLine)
 		FLog::Log(ELogVerbosity::Info, "Commands:");
 		for (const FString& Command : Commands)
 			FLog::Log(ELogVerbosity::Info, "- {}", Command);
-		OnLog(ELogVerbosity::Info, "- STAT <fps|memory|picking|all|none>");
+		Serialize(ELogVerbosity::Info, "- STAT <fps|memory|picking|all|none>");
 	}
 	else if (EqualsIgnoreCase(CommandLine, "HISTORY"))
 	{
@@ -302,7 +302,7 @@ int FOutputLogPanel::TextEditCallback(ImGuiInputTextCallbackData* data)
 	return 0;
 }
 
-void FOutputLogPanel::OnLog(ELogVerbosity Verbosity, const FString& Message)
+void FOutputLogPanel::Serialize(ELogVerbosity Verbosity, const FString& Message)
 {
 	FLogData LogData;
 

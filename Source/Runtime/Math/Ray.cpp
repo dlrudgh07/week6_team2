@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "Ray.h"
-#include "Rendering/StaticMeshData.h"
-#include "Math/EngineMath.h"
+#include "Rendering/StaticMeshResources.h"
+#include "Math/UnrealMathUtility.h"
 
 #include <algorithm>
 #include <array>
@@ -21,7 +21,7 @@ FVector MaxVector(const FVector& A, const FVector& B)
 	return {std::max(A.X, B.X), std::max(A.Y, B.Y), std::max(A.Z, B.Z)};
 }
 
-FBox GetTriangleBounds(const FStaticMeshData& Mesh, const uint32 TriangleIndex)
+FBox GetTriangleBounds(const FStaticMeshRenderData& Mesh, const uint32 TriangleIndex)
 {
 	const uint32 FirstIndex = TriangleIndex * 3;
 	const FVector& A = Mesh.Vertices[Mesh.Indices[FirstIndex]].Position;
@@ -30,7 +30,7 @@ FBox GetTriangleBounds(const FStaticMeshData& Mesh, const uint32 TriangleIndex)
 	return {MinVector(A, MinVector(B, C)), MaxVector(A, MaxVector(B, C))};
 }
 
-FVector GetTriangleCentroid(const FStaticMeshData& Mesh, const uint32 TriangleIndex)
+FVector GetTriangleCentroid(const FStaticMeshRenderData& Mesh, const uint32 TriangleIndex)
 {
 	const uint32 FirstIndex = TriangleIndex * 3;
 	return (Mesh.Vertices[Mesh.Indices[FirstIndex]].Position + Mesh.Vertices[Mesh.Indices[FirstIndex + 1]].Position + Mesh.Vertices[Mesh.Indices[FirstIndex + 2]].Position) / 3.0f;
@@ -66,7 +66,7 @@ int32 SAHBinIndex(const float Centroid, const float Minimum, const float Scale)
 	return std::clamp(static_cast<int32>((Centroid - Minimum) * Scale), 0, PickingSAHBinCount - 1);
 }
 
-uint32 BuildPickingBVHNode(const FStaticMeshData& Mesh, const FPickingBuildData& Data, const uint32 First, const uint32 Count)
+uint32 BuildPickingBVHNode(const FStaticMeshRenderData& Mesh, const FPickingBuildData& Data, const uint32 First, const uint32 Count)
 {
 	const uint32 NodeIndex = Mesh.PickingBVHNodes.Add(FMeshPickingBVHNode{});
 	FBox Bounds = Data.TriangleBounds[Mesh.PickingTriangleIndices[First]];
@@ -218,7 +218,7 @@ uint32 BuildPickingBVHNode(const FStaticMeshData& Mesh, const FPickingBuildData&
 }
 
 // 이진 트리를 4갈래로 합친다. 자식이 4개가 될 때까지 면적이 가장 큰 안쪽 자식을 그 자식 둘로 펼친다.
-uint32 BuildPickingBVHNode4(const FStaticMeshData& Mesh, const uint32 NodeIndex)
+uint32 BuildPickingBVHNode4(const FStaticMeshRenderData& Mesh, const uint32 NodeIndex)
 {
 	const TArray<FMeshPickingBVHNode>& Nodes = Mesh.PickingBVHNodes;
 	uint32 Children[4] = {Nodes[NodeIndex].Left, Nodes[NodeIndex].Right, 0, 0};
@@ -256,7 +256,7 @@ uint32 BuildPickingBVHNode4(const FStaticMeshData& Mesh, const uint32 NodeIndex)
 	return Node4Index;
 }
 
-void EnsurePickingBVH(const FStaticMeshData& Mesh)
+void EnsurePickingBVH(const FStaticMeshRenderData& Mesh)
 {
 	if (Mesh.bPickingBVHBuilt)
 		return;
@@ -298,7 +298,7 @@ void EnsurePickingBVH(const FStaticMeshData& Mesh)
 	Mesh.bPickingBVHBuilt = true;
 }
 
-void TraceTriangle(const FRay& Ray, const FStaticMeshData& Mesh, const uint32 TriangleIndex, float& InOutNearestT, bool& bInOutHit)
+void TraceTriangle(const FRay& Ray, const FStaticMeshRenderData& Mesh, const uint32 TriangleIndex, float& InOutNearestT, bool& bInOutHit)
 {
 	const uint32 FirstIndex = TriangleIndex * 3;
 	const FVector& A = Mesh.Vertices[Mesh.Indices[FirstIndex]].Position;
@@ -324,7 +324,7 @@ void TraceTriangle(const FRay& Ray, const FPickingTriangle& Triangle, float& InO
 }
 
 // NodeDistance는 부모가 이미 구한 이 노드의 박스 진입 거리다 (루트는 0). 박스를 다시 검사하지 않는다.
-void TracePickingBVHNode(const FTraceContext& Context, const FStaticMeshData& Mesh, const uint32 Node4Index, const float NodeDistance, float& InOutNearestT, bool& bInOutHit)
+void TracePickingBVHNode(const FTraceContext& Context, const FStaticMeshRenderData& Mesh, const uint32 Node4Index, const float NodeDistance, float& InOutNearestT, bool& bInOutHit)
 {
 	if (NodeDistance >= InOutNearestT)
 		return;
@@ -350,7 +350,7 @@ void TracePickingBVHNode(const FTraceContext& Context, const FStaticMeshData& Me
 }
 } // namespace
 
-void PrepareMeshPickingBVH(const FStaticMeshData& Mesh)
+void PrepareMeshPickingBVH(const FStaticMeshRenderData& Mesh)
 {
 	EnsurePickingBVH(Mesh);
 }
@@ -607,7 +607,7 @@ bool RayIntersectsTriangle(const FRay& Ray, const FVector& v1, const FVector& v2
 }
 
 // Mesh AABB를 통과한 Ray에 삼각형 교차를 적용해 가장 가까운 거리만 반환한다.
-bool RayIntersectsMesh(const FRay& LocalRay, const FStaticMeshData& Mesh, float& OutT, const float MaxT)
+bool RayIntersectsMesh(const FRay& LocalRay, const FStaticMeshRenderData& Mesh, float& OutT, const float MaxT)
 {
 	PrepareMeshPickingBVH(Mesh);
 	bool bHit = false;
@@ -631,40 +631,40 @@ bool RayIntersectsMesh(const FRay& LocalRay, const FStaticMeshData& Mesh, float&
 	return bHit;
 }
 
-FVector2 WorldToScreen(const FVector& WorldPos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
+FVector2D WorldToScreen(const FVector& WorldPos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
 {
 	FVector4 clip = FVector4(WorldPos.X, WorldPos.Y, WorldPos.Z, 1.0f) * ViewProj;
 
 	if (clip.W < 0.0001f)
-		return FVector2(-FLT_MAX, -FLT_MAX);
+		return FVector2D(-FLT_MAX, -FLT_MAX);
 
 	float ndcX = clip.X / clip.W;
 	float ndcY = clip.Y / clip.W;
 
-	FVector2 result;
+	FVector2D result;
 	result.X = (ndcX * 0.5f + 0.5f) * ScreenW;
 	result.Y = (1.0f - (ndcY * 0.5f + 0.5f)) * ScreenH; // Y 뒤집기
 	return result;
 }
 
-float DistanceToSegment(const FVector2& P, const FVector2& A, const FVector2& B)
+float DistanceToSegment(const FVector2D& P, const FVector2D& A, const FVector2D& B)
 {
-	FVector2 seg = B - A;
+	FVector2D seg = B - A;
 	float segLenSq = seg.X * seg.X + seg.Y * seg.Y;
 
 	if (segLenSq < 1e-6f)
 	{
-		FVector2 d = P - A;
+		FVector2D d = P - A;
 		return sqrtf(d.X * d.X + d.Y * d.Y);
 	}
 
-	FVector2 toP = P - A;
+	FVector2D toP = P - A;
 	float t = (toP.X * seg.X + toP.Y * seg.Y) / segLenSq;
 
 	t = (t < 0.0f) ? 0.0f : ((t > 1.0f) ? 1.0f : t);
 
-	FVector2 closest = A + seg * t;
-	FVector2 diff = P - closest;
+	FVector2D closest = A + seg * t;
+	FVector2D diff = P - closest;
 	return sqrtf(diff.X * diff.X + diff.Y * diff.Y);
 }
 

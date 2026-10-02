@@ -13,7 +13,7 @@ const TArray<AActor*>& ULevel::GetActors() const
 	return Actors;
 }
 
-uint32 ULevel::GetActorNum() const
+uint32 ULevel::GetActorCount() const
 {
 	return Actors.Num();
 }

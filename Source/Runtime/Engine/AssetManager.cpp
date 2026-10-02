@@ -1,16 +1,16 @@
 #include "EnginePCH.h"
 #include "AssetManager.h"
 
-#include "Rendering/Buffer.h"
+#include "RHI/RHIBuffer.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/Material.h"
 #include "Rendering/Vertex.h"
-#include "Rendering/Texture2D.h"
+#include "Engine/Texture2D.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/RenderResourceManager.h"
 #include "Asset/ObjImporter/ObjImporter.h"
 #include "Rendering/GeometryGenerator.h"
-#include "UObject/ObjectFactory.h"
+#include "UObject/UObjectGlobals.h"
 #include "Rendering/ImageLoader.h"
 #include "Math/Ray.h"
 
@@ -19,7 +19,7 @@
 
 namespace
 {
-	UStaticMesh* CreateStaticMesh(const FStaticMeshData* MeshData)
+	UStaticMesh* CreateStaticMesh(const FStaticMeshRenderData* MeshData)
 	{
 		if (!MeshData || !MeshData->Vertices.Num() || !MeshData->Indices.Num())
 			return nullptr;
@@ -32,7 +32,7 @@ namespace
 		// Mesh에 MaterialSlot 없을 경우 Default Material 할당
 		if (Mesh->MeshData.MaterialSlots.IsEmpty())
 		{
-			FStaticMaterialSlot DefaultSlot;
+			FStaticMaterial DefaultSlot;
 			DefaultSlot.Name = "Default";
 			Mesh->MeshData.MaterialSlots.Add(DefaultSlot);
 		}
@@ -96,12 +96,12 @@ namespace
 		PrepareMeshPickingBVH(Mesh->MeshData);
 
 		// Vertex/Index GPU 업로드
-		Mesh->VertexBuffer = RenderCommand::CreateStaticVertexBuffer(
+		Mesh->VertexBuffer = FRenderCommand::CreateStaticVertexBuffer(
 			Mesh->MeshData.Vertices.GetData(),
 			sizeof(FVertexPNCT) * static_cast<uint32>(Mesh->MeshData.Vertices.size()),
 			sizeof(FVertexPNCT)
 		);
-		Mesh->IndexBuffer = RenderCommand::CreateStaticIndexBuffer(
+		Mesh->IndexBuffer = FRenderCommand::CreateStaticIndexBuffer(
 			Mesh->MeshData.Indices.GetData(),
 			static_cast<uint32>(Mesh->MeshData.Indices.size())
 		);
@@ -120,7 +120,7 @@ namespace
 		}
 
 		// MaterialSlots를 실제 UMaterial로 변환
-		for (const FStaticMaterialSlot& Slot : Mesh->MeshData.MaterialSlots)
+		for (const FStaticMaterial& Slot : Mesh->MeshData.MaterialSlots)
 		{
 			UMaterial* Material = UMaterial::CreateInstance(DefaultMaterial);
 			if (!Material)
@@ -247,7 +247,7 @@ void UAssetManager::CreateDefaultTextures()
 	Desc.Usage = D3D11_USAGE_IMMUTABLE;
 	Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-	TUniquePtr<FTexture2D> Resource = RenderCommand::CreateTexture2D(Desc, &WhitePixel);
+	TUniquePtr<FRHITexture2D> Resource = FRenderCommand::CreateTexture2D(Desc, &WhitePixel);
 	if (!Resource)
 	{
 		return;
@@ -263,39 +263,39 @@ void UAssetManager::CreateDefaultTextures()
 void UAssetManager::CreateDefaultMeshes()
 {
 	// 메시 데이터 업로드
-	FStaticMeshData* CubeData = FGeometryGenerator::GetMeshData("Cube");
+	FStaticMeshRenderData* CubeData = FGeometryGenerator::GetMeshData("Cube");
 	RegisterAsset("Cube", CreateStaticMesh(CubeData));
 
-	FStaticMeshData* ConeData = FGeometryGenerator::GetMeshData("Cone");
+	FStaticMeshRenderData* ConeData = FGeometryGenerator::GetMeshData("Cone");
 	RegisterAsset("Cone", CreateStaticMesh(ConeData));
 
-	FStaticMeshData* SphereData = FGeometryGenerator::GetMeshData("Sphere");
+	FStaticMeshRenderData* SphereData = FGeometryGenerator::GetMeshData("Sphere");
 	RegisterAsset("Sphere", CreateStaticMesh(SphereData));
 
-	FStaticMeshData* CylinderData = FGeometryGenerator::GetMeshData("Cylinder");
+	FStaticMeshRenderData* CylinderData = FGeometryGenerator::GetMeshData("Cylinder");
 	RegisterAsset("Cylinder", CreateStaticMesh(CylinderData));
 
-	FStaticMeshData* PlaneData = FGeometryGenerator::GetMeshData("Plane");
+	FStaticMeshRenderData* PlaneData = FGeometryGenerator::GetMeshData("Plane");
 	RegisterAsset("Plane", CreateStaticMesh(PlaneData));
 
-	FStaticMeshData* ArrowMeshData = FGeometryGenerator::GetMeshData("Arrow");
+	FStaticMeshRenderData* ArrowMeshData = FGeometryGenerator::GetMeshData("Arrow");
 	RegisterAsset("Arrow", CreateStaticMesh(ArrowMeshData));
 
-	FStaticMeshData* RingMeshData = FGeometryGenerator::GetMeshData("Ring");
+	FStaticMeshRenderData* RingMeshData = FGeometryGenerator::GetMeshData("Ring");
 	RegisterAsset("Ring", CreateStaticMesh(RingMeshData));
 
-	FStaticMeshData* ScaleBarData = FGeometryGenerator::GetMeshData("ScaleBar");
+	FStaticMeshRenderData* ScaleBarData = FGeometryGenerator::GetMeshData("ScaleBar");
 	RegisterAsset("ScaleBar", CreateStaticMesh(ScaleBarData));
 
-	FStaticMeshData* GizmoSphereData = FGeometryGenerator::GetMeshData("GizmoSphere");
+	FStaticMeshRenderData* GizmoSphereData = FGeometryGenerator::GetMeshData("GizmoSphere");
 	RegisterAsset("GizmoSphere", CreateStaticMesh(GizmoSphereData));
 
 	const FParticleVertex Vertices[] =
 	{
-		{ FVector(0.0f, -0.5f,  0.5f), FVector2(0.0f, 0.0f) },
-		{ FVector(0.0f, 0.5f,  0.5f), FVector2(1.0f, 0.0f) },
-		{ FVector(0.0f, 0.5f, -0.5f), FVector2(1.0f, 1.0f) },
-		{ FVector(0.0f, -0.5f, -0.5f), FVector2(0.0f, 1.0f) }
+		{ FVector(0.0f, -0.5f,  0.5f), FVector2D(0.0f, 0.0f) },
+		{ FVector(0.0f, 0.5f,  0.5f), FVector2D(1.0f, 0.0f) },
+		{ FVector(0.0f, 0.5f, -0.5f), FVector2D(1.0f, 1.0f) },
+		{ FVector(0.0f, -0.5f, -0.5f), FVector2D(0.0f, 1.0f) }
 	};
 
 	const uint32 Indices[] =
@@ -305,10 +305,10 @@ void UAssetManager::CreateDefaultMeshes()
 	};
 
 	UStaticMesh* Mesh = FObjectFactory::ConstructObject<UStaticMesh>();
-	Mesh->VertexBuffer = RenderCommand::CreateStaticVertexBuffer(
+	Mesh->VertexBuffer = FRenderCommand::CreateStaticVertexBuffer(
 		Vertices,
 		sizeof(Vertices), sizeof(FParticleVertex));
-	Mesh->IndexBuffer = RenderCommand::CreateStaticIndexBuffer(
+	Mesh->IndexBuffer = FRenderCommand::CreateStaticIndexBuffer(
 		Indices,
 		ARRAYSIZE(Indices));
 
@@ -335,7 +335,7 @@ void UAssetManager::CreateDefaultMaterial()
 	UMaterial* DefaultMat = FObjectFactory::ConstructObject<UMaterial>();
 	DefaultMat->PSOType = EPSOType::StaticMesh_Opaque;
 	DefaultMat->Textures.Add(GetAssetByKey<UTexture2D>("WhiteTexture"));
-	DefaultMat->ParamBuffer = RenderCommand::CreateConstantBuffer(sizeof(FStaticMeshMaterialParams));
+	DefaultMat->ParamBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FStaticMeshMaterialParams));
 	RegisterAsset("DefaultMaterial", DefaultMat);
 }
 
@@ -344,7 +344,7 @@ void UAssetManager::CreateParticleMaterial()
 	UMaterial* ParticleMat = FObjectFactory::ConstructObject<UMaterial>();
 	ParticleMat->PSOType = EPSOType::Particle_AlphaBlend;
 	ParticleMat->Textures.Add(GetAssetByKey<UTexture2D>("Assets/SubUV/StarParticle.png"));
-	ParticleMat->ParamBuffer = RenderCommand::CreateConstantBuffer(256);
+	ParticleMat->ParamBuffer = FRenderCommand::CreateConstantBuffer(256);
 	RegisterAsset("SubUVMaterial", ParticleMat);
 }
 
@@ -368,7 +368,7 @@ UTexture2D* UAssetManager::LoadTexture(const FString& InPath)
 		return Cast<UTexture2D>(*Found);
 	}
 
-	FImageData Data = ImageLoader::LoadAuto(InPath);
+	FImageData Data = FImageLoader::LoadAuto(InPath);
 	if (!Data.IsValid()) return nullptr;
 
 	D3D11_TEXTURE2D_DESC Desc{};
@@ -381,7 +381,7 @@ UTexture2D* UAssetManager::LoadTexture(const FString& InPath)
 	Desc.Usage = D3D11_USAGE_IMMUTABLE;
 	Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-	TUniquePtr<FTexture2D> Resource = RenderCommand::CreateTexture2D(Desc, Data);
+	TUniquePtr<FRHITexture2D> Resource = FRenderCommand::CreateTexture2D(Desc, Data);
 
 	if (!Resource) return nullptr;
 
@@ -420,7 +420,7 @@ UStaticMesh* UAssetManager::LoadObjStaticMesh(const FString& Path)
 	}
 
 	EObjAxisPreset Preset = EObjAxisPreset::Default;
-	TUniquePtr<FStaticMeshData> Data = FObjImporter::LoadStaticMeshData(Path, Preset);
+	TUniquePtr<FStaticMeshRenderData> Data = FObjImporter::LoadStaticMeshData(Path, Preset);
 
 	UStaticMesh* Mesh = CreateStaticMesh(Data.get());   // Data가 nullptr이면 nullptr 반환
 	if (!Mesh)
@@ -448,7 +448,7 @@ bool UAssetManager::ReimportStaticMesh(UStaticMesh* Mesh)
 
 	std::filesystem::remove(*Path + ".bin");
 
-	TUniquePtr<FStaticMeshData> Data = FObjImporter::LoadStaticMeshData(*Path, Mesh->ImportAxisPreset);
+	TUniquePtr<FStaticMeshRenderData> Data = FObjImporter::LoadStaticMeshData(*Path, Mesh->ImportAxisPreset);
 
 	if (!Data)
 	{

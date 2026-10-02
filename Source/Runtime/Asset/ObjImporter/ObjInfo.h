@@ -3,10 +3,10 @@
 #pragma once
 
 #include "Containers/Array.h"
-#include "Core/EngineString.h"
-#include "Core/Types.h"
+#include "Containers/UnrealString.h"
+#include "HAL/Platform.h"
 #include "Math/Vector.h"
-#include "Math/Vector2.h"
+#include "Math/Vector2D.h"
 
 #include <functional>
 
@@ -58,7 +58,7 @@ struct FObjInfo
 {
 	FString Path; // 저장소 루트 기준
 	TArray<FVector> Positions;
-	TArray<FVector2> UVs;
+	TArray<FVector2D> UVs;
 	TArray<FVector> Normals;
 	TArray<FObjFace> Faces;
 	TArray<FObjSection> Sections;

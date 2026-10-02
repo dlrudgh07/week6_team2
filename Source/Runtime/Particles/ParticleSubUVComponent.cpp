@@ -114,7 +114,7 @@ void UParticleSubUVComponent::SubmitToRenderPackets(TArray<FRenderPacket>& OutPa
 	Constants.Reset();
 	Constants.Reserve(Particles.Num());
 
-	const FVector CameraPos = GetOwner()->GetWorld()->GetMainCamera()->GetCameraComponent()->GetWorldLocation();
+	const FVector CameraPos = GetOwner()->GetWorld()->GetMainCamera()->GetCameraComponent()->GetComponentLocation();
 	for (FParticle& Particle : Particles)
 	{
 		if (Particle.bAlive == false)
@@ -177,7 +177,7 @@ void UParticleSubUVComponent::SubmitToRenderPackets(TArray<FRenderPacket>& OutPa
 // 파티클 위치·속도·수명 등 재생성 상태를 초기화한다.
 void UParticleSubUVComponent::RespawnParticle(FParticle& Particle)
 {
-	Particle.Location = GetWorldLocation();
+	Particle.Location = GetComponentLocation();
 
 	Particle.Velocity.X = 0.0f;
 	Particle.Velocity.Y = 0.0f;

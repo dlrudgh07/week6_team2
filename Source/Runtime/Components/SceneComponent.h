@@ -2,7 +2,7 @@
 
 #include "../Math/Transform.h"
 #include "ActorComponent.h"
-#include "Rendering/StaticMeshData.h"
+#include "Rendering/StaticMeshResources.h"
 
 class USceneComponent : public UActorComponent
 {
@@ -53,11 +53,11 @@ class USceneComponent : public UActorComponent
 		return Transform.GetOrientation();
 	}
 
-	const FTransform& GetTransform() const
+	const FTransform& GetRelativeTransform() const
 	{
 		return Transform;
 	}
-	void SetTransform(const FTransform& InTransform)
+	void SetRelativeTransform(const FTransform& InTransform)
 	{
 		Transform = InTransform;
 		MarkTransformDirtyRecursive();
@@ -74,7 +74,7 @@ class USceneComponent : public UActorComponent
 		return AttachChildren;
 	}
 	void SetupAttachment(USceneComponent* InParent);
-	void DetachFromParent();
+	void DetachFromComponent();
 
 	virtual FBox CalcLocalBounds() const
 	{
@@ -85,9 +85,9 @@ class USceneComponent : public UActorComponent
 		return CalcLocalBounds().GetWorldAABB(GetWorldMatrix());
 	}
 
-	FVector GetWorldLocation() const;
-	FRotator GetWorldRotation() const;
-	FVector GetWorldScale3D() const;
+	FVector GetComponentLocation() const;
+	FRotator GetComponentRotation() const;
+	FVector GetComponentScale() const;
 	FMatrix GetWorldMatrix() const;
 
 	// Bounds 또는 Transform 변경을 현재 컴포넌트와 모든 자식 캐시에 전파한다.

@@ -2,7 +2,7 @@
 #include "StaticMeshActor.h"
 
 #include "Components/PrimitiveComponent.h"
-#include "UObject/ObjectFactory.h"
+#include "UObject/UObjectGlobals.h"
 #include "Engine/AssetManager.h"
 
 namespace

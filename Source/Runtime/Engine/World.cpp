@@ -2,7 +2,7 @@
 #include "World.h"
 
 #include "Level.h"
-#include "UObject/ObjectFactory.h"
+#include "UObject/UObjectGlobals.h"
 #include "Core/EngineStatics.h"
 #include "Engine/StaticMeshActor.h"
 #include "Camera/CameraActor.h"
@@ -64,7 +64,7 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 
 	if (NewActor->GetRootComponent())
 	{
-		NewActor->GetRootComponent()->SetTransform(SpawnTransform);
+		NewActor->GetRootComponent()->SetRelativeTransform(SpawnTransform);
 
 		AddComponent(Cast<UPrimitiveComponent>(NewActor->GetRootComponent()));
 	}
@@ -119,7 +119,7 @@ void UWorld::ClearWorld()
 	TickActors.Reset();
 	++PrimitiveTopologyRevision;
 	PrimitiveBVH.Reset();
-	LOG(Info, "{} : ", Level->GetActorNum());
+	LOG(Info, "{} : ", Level->GetActorCount());
 }
 
 void UWorld::GatherRenderPackets(TArray<FRenderPacket>& OutPackets)
@@ -163,14 +163,14 @@ ACameraActor* UWorld::GetMainCamera() const
 	return MainCamera;
 }
 
-ULevel* UWorld::GetLevel() const
+ULevel* UWorld::GetCurrentLevel() const
 {
 	return Level;
 }
 
-int32 UWorld::GetActorNum()
+int32 UWorld::GetActorCount()
 {
-	return Level->GetActorNum();
+	return Level->GetActorCount();
 }
 
 bool UWorld::DestroyActor(AActor* Actor)

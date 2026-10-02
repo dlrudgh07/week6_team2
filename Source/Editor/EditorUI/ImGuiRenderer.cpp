@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "Editor/EditorUI/ImGuiRenderer.h"
 
-#include "Core/Window.h"
+#include "Windows/WindowsWindow.h"
 #include "Input/InputSystem.h"
 
 #include <backends/imgui_impl_dx11.h>
@@ -11,7 +11,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM,
 
 namespace
 {
-	// FWindow가 ImGui를 직접 알지 않도록 메시지 처리기를 훅으로 등록한다.
+	// FWindowsWindow가 ImGui를 직접 알지 않도록 메시지 처리기를 훅으로 등록한다.
 	bool ImGuiWndProcHook(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		return ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam) != 0;
@@ -104,7 +104,7 @@ bool FImGuiRenderer::Init(HWND WindowHandle, ID3D11Device* Device, ID3D11DeviceC
 
 	ImGui_ImplWin32_Init(WindowHandle);
 	ImGui_ImplDX11_Init(Device, DeviceContext);
-	FWindow::SetWndProcHook(&ImGuiWndProcHook);
+	FWindowsWindow::SetWndProcHook(&ImGuiWndProcHook);
 
 	ApplyDefaultStyle();
 

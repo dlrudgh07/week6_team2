@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Math/EngineMath.h"
+#include "Math/UnrealMathUtility.h"
 
 #include <cfloat>
 
-struct FStaticMeshData;
+struct FStaticMeshRenderData;
 struct FPickingBVHNode4;
 class UBillboardComponent;
 class UPrimitiveComponent;
@@ -71,13 +71,13 @@ bool RayIntersectsBoundingSphere(const FTraceContext& Context, const FVector& Sp
 bool RayIntersectsTriangle(const FRay& Ray, const FVector& v1, const FVector& v2, const FVector& v3, float& OutT);
 
 // StaticMesh 로드 시 피킹용 Triangle BVH를 미리 구축해 첫 클릭 비용을 제거한다.
-void PrepareMeshPickingBVH(const FStaticMeshData& Mesh);
+void PrepareMeshPickingBVH(const FStaticMeshRenderData& Mesh);
 
 // MaxT보다 가까운 교차만 찾는다. 로컬 레이 방향이 비정규화라 t는 월드 거리와 같으므로 전역 최근접 거리를 넘길 수 있다.
-bool RayIntersectsMesh(const FRay& LocalRay, const FStaticMeshData& Mesh, float& OutT, float MaxT = FLT_MAX);
+bool RayIntersectsMesh(const FRay& LocalRay, const FStaticMeshRenderData& Mesh, float& OutT, float MaxT = FLT_MAX);
 
-FVector2 WorldToScreen(const FVector& WorldPos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
+FVector2D WorldToScreen(const FVector& WorldPos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
 
-float DistanceToSegment(const FVector2& P, const FVector2& A, const FVector2& B);
+float DistanceToSegment(const FVector2D& P, const FVector2D& A, const FVector2D& B);
 
 bool RayIntersectsPlane(const FRay& Ray, const FVector& PlanePoint, const FVector& PlaneNormal, float& OutT);

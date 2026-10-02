@@ -112,7 +112,7 @@ void UBillboardComponent::GetWorldTransformedMatrix(FMatrix* OutWorldMatrix) con
 {
 	OutWorldMatrix->SetIdentity();
 
-	const FTransform& Transform = GetOwner()->GetWorld()->GetMainCamera()->GetCameraComponent()->GetTransform();
+	const FTransform& Transform = GetOwner()->GetWorld()->GetMainCamera()->GetCameraComponent()->GetRelativeTransform();
 
 	FVector Right = Transform.GetRight().Normalized();
 	FVector Up = Transform.GetUp().Normalized();
@@ -128,8 +128,8 @@ void UBillboardComponent::GetWorldTransformedMatrix(FMatrix* OutWorldMatrix) con
 		BbFwd = FVector::Cross(BbUp, BbRight);
 	}
 
-	const FVector WorldPos = GetWorldLocation();
-	const FVector WorldScale = GetWorldScale3D();
+	const FVector WorldPos = GetComponentLocation();
+	const FVector WorldScale = GetComponentScale();
 
 	// Y -> Billboard Right
 	OutWorldMatrix->M[0][0] = BbFwd.X;

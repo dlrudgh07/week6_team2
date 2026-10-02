@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Core/Application.h"
-#include "Core/Window.h"
-#include "Core/Types.h"
+#include "Windows/WindowsWindow.h"
+#include "HAL/Platform.h"
 
 #include "Engine/World.h"
 #include "Rendering/Renderer.h"
-#include "Rendering/RenderDevice.h"
-#include "Rendering/Swapchain.h"
+#include "RHI/DynamicRHI.h"
+#include "RHI/Swapchain.h"
 #include "Editor/EditorUI/ImGuiRenderer.h"
 #include "Editor/Rendering/GridRenderer.h"
 #include "Editor/Gizmo/GizmoRenderer.h"
@@ -38,7 +38,7 @@ class FLoadingScreen;
 struct FWindowContext
 {
 	// 창 하나와 그 창에 연결된 Swapchain의 소유권을 함께 담는다.
-	TUniquePtr<FWindow> Window;
+	TUniquePtr<FWindowsWindow> Window;
 	TUniquePtr<FSwapchain> Swapchain;
 };
 
@@ -75,10 +75,10 @@ private:
 	bool bIsRunning = false;
 	bool bIsResized = false;
 
-	TUniquePtr<FRenderDevice> RenderDevice;
+	TUniquePtr<FDynamicRHI> RenderDevice;
 
 	TArray<FWindowContext> Windows;
-	FWindow* MainWindow;
+	FWindowsWindow* MainWindow;
 	FSwapchain* MainWindowSC;
 
 	UWorld* World;

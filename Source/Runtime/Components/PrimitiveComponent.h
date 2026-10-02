@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SceneComponent.h"
-#include "../Rendering/Shader.h"
+#include "RHI/RHIShader.h"
 #include "Engine/StaticMesh.h"
 #include "Rendering/RenderPacket.h"
 #include "Rendering/GeometryGenerator.h"
@@ -36,7 +36,7 @@ public:
 
 	virtual void SubmitToRenderPackets(TArray<FRenderPacket>& OutPackets);
 
-	virtual const FStaticMeshData* GetMeshData() const { return nullptr; }
+	virtual const FStaticMeshRenderData* GetMeshData() const { return nullptr; }
 
 	// Outline처럼 컴포넌트를 통째로 한 번 더 그릴 때 쓰는 GPU 메시.
 	// 메시가 없거나(텍스트) View에 따라 형상이 정해지는 컴포넌트(빌보드·파티클)는
@@ -47,10 +47,10 @@ public:
 	virtual UMaterial* GetMaterial(int32 SlotIndex) const { return nullptr; }
 	virtual void SetMaterial(int32 SlotIndex, UMaterial* InMaterial) {}
 	//
-	// FShader* GetShader() const { return Shader.get(); };
+	// FRHIShader* GetShader() const { return Shader.get(); };
 
 	bool IsVisible() const { return bVisible; }
-	void SetVisible(bool bInVisible)
+	void SetVisibility(bool bInVisible)
 	{
 		if (bVisible == bInVisible)
 			return;
@@ -64,7 +64,7 @@ public:
 	virtual bool LineTraceWithContext(const FTraceContext& Context, FHitResult& OutHit);
 	virtual FBox CalcLocalBounds() const override
 	{
-		const FStaticMeshData* Data = GetMeshData();
+		const FStaticMeshRenderData* Data = GetMeshData();
 		return Data ? Data->AABB : Super::CalcLocalBounds();
 	}
 
@@ -74,7 +74,7 @@ public:
 
 protected:
 	virtual void OnBoundsMarkedDirty() override;
-	bool TraceMesh(const FRay& WorldRay, const FStaticMeshData& Mesh, const FMatrix& WorldMatrix, FHitResult& OutResult, float MaxT = FLT_MAX);
+	bool TraceMesh(const FRay& WorldRay, const FStaticMeshRenderData& Mesh, const FMatrix& WorldMatrix, FHitResult& OutResult, float MaxT = FLT_MAX);
 	bool bVisible = true;
 
 	/*TArray<UMaterial* MaterialOverride = nullptr;*/

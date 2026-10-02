@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/EngineMath.h"
+#include "Math/UnrealMathUtility.h"
 #include "Math/Rotator.h"
 
 struct FTransform

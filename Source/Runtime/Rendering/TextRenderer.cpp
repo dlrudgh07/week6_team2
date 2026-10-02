@@ -44,11 +44,11 @@ void FTextRenderer::Init(uint32 InMaxCharacters)
 	MaxIndices = MaxCharacters * 6;  // 글자당 삼각형 2개(6인덱스)
 
 	// 다이나믹 버텍스/인덱스 버퍼 생성 (D3D11_USAGE_DYNAMIC, CPU_ACCESS_WRITE)
-	VertexBuffer = RenderCommand::CreateDynamicVertexBuffer(sizeof(FTextVertex) * MaxVertices, sizeof(FTextVertex));
-	IndexBuffer = RenderCommand::CreateDynamicIndexBuffer(sizeof(uint32) * MaxIndices);
+	VertexBuffer = FRenderCommand::CreateDynamicVertexBuffer(sizeof(FTextVertex) * MaxVertices, sizeof(FTextVertex));
+	IndexBuffer = FRenderCommand::CreateDynamicIndexBuffer(sizeof(uint32) * MaxIndices);
 
-	MVP = RenderCommand::CreateConstantBuffer(sizeof(TextTransformData));
-	ScreenPx = RenderCommand::CreateConstantBuffer(sizeof(MSDFData));
+	MVP = FRenderCommand::CreateConstantBuffer(sizeof(FTextTransformData));
+	ScreenPx = FRenderCommand::CreateConstantBuffer(sizeof(FMSDFData));
 
 	TextShader = FRenderResourceManager::GetShaderProgram("Resources/Shader/TextShader.hlsl");
 
@@ -98,10 +98,10 @@ void FTextRenderer::BuildTextMesh(const FString& Text, float TextSize, const UFo
 
 			uint32 BaseIndex = static_cast<uint32>(Vertices.Num());
 
-			Vertices.Add({ FVector(0.0f,Left, Bottom), FVector2(ULeft, VBottom) });
-			Vertices.Add({ FVector(0.0f,Left, Top), FVector2(ULeft, VTop) });
-			Vertices.Add({ FVector(0.0f, Right,  Top), FVector2(URight, VTop) });
-			Vertices.Add({ FVector(0.0f, Right, Bottom), FVector2(URight,VBottom) });
+			Vertices.Add({ FVector(0.0f,Left, Bottom), FVector2D(ULeft, VBottom) });
+			Vertices.Add({ FVector(0.0f,Left, Top), FVector2D(ULeft, VTop) });
+			Vertices.Add({ FVector(0.0f, Right,  Top), FVector2D(URight, VTop) });
+			Vertices.Add({ FVector(0.0f, Right, Bottom), FVector2D(URight,VBottom) });
 
 			Indices.Add(BaseIndex + 0);
 			Indices.Add(BaseIndex + 1);
@@ -202,28 +202,28 @@ void FTextRenderer::OnRender(const FString& Text, const FMatrix& WorldMatrix, fl
 		return;
 	}
 
-	RenderCommand::UpdateBufferData(VertexBuffer.get(), Vertices.GetData(), sizeof(FTextVertex) * Vertices.Num());
-	RenderCommand::UpdateBufferData(IndexBuffer.get(), Indices.GetData(), sizeof(uint32) * Indices.Num());
+	FRenderCommand::UpdateBufferData(VertexBuffer.get(), Vertices.GetData(), sizeof(FTextVertex) * Vertices.Num());
+	FRenderCommand::UpdateBufferData(IndexBuffer.get(), Indices.GetData(), sizeof(uint32) * Indices.Num());
 
-	TextTransformData TransData;
+	FTextTransformData TransData;
 	// TextShader cbuffer가 row_major이므로 전치 없이 올린다.
 	TransData.World = WorldMatrix;
 	TransData.ViewProj = ViewProjection;
 
-	MSDFData MSDFData;
-	MSDFData.ScreenPx = Atlas.DistanceRange;
+	FMSDFData FMSDFData;
+	FMSDFData.ScreenPx = Atlas.DistanceRange;
 
-	RenderCommand::BindPipelineState(&PipelineState);
-	RenderCommand::BindShaderResource(0, Atlas.AtlasTexture, EShaderBindFlagBits::Pixel);
-	RenderCommand::UpdateBufferData(MVP.get(), &TransData, sizeof(TextTransformData));
-	RenderCommand::UpdateBufferData(ScreenPx.get(), &MSDFData, sizeof(MSDFData));
+	FRenderCommand::BindPipelineState(&PipelineState);
+	FRenderCommand::BindShaderResource(0, Atlas.AtlasTexture, EShaderBindFlagBits::Pixel);
+	FRenderCommand::UpdateBufferData(MVP.get(), &TransData, sizeof(FTextTransformData));
+	FRenderCommand::UpdateBufferData(ScreenPx.get(), &FMSDFData, sizeof(FMSDFData));
 
-	RenderCommand::BindConstantBuffer(0, MVP.get(), EShaderBindFlagBits::Vertex);
-	RenderCommand::BindConstantBuffer(1, ScreenPx.get(), EShaderBindFlagBits::Pixel);
+	FRenderCommand::BindConstantBuffer(0, MVP.get(), EShaderBindFlagBits::Vertex);
+	FRenderCommand::BindConstantBuffer(1, ScreenPx.get(), EShaderBindFlagBits::Pixel);
 
-	RenderCommand::BindVertexBuffer(VertexBuffer.get());
-	RenderCommand::BindIndexBuffer(IndexBuffer.get());
-	RenderCommand::DrawIndexed(Indices.Num());
+	FRenderCommand::BindVertexBuffer(VertexBuffer.get());
+	FRenderCommand::BindIndexBuffer(IndexBuffer.get());
+	FRenderCommand::DrawIndexed(Indices.Num());
 
 	Vertices.Reset();
 	Indices.Reset();
@@ -233,7 +233,7 @@ void FTextRenderer::OnRender(const FString& Text, const FMatrix& WorldMatrix, fl
 void FTextRenderer::OnRenderBillboard(const FString& Text, const FVector& WorldPos, float TextSize,
 	const UFont& Atlas, UCameraComponent* CameraComponent)
 {
-	const FTransform& Transform = CameraComponent->GetTransform();
+	const FTransform& Transform = CameraComponent->GetRelativeTransform();
 
 	const FVector Forward = Transform.GetForward().Normalized();
 	const FVector Right = Transform.GetRight().Normalized();

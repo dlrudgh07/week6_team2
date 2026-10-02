@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Core/Types.h"
+#include "HAL/Platform.h"
 #include "Containers/Array.h"
 #include "Math/Vector.h"
 #include "Math/Vector4.h"
 #include "Editor/Viewports/MultipleViewports.h"
 #include "Editor/Viewports/SoftwareOcclusion.h"
-#include "Rendering/Shader.h"
-#include "Rendering/Buffer.h"
+#include "RHI/RHIShader.h"
+#include "RHI/RHIBuffer.h"
 
-class FTexture2D;
+class FRHITexture2D;
 
 struct alignas(16) FGPUInstanceBound
 {
@@ -25,7 +25,7 @@ struct alignas(16) FGPUCullConstants
     FMatrix ViewProjection;
     FVector CameraPosition;
     float Pad0;
-    FVector2 HZBSize;
+    FVector2D HZBSize;
     uint32 NumInstances;
     uint32 NumWords;
     uint32 bUseHZB;
@@ -68,7 +68,7 @@ public:
         FSoftwareOcclusionStats& OutStats);
 
     // 깊이 버퍼 다운샘플링 피라미드 생성
-    void BuildHZB(int32 ViewIndex, FTexture2D* SceneDepthTexture);
+    void BuildHZB(int32 ViewIndex, FRHITexture2D* SceneDepthTexture);
 
     // 씬 리셋
     void ResetScene();
@@ -94,11 +94,11 @@ private:
     bool bNeedsUpload = true;
     TArray<uint64> CachedBoundsRevisions;
 
-    TUniquePtr<FComputeShader> ComputeShader;
-    TUniquePtr<FConstantBuffer> ConstantBuffer;
+    TUniquePtr<FRHIComputeShader> ComputeShader;
+    TUniquePtr<FRHIUniformBuffer> ConstantBuffer;
 
-    TUniquePtr<FComputeShader> HZBBuildShader;
-    TUniquePtr<FConstantBuffer> HZBBuildConstantBuffer;
+    TUniquePtr<FRHIComputeShader> HZBBuildShader;
+    TUniquePtr<FRHIUniformBuffer> HZBBuildConstantBuffer;
 
     ComPtr<ID3D11Buffer> InstanceBuffer;
     ComPtr<ID3D11ShaderResourceView> InstanceSRV;

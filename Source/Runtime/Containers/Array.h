@@ -4,7 +4,7 @@
 #include <cassert>
 #include <vector>
 
-#include "Core/Types.h"
+#include "HAL/Platform.h"
 
 template<typename T>
 class TArray

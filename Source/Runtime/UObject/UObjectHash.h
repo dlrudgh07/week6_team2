@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Containers/Array.h"
-#include "Core/EngineString.h"
+#include "Containers/UnrealString.h"
 
 class UObject;
 class UClass;

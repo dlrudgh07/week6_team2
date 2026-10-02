@@ -1,13 +1,13 @@
 #include "EnginePCH.h"
 #include "Renderer.h"
-#include "Shader.h"
+#include "RHI/RHIShader.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/Material.h"
 
 #include "RenderCommand.h"
-#include "GPUProfiler.h"
-#include "Core/StatDefinitions.h"
-#include "Core/EngineTimer.h"
+#include "RHI/GPUProfiler.h"
+#include "Stats/StatDefinitions.h"
+#include "Misc/App.h"
 #include "Camera/CameraComponent.h"
 #include "Tasks/Tasks.h"
 
@@ -76,16 +76,16 @@ namespace
 
 bool FRenderer::Init()
 {
-	ViewCB = RenderCommand::CreateConstantBuffer(sizeof(FMatrix));
-	if (RenderCommand::GetRenderDevice()->SupportsConstantBufferOffsetting())
+	ViewCB = FRenderCommand::CreateConstantBuffer(sizeof(FMatrix));
+	if (FRenderCommand::GetRenderDevice()->SupportsConstantBufferOffsetting())
 	{
 		return EnsureConstantBufferCapacity(Temp, InitialPacketCapacity);
 	}
-	Temp = RenderCommand::CreateConstantBuffer(sizeof(FPerObjectConstants));
+	Temp = FRenderCommand::CreateConstantBuffer(sizeof(FPerObjectConstants));
 	return Temp && Temp->GetBuffer();
 }
 
-bool FRenderer::EnsureConstantBufferCapacity(TUniquePtr<FConstantBuffer>& Buffer, uint32 PacketCount)
+bool FRenderer::EnsureConstantBufferCapacity(TUniquePtr<FRHIUniformBuffer>& Buffer, uint32 PacketCount)
 {
 	const uint64 RequiredBytes = static_cast<uint64>(PacketCount) * PerObjectSlotSize;
 	const uint64 MaxBytes = (std::numeric_limits<uint32>::max)() / PerObjectSlotSize * static_cast<uint64>(PerObjectSlotSize);
@@ -100,7 +100,7 @@ bool FRenderer::EnsureConstantBufferCapacity(TUniquePtr<FConstantBuffer>& Buffer
 		return true;
 	}
 	const uint32 NewBytes = static_cast<uint32>((std::min)(MaxBytes, (std::max)(RequiredBytes, CurrentBytes * 2)));
-	auto NewBuffer = RenderCommand::CreateConstantBuffer(NewBytes);
+	auto NewBuffer = FRenderCommand::CreateConstantBuffer(NewBytes);
 	if (!NewBuffer || !NewBuffer->GetBuffer())
 	{
 		LOG(Warning, "Failed to allocate per-object constant buffer ({} bytes).", NewBytes);
@@ -118,7 +118,7 @@ void FRenderer::EnsureDeferredWorkers()
 		return;
 	}
 	bDeferredWorkersInitialized = true;
-	const FRenderDevice* Device = RenderCommand::GetRenderDevice();
+	const FDynamicRHI* Device = FRenderCommand::GetRenderDevice();
 	// 에뮬레이션된 커맨드 리스트에서는 오프셋만 바꾸는 바인딩을 사용하지 않는다.
 	if (!Device->SupportsConstantBufferOffsetting() || !Device->SupportsNativeCommandLists())
 	{
@@ -135,7 +135,7 @@ void FRenderer::EnsureDeferredWorkers()
 
 	for (uint32 Index = 0; Index < WorkerCount; ++Index)
 	{
-		DeferredWorkers[Index].Context = RenderCommand::CreateDeferredContext();
+		DeferredWorkers[Index].Context = FRenderCommand::CreateDeferredContext();
 
 		if (!DeferredWorkers[Index].Context
 			|| FAILED(DeferredWorkers[Index].Context.As(&DeferredWorkers[Index].Context1)))
@@ -173,9 +173,9 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 
 	if (!ViewCB)
 	{
-		ViewCB = RenderCommand::CreateConstantBuffer(sizeof(FMatrix));
+		ViewCB = FRenderCommand::CreateConstantBuffer(sizeof(FMatrix));
 	}
-	RenderCommand::UpdateBufferData(ViewCB.get(), &ViewProjection, sizeof(FMatrix));
+	FRenderCommand::UpdateBufferData(ViewCB.get(), &ViewProjection, sizeof(FMatrix));
 
 	EnsureDeferredWorkers();
 
@@ -204,7 +204,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 	}
 
 	const int32 NumWorkers = DeferredWorkers.Num();
-	const bool bUseOffsets = RenderCommand::GetRenderDevice()->SupportsConstantBufferOffsetting();
+	const bool bUseOffsets = FRenderCommand::GetRenderDevice()->SupportsConstantBufferOffsetting();
 
 	if (TotalPackets <= 500 || NumWorkers <= 1)
 	{
@@ -221,7 +221,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 			{
 				return;
 			}
-			void* MappedData = RenderCommand::MapBufferWriteDiscard(Temp.get());
+			void* MappedData = FRenderCommand::MapBufferWriteDiscard(Temp.get());
 			if (!MappedData)
 			{
 				return;
@@ -233,12 +233,12 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 				Constants.World = InPackets[i].model;
 				std::memcpy(Base + static_cast<size_t>(i) * PerObjectSlotSize, &Constants, sizeof(Constants));
 			}
-			RenderCommand::UnmapBuffer(Temp.get());
+			FRenderCommand::UnmapBuffer(Temp.get());
 			if (BatchStats.bCountUploadBytes)
 				BatchStats.UploadBytes += static_cast<uint64>(TotalPackets) * sizeof(FPerObjectConstants);
 		}
 
-		RenderCommand::BindConstantBuffer(2, ViewCB.get(), EShaderBindFlagBits::Vertex);
+		FRenderCommand::BindConstantBuffer(2, ViewCB.get(), EShaderBindFlagBits::Vertex);
 
 		FStatScope DrawScope(StatIds::RenderDrawLoop());
 		for (int32 i = 0; i < TotalPackets; ++i)
@@ -252,7 +252,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 
 			if (LastMesh != RenderPacket.mesh || LastLOD != RenderPacket.LODIndex)
 			{
-				RenderCommand::BindMesh(RenderPacket.mesh, RenderPacket.LODIndex);
+				FRenderCommand::BindMesh(RenderPacket.mesh, RenderPacket.LODIndex);
 				LastMesh = RenderPacket.mesh;
 				LastLOD = RenderPacket.LODIndex;
 			}
@@ -270,11 +270,11 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 
 			if (bUseOffsets)
 			{
-				RenderCommand::BindConstantBufferRange(0, Temp.get(), EShaderBindFlagBits::Vertex, FirstConstant, NumConstants);
+				FRenderCommand::BindConstantBufferRange(0, Temp.get(), EShaderBindFlagBits::Vertex, FirstConstant, NumConstants);
 			}
 			else
 			{
-				void* MappedData = RenderCommand::MapBufferWriteDiscard(Temp.get());
+				void* MappedData = FRenderCommand::MapBufferWriteDiscard(Temp.get());
 				if (!MappedData)
 				{
 					return;
@@ -282,13 +282,13 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 				FPerObjectConstants Constants;
 				Constants.World = RenderPacket.model;
 				std::memcpy(MappedData, &Constants, sizeof(Constants));
-				RenderCommand::UnmapBuffer(Temp.get());
+				FRenderCommand::UnmapBuffer(Temp.get());
 				if (BatchStats.bCountUploadBytes)
 					BatchStats.UploadBytes += sizeof(FPerObjectConstants);
-				RenderCommand::BindConstantBuffer(0, Temp.get(), EShaderBindFlagBits::Vertex);
+				FRenderCommand::BindConstantBuffer(0, Temp.get(), EShaderBindFlagBits::Vertex);
 			}
 			const uint32 IndexCount = RenderPacket.IndexCount ? RenderPacket.IndexCount : RenderPacket.mesh->GetIndexCount(RenderPacket.LODIndex);
-			RenderCommand::DrawIndexed(IndexCount, RenderPacket.StartIndex);
+			FRenderCommand::DrawIndexed(IndexCount, RenderPacket.StartIndex);
 			if (BatchStats.bCountDraws)
 				++BatchStats.Draws;
 			if (BatchStats.bCountTriangles)
@@ -311,7 +311,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 	// 현재 바인딩된 렌더 타깃과 뷰포트 정보 획득
 	ID3D11RenderTargetView* RTVs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
 	ID3D11DepthStencilView* DSV = nullptr;
-	RenderCommand::GetRenderDevice()->GetContext()->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, RTVs, &DSV);
+	FRenderCommand::GetRenderDevice()->GetContext()->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, RTVs, &DSV);
 
 	UINT NumRTVs = 0;
 	for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
@@ -324,7 +324,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 
 	UINT NumViewports = 1;
 	D3D11_VIEWPORT Viewport{};
-	RenderCommand::GetRenderDevice()->GetContext()->RSGetViewports(&NumViewports, &Viewport);
+	FRenderCommand::GetRenderDevice()->GetContext()->RSGetViewports(&NumViewports, &Viewport);
 
 	std::vector<ComPtr<ID3D11CommandList>> CommandLists(NumJobs);
 	std::vector<FBatchCounters> WorkerCounters;
@@ -345,12 +345,12 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 			FBatchCounters LocalCounters;
 
 			ID3D11DeviceContext* Context = DeferredWorkers[JobIndex].Context.Get();
-			FConstantBuffer* WorkerCB = DeferredWorkers[JobIndex].PerObjectCB.get();
+			FRHIUniformBuffer* WorkerCB = DeferredWorkers[JobIndex].PerObjectCB.get();
 			ID3D11DeviceContext1* Context1 = DeferredWorkers[JobIndex].Context1.Get();
 
 			Context->OMSetRenderTargets(NumRTVs, RTVs, DSV);
 			Context->RSSetViewports(NumViewports, &Viewport);
-			RenderCommand::BindConstantBuffer(2, ViewCB.get(), EShaderBindFlagBits::Vertex, Context);
+			FRenderCommand::BindConstantBuffer(2, ViewCB.get(), EShaderBindFlagBits::Vertex, Context);
 
 			const UStaticMesh* LastMesh  = nullptr;
 			const UMaterial* LastMaterial = nullptr;
@@ -359,7 +359,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 
 			assert(static_cast<uint32>(End - Start) * PerObjectSlotSize <= WorkerCB->GetBufferSize());
 
-			void* MappedData = RenderCommand::MapBufferWriteDiscard(WorkerCB, Context);
+			void* MappedData = FRenderCommand::MapBufferWriteDiscard(WorkerCB, Context);
 
 			if (!MappedData)
 			{
@@ -382,7 +382,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 				std::memcpy(Dest, &Constants, sizeof(FPerObjectConstants));
 			}
 
-			RenderCommand::UnmapBuffer(WorkerCB, Context);
+			FRenderCommand::UnmapBuffer(WorkerCB, Context);
 			if (BatchStats.bCountUploadBytes)
 				LocalCounters.UploadBytes = static_cast<uint64>(End - Start) * sizeof(FPerObjectConstants);
 
@@ -393,7 +393,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 			{
 				if (LastMesh != RenderPacket.mesh || LastLOD != RenderPacket.LODIndex)
 				{
-					RenderCommand::BindMesh(RenderPacket.mesh, RenderPacket.LODIndex, Context);
+					FRenderCommand::BindMesh(RenderPacket.mesh, RenderPacket.LODIndex, Context);
 					LastMesh = RenderPacket.mesh;
 					LastLOD = RenderPacket.LODIndex;
 				}
@@ -410,10 +410,10 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 				const uint32 FirstConstant = LocalIndex * (PerObjectSlotSize / 16);
 				const uint32 NumConstants = PerObjectSlotSize / 16;
 
-				RenderCommand::BindConstantBufferRange(0, WorkerCB, EShaderBindFlagBits::Vertex, FirstConstant, NumConstants, Context1);
+				FRenderCommand::BindConstantBufferRange(0, WorkerCB, EShaderBindFlagBits::Vertex, FirstConstant, NumConstants, Context1);
 
 				const uint32 IndexCount = RenderPacket.IndexCount ? RenderPacket.IndexCount : RenderPacket.mesh->GetIndexCount(RenderPacket.LODIndex);
-				RenderCommand::DrawIndexed(
+				FRenderCommand::DrawIndexed(
 					IndexCount,
 					RenderPacket.StartIndex,
 					0,
@@ -456,7 +456,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 		{
 			if (CommandLists[i])
 			{
-				RenderCommand::ExecuteCommandList(CommandLists[i].Get(), false);
+				FRenderCommand::ExecuteCommandList(CommandLists[i].Get(), false);
 				if (BatchStats.bCountDraws)
 					BatchStats.Draws += WorkerCounters[i].Draws;
 				if (BatchStats.bCountTriangles)
@@ -466,8 +466,8 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 	}
 
 	// 실행 후 메인 즉시 컨텍스트의 렌더 타깃과 뷰포트 상태 복구
-	RenderCommand::GetRenderDevice()->GetContext()->OMSetRenderTargets(NumRTVs, RTVs, DSV);
-	RenderCommand::GetRenderDevice()->GetContext()->RSSetViewports(NumViewports, &Viewport);
+	FRenderCommand::GetRenderDevice()->GetContext()->OMSetRenderTargets(NumRTVs, RTVs, DSV);
+	FRenderCommand::GetRenderDevice()->GetContext()->RSSetViewports(NumViewports, &Viewport);
 
 	// 획득한 렌더 타깃 참조 해제
 	for (UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
@@ -501,16 +501,16 @@ void FRenderer::BindMaterial(UMaterial* material, ID3D11DeviceContext* Context, 
 		const EPSOType EffectivePSO = (bWireframe && (material->PSOType == EPSOType::StaticMesh_Opaque || material->PSOType == EPSOType::StaticMesh_Wireframe))
 			? EPSOType::StaticMesh_Wireframe
 			: material->PSOType;
-		RenderCommand::BindPipelineState(FRenderResourceManager::GetPSO(EffectivePSO), Context);
+		FRenderCommand::BindPipelineState(FRenderResourceManager::GetPSO(EffectivePSO), Context);
 	}
 	for (int i = 0; i < material->Textures.size(); i++)
 	{
-		RenderCommand::BindShaderResource(i, material->Textures[i], EShaderBindFlagBits::Pixel, Context);
+		FRenderCommand::BindShaderResource(i, material->Textures[i], EShaderBindFlagBits::Pixel, Context);
 	}
-	RenderCommand::BindSamplerState(0, material->SamplerState, EShaderBindFlagBits::Pixel, Context);
+	FRenderCommand::BindSamplerState(0, material->SamplerState, EShaderBindFlagBits::Pixel, Context);
 	if (material->ParamBuffer)
 	{
-		RenderCommand::BindConstantBuffer(1, material->ParamBuffer.get(), EShaderBindFlagBits::Pixel, Context);
+		FRenderCommand::BindConstantBuffer(1, material->ParamBuffer.get(), EShaderBindFlagBits::Pixel, Context);
 	}
 }
 
@@ -527,22 +527,22 @@ void FRenderer::UpdateMaterialParams(UMaterial* material)
 	case EPSOType::StaticMesh_Opaque:
 	case EPSOType::StaticMesh_Wireframe:
 	{
-		const float TotalTime = EngineTimer::GetTotalTime();
+		const float TotalTime = FApp::GetCurrentTime();
 		FStaticMeshMaterialParams Params{};
 		Params.BaseColor = material->BaseColor;
 		Params.UVOffset = material->UVScrollSpeed * TotalTime;
 		Params.bOpaque = 1.0f;
-		RenderCommand::UpdateBufferData(material->ParamBuffer.get(), &Params, sizeof(FStaticMeshMaterialParams));
+		FRenderCommand::UpdateBufferData(material->ParamBuffer.get(), &Params, sizeof(FStaticMeshMaterialParams));
 		break;
 	}
 	case EPSOType::StaticMesh_Translucent:
 	{
-		const float TotalTime = EngineTimer::GetTotalTime();
+		const float TotalTime = FApp::GetCurrentTime();
 		FStaticMeshMaterialParams Params{};
 		Params.BaseColor = material->BaseColor;
 		Params.UVOffset = material->UVScrollSpeed * TotalTime;
 		Params.bOpaque = 0.0f;
-		RenderCommand::UpdateBufferData(material->ParamBuffer.get(), &Params, sizeof(FStaticMeshMaterialParams));
+		FRenderCommand::UpdateBufferData(material->ParamBuffer.get(), &Params, sizeof(FStaticMeshMaterialParams));
 		break;
 	}
 	default:
@@ -555,5 +555,5 @@ void FRenderer::UpdatePerObjectConstants(const FRenderPacket& RenderPacket, cons
 {
 	FPerObjectConstants Constants;
 	Constants.World = RenderPacket.model;
-	RenderCommand::UpdateBufferData(Temp.get(), &Constants);
+	FRenderCommand::UpdateBufferData(Temp.get(), &Constants);
 }

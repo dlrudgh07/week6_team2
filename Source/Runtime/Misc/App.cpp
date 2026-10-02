@@ -1,0 +1,20 @@
+#include "EnginePCH.h"
+#include "App.h"
+
+void FApp::Init()
+{
+	PrevTime = Clock::now();
+}
+
+void FApp::Tick()
+{
+	Clock::time_point Current = Clock::now();
+	std::chrono::duration<float> Elapsed = Current - PrevTime;
+
+	DeltaTime = Elapsed.count();
+	PrevTime = Current;
+
+	// 최대 델타타임 제한 해제
+	//if (DeltaTime > 0.1f) DeltaTime = 0.1f;
+	TotalTime += DeltaTime;
+}

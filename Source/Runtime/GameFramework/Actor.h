@@ -3,7 +3,7 @@
 #include "UObject/Object.h"
 #include "Components/PrimitiveComponent.h"
 #include "UObject/Class.h"
-#include "UObject/ObjectFactory.h"
+#include "UObject/UObjectGlobals.h"
 #include "Containers/Set.h"
 
 class ULevel;

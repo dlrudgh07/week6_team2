@@ -10,7 +10,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Engine/AssetManager.h"
 #include "Materials/Material.h"
-#include "Rendering/Texture2D.h"
+#include "Engine/Texture2D.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/Font.h"
 #include "UObject/UObjectIterator.h"
@@ -520,7 +520,7 @@ void DrawMaterialSlots(UMeshComponent* MeshComponent)
 				ImGui::TableSetColumnIndex(1);
 				ImGui::SetNextItemWidth(-1.0f);
 
-				FVector2 TempUVScrollSpeed = Effective ? Effective->UVScrollSpeed : FVector2();
+				FVector2D TempUVScrollSpeed = Effective ? Effective->UVScrollSpeed : FVector2D();
 				if (ImGui::DragFloat2("##UVScrollSpeed", &TempUVScrollSpeed.X, 0.01f))
 				{
 					Override = EnsureMaterialOverride(MeshComponent, Slot, Effective, Override);

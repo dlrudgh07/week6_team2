@@ -26,7 +26,7 @@ void UTextRenderComponent::TickComponent(float DeltaTime)
 	Super::TickComponent(DeltaTime);
 }
 
-const FStaticMeshData* UTextRenderComponent::GetMeshData() const
+const FStaticMeshRenderData* UTextRenderComponent::GetMeshData() const
 {
 	if (!Font) return nullptr;
 

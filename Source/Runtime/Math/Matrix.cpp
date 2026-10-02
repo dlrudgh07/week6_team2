@@ -1,6 +1,6 @@
 #include "EnginePCH.h"
 #include "Matrix.h"
-#include "EngineMath.h"
+#include "Math/UnrealMathUtility.h"
 
 /* Constructor */
 

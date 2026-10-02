@@ -3,7 +3,7 @@
 #include "Editor/EditorUI/EditorPanel.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
-#include "Core/EngineLog.h"
+#include "Logging/LogMacros.h"
 
 class UWorld;
 class USceneComponent;

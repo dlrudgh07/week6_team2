@@ -214,7 +214,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -250,7 +250,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -286,7 +286,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -322,7 +322,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -358,7 +358,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -394,7 +394,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -430,7 +430,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -466,7 +466,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -502,7 +502,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -538,7 +538,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {
@@ -574,7 +574,7 @@
             ]
         },
         {
-            "Class": "AParticleActor",
+            "Class": "AEmitter",
             "Properties": null,
             "Components": [
                 {

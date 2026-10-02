@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEnums.h"
+#include "RHI/RHIDefinitions.h"
 
 struct FShaderByteCode
 {
@@ -11,7 +11,7 @@ struct FShaderByteCode
 	bool        IsValid() const { return Blob != nullptr; }
 };
 
-class RenderUtil
+class FRenderUtil
 {
 public:
 	static FShaderByteCode CompileShader(FString Path, const char* EntryPoint, EShaderType ShaderType);

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Buffer.h"
-#include "PipelineState.h"
-#include "Texture2D.h"
+#include "RHI/RHIBuffer.h"
+#include "RHI/PipelineState.h"
+#include "Engine/Texture2D.h"
 
 // HLSL의 cbuffer SkyboxConstants와 레이아웃이 일치해야 한다.
 // float3 뒤의 Padding은 16바이트 정렬 때문에 필요하다.
@@ -30,7 +30,7 @@ public:
 
 private:
 	FShaderProgram* Shader = nullptr;
-	TUniquePtr<FConstantBuffer> ConstantBuffer;
-	TUniquePtr<FTexture2D> PanoramaTexture;
+	TUniquePtr<FRHIUniformBuffer> ConstantBuffer;
+	TUniquePtr<FRHITexture2D> PanoramaTexture;
 	FPipelineState PipelineState;
 };

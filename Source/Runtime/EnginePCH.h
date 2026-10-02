@@ -31,9 +31,9 @@ using namespace Microsoft::WRL;
 #include <iostream>
 #include <fstream>
 #include "Containers/Containers.h"
-#include "Core/EngineString.h"
-#include "UObject/Casts.h"
-#include "Math/EngineMath.h"
-#include "Core/EngineLog.h"
+#include "Containers/UnrealString.h"
+#include "Templates/Casts.h"
+#include "Math/UnrealMathUtility.h"
+#include "Logging/LogMacros.h"
 
 

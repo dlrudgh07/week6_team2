@@ -3,7 +3,7 @@
 #include "Rendering/RenderCommand.h"
 
 #include "Material.h"
-#include "UObject/ObjectFactory.h"
+#include "UObject/UObjectGlobals.h"
 
 #include "Engine/AssetManager.h"
 #include "Serialization/TypeSerializer.h"
@@ -39,7 +39,7 @@ UMaterial* UMaterial::CreateInstance(const UMaterial* Source)
 	// 원본에 파라미터 버퍼가 있으면 동일 크기로 새로 생성
 	if (Source->ParamBuffer)
 	{
-		Instance->ParamBuffer = RenderCommand::CreateConstantBuffer(Source->ParamBuffer->GetBufferSize());
+		Instance->ParamBuffer = FRenderCommand::CreateConstantBuffer(Source->ParamBuffer->GetBufferSize());
 	}
 
 	Instance->BaseColor = Source->BaseColor;
@@ -148,7 +148,7 @@ UMaterial* UMaterial::LoadMaterial(const json& In)
 	if (In.contains("UVScrollSpeed"))
 	{
 		const auto& UV = In["UVScrollSpeed"];
-		Instance->UVScrollSpeed = FVector2(UV[0].get<float>(), UV[1].get<float>());
+		Instance->UVScrollSpeed = FVector2D(UV[0].get<float>(), UV[1].get<float>());
 	}
 	if (In.contains("SamplerState"))
 	{

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "../Core/Types.h"
+#include "HAL/Platform.h"
 
 struct FVector {
 

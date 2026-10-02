@@ -1,15 +1,15 @@
 #pragma once
 
 #include "MaterialInterface.h"
-#include "Rendering/RenderStates.h"
-#include "Rendering/Texture2D.h"
+#include "RHI/RHIStaticStates.h"
+#include "Engine/Texture2D.h"
 #include "Rendering/RenderResourceManager.h"
 
 
 struct FStaticMeshMaterialParams
 {
 	FVector4 BaseColor;
-	FVector2 UVOffset;
+	FVector2D UVOffset;
 	float bOpaque; // 불투명 여부 플래그
 	float Padding;
 };
@@ -24,11 +24,11 @@ public:
 
 	EPSOType PSOType = EPSOType::StaticMesh_Opaque;
 	TArray<UTexture2D*> Textures;
-	TUniquePtr<FConstantBuffer> ParamBuffer;
+	TUniquePtr<FRHIUniformBuffer> ParamBuffer;
 	ESamplerState SamplerState = ESamplerState::LinearClamp;
 
 	FVector4 BaseColor = FVector4(1, 1, 1, 1);
-	FVector2 UVScrollSpeed = FVector2(0.0f, 0.0f);
+	FVector2D UVScrollSpeed = FVector2D(0.0f, 0.0f);
 
 	bool bIsInstance = false;
 

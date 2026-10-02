@@ -2,7 +2,7 @@
 
 #include "Math/Ray.h"
 #include "Components/PrimitiveComponent.h"
-#include "UObject/TWeakObjectPtr.h"
+#include "UObject/WeakObjectPtrTemplates.h"
 
 #include <vector>
 

@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "LoadingScreen.h"
 #include "Engine/AssetManager.h"
-#include "Rendering/Texture2D.h"
+#include "Engine/Texture2D.h"
 #include "Input/InputSystem.h"
 #include "ThirdParty/ImGui/imgui.h"
 #include <chrono>

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Core/Types.h"
+#include "HAL/Platform.h"
 
 //template<typename T>
 //struct TVector;

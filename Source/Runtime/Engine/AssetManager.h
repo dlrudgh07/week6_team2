@@ -2,15 +2,15 @@
 #pragma once
 
 #include "UObject/Object.h"
-#include "UObject/Property.h"
+#include "UObject/UnrealType.h"
 #include "Rendering/Renderer.h"
-#include "Rendering/Shader.h"
+#include "RHI/RHIShader.h"
 
 #include <filesystem>
 #include <functional>
 
 class UStaticMesh;
-class FShader;
+class FRHIShader;
 
 namespace fs = std::filesystem;
 
@@ -77,5 +77,5 @@ private:
 	// Assets 폴더 기준 상대 경로(Key) → 로드된 에셋 객체
 	TMap<FString, URenderAsset*> AssetMap;
 
-	TMap<FString, TUniquePtr<FShader>> ShaderMap;
+	TMap<FString, TUniquePtr<FRHIShader>> ShaderMap;
 };

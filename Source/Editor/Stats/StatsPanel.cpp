@@ -4,8 +4,8 @@
 #include <vector>
 #include <format>
 #include <cmath>
-#include "Core/StatDefinitions.h"
-#include "Rendering/GPUProfiler.h"
+#include "Stats/StatDefinitions.h"
+#include "RHI/GPUProfiler.h"
 #include "Tasks/TaskScheduler.h"
 
 namespace

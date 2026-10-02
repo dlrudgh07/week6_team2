@@ -1,11 +1,11 @@
 // 다중 뷰포트의 레이아웃·카메라·가시성 계산을 제공한다.
 #pragma once
 
-#include "Core/Types.h"
+#include "HAL/Platform.h"
 #include "Containers/Array.h"
 #include "Containers/Map.h"
 #include "Math/Vector.h"
-#include "Math/Vector2.h"
+#include "Math/Vector2D.h"
 #include "Math/Quat.h"
 #include "Math/Matrix.h"
 #include "Math/Ray.h"
@@ -27,7 +27,7 @@ struct FPlane { FVector Normal; float Distance; };
 // 화면상의 좌상단 위치와 너비·높이를 담는다.
 struct FRect { float X, Y, Width, Height; };
 
-enum class EProjectionMode { Perspective, Orthographic };
+enum class ECameraProjectionMode { Perspective, Orthographic };
 enum class ELayoutMode { Single, QuadSplit };
 
 // 카메라의 월드 위치와 회전을 담는다.
@@ -40,7 +40,7 @@ struct FCameraTransform
 // 원근·직교 투영에 필요한 모드와 절두체 값을 담는다.
 struct FCameraProjection
 {
-    EProjectionMode Mode;
+    ECameraProjectionMode Mode;
     float FovDegrees;
     float OrthoWidth;
     float NearClip;
@@ -67,7 +67,7 @@ struct FViewSet
 // 한 프레임의 카메라 회전·이동·줌 입력을 담는다.
 struct FCameraMoveInput
 {
-    FVector2 MouseDelta;
+    FVector2D MouseDelta;
     FVector MoveAxis;
     float ZoomDelta;
 };
@@ -77,7 +77,7 @@ FMatrix BuildViewMatrix(const FCameraTransform& Transform);
 // 투영 모드에 따라 원근 또는 직교 Projection 행렬을 만든다.
 FMatrix BuildProjectionMatrix(const FCameraProjection& Projection, float AspectRatio);
 // 화면 좌표를 카메라 기저와 투영값으로 역투영해 월드 Ray를 만든다.
-FRay Deproject(const FViewCamera& Camera, FVector2 ScreenPos, FVector2 ViewportSize);
+FRay Deproject(const FViewCamera& Camera, FVector2D ScreenPos, FVector2D ViewportSize);
 // 로컬 이동과 Yaw·Pitch 입력을 현재 카메라에 적분한다.
 FViewCamera ApplyCameraMovement(const FViewCamera& Current, const FCameraMoveInput& Input, float DeltaTime);
 
@@ -94,9 +94,9 @@ struct FViewInputState
 };
 
 // 화면 좌표를 포함하는 첫 번째 유효 View Rect를 찾는다.
-int32 DetermineHoveredView(FVector2 ScreenPos, const FRect ViewRects[4]);
+int32 DetermineHoveredView(FVector2D ScreenPos, const FRect ViewRects[4]);
 // Capture가 있으면 고정 View를, 없으면 Hover View를 활성 View로 고른다.
-int32 DetermineActiveView(const FViewInputState& State, FVector2 ScreenPos, const FRect ViewRects[4]);
+int32 DetermineActiveView(const FViewInputState& State, FVector2D ScreenPos, const FRect ViewRects[4]);
 // 지정한 View를 입력 Capture 대상으로 설정한 새 상태를 반환한다.
 FViewInputState BeginCapture(const FViewInputState& Current, int32 ViewIndex);
 // 입력 Capture를 해제한 새 상태를 반환한다.
@@ -112,17 +112,17 @@ struct FSplitRatio
 enum class EDragAxis { Horizontal, Vertical };
 
 // 픽셀 Drag를 창 크기로 정규화해 해당 Split 비율에 반영한다.
-FSplitRatio ApplySplitterDrag(const FSplitRatio& Current, EDragAxis Axis, float DeltaPixels, FVector2 WindowSize, float MinRatio);
+FSplitRatio ApplySplitterDrag(const FSplitRatio& Current, EDragAxis Axis, float DeltaPixels, FVector2D WindowSize, float MinRatio);
 // 두 Split 비율을 허용된 최소·최대 범위로 제한한다.
 FSplitRatio ClampSplitRatio(const FSplitRatio& Raw, float MinRatio);
 // Split 비율과 창 크기로 2x2 View Rect 네 개를 계산한다.
-void ComputeViewRects(const FSplitRatio& Ratio, FVector2 WindowSize, FRect OutRects[4]);
+void ComputeViewRects(const FSplitRatio& Ratio, FVector2D WindowSize, FRect OutRects[4]);
 
 // 축 정렬 Bounding Box의 중심과 반크기를 담는다.
 struct FAABB { FVector Center; FVector Extent; };
 
 class UPrimitiveComponent;
-struct FStaticMeshData;
+struct FStaticMeshRenderData;
 
 // 렌더 대상의 컴포넌트 포인터 월드 행렬 월드 경계를 담는다
 struct FRenderableObject
@@ -130,7 +130,7 @@ struct FRenderableObject
     UPrimitiveComponent* Primitive = nullptr;
     FMatrix WorldMatrix{0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
     FAABB WorldBounds;
-    const FStaticMeshData* StaticMeshData = nullptr;
+    const FStaticMeshRenderData* StaticMeshData = nullptr;
     uint64 BoundsRevision = 0;
     uint32 StableIndex = 0;
     bool bCanBeOccluded = false; //가려질 수 있는가?
@@ -186,7 +186,7 @@ FPickHit Pick(const FRay& WorldRay, const TArray<FPickableObject>& Objects, cons
 struct FBillboardComputeInput
 {
     FVector WorldPosition;
-    FVector2 Size;
+    FVector2D Size;
 };
 
 // 카메라를 향하도록 계산된 Billboard 월드 행렬을 담는다.

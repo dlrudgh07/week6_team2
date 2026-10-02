@@ -14,7 +14,7 @@ enum class ESoftwareOcclusionMode : uint8
 };
 
 class FGPUOcclusionCuller;
-class FTexture2D;
+class FRHITexture2D;
 
 enum class ESoftwareOccluderGeometry : uint8
 {
@@ -131,7 +131,7 @@ public:
         TArray<UPrimitiveComponent*>& OutVisible,
         FSoftwareOcclusionStats& OutStats);
 
-    void PostRenderOpaque(int32 ViewIndex, FTexture2D* SceneDepthTexture);
+    void PostRenderOpaque(int32 ViewIndex, FRHITexture2D* SceneDepthTexture);
 
 private:
     static constexpr int32 MaxBufferExtent = 320;

@@ -7,7 +7,7 @@
 #include <cassert>
 #include <math.h>
 #include <float.h>
-#include "Math/EngineMath.h"
+#include "Math/UnrealMathUtility.h"
 #include "Math/VectorRegister.h"
 
 #include <vector>
@@ -198,7 +198,7 @@ FMatrix BuildProjectionMatrix(const FCameraProjection& Projection, const float A
     assert(AspectRatio > 0.0f);
     assert(Projection.NearClip > 0.0f && Projection.FarClip > Projection.NearClip);
     FMatrix Result = ZeroMatrix();
-    if (Projection.Mode == EProjectionMode::Perspective)
+    if (Projection.Mode == ECameraProjectionMode::Perspective)
     {
         assert(Projection.FovDegrees > 0.0f && Projection.FovDegrees < 180.0f);
         const float ScaleY = 1.0f / tanf(Projection.FovDegrees * Pi / 360.0f);
@@ -222,7 +222,7 @@ FMatrix BuildProjectionMatrix(const FCameraProjection& Projection, const float A
 }
 
 // 화면 좌표를 NDC로 바꾸고 카메라 기저에 결합해 월드 Ray를 만든다.
-FRay Deproject(const FViewCamera& Camera, const FVector2 ScreenPos, const FVector2 ViewportSize)
+FRay Deproject(const FViewCamera& Camera, const FVector2D ScreenPos, const FVector2D ViewportSize)
 {
     assert(ViewportSize.X > 0.0f && ViewportSize.Y > 0.0f);
     const float NdcX = 2.0f * ScreenPos.X / ViewportSize.X - 1.0f;
@@ -232,7 +232,7 @@ FRay Deproject(const FViewCamera& Camera, const FVector2 ScreenPos, const FVecto
     const FVector Right = Rotate(Camera.Transform.Rotation, {0.0f, 1.0f, 0.0f});
     const FVector Up = Rotate(Camera.Transform.Rotation, {0.0f, 0.0f, 1.0f});
 
-    if (Camera.Projection.Mode == EProjectionMode::Perspective)
+    if (Camera.Projection.Mode == ECameraProjectionMode::Perspective)
     {
         const float Tangent = tanf(Camera.Projection.FovDegrees * Pi / 360.0f);
         const FVector Direction = Normalize(Add(Forward, Add(Scale(Right, NdcX * Tangent * AspectRatio), Scale(Up, NdcY * Tangent))));
@@ -279,7 +279,7 @@ bool IsViewActive(const FViewSet& Views, const int32 ViewIndex, const FRect View
 }
 
 // 네 Rect를 순서대로 검사해 화면 좌표를 포함하는 View를 찾는다.
-int32 DetermineHoveredView(const FVector2 ScreenPos, const FRect ViewRects[4])
+int32 DetermineHoveredView(const FVector2D ScreenPos, const FRect ViewRects[4])
 {
     for (int32 Index = 0; Index < 4; ++Index)
     {
@@ -293,7 +293,7 @@ int32 DetermineHoveredView(const FVector2 ScreenPos, const FRect ViewRects[4])
 }
 
 // Capture 중에는 고정 View를 유지하고 아니면 Hover View를 사용한다.
-int32 DetermineActiveView(const FViewInputState& State, const FVector2 ScreenPos, const FRect ViewRects[4])
+int32 DetermineActiveView(const FViewInputState& State, const FVector2D ScreenPos, const FRect ViewRects[4])
 {
     if (State.CapturedViewIndex != InvalidViewIndex)
     {
@@ -320,7 +320,7 @@ FViewInputState EndCapture(const FViewInputState& Current)
 }
 
 // Drag 픽셀을 창 축 길이로 나눠 Split 비율에 누적하고 clamp한다.
-FSplitRatio ApplySplitterDrag(const FSplitRatio& Current, const EDragAxis Axis, const float DeltaPixels, const FVector2 WindowSize, const float MinRatio)
+FSplitRatio ApplySplitterDrag(const FSplitRatio& Current, const EDragAxis Axis, const float DeltaPixels, const FVector2D WindowSize, const float MinRatio)
 {
     FSplitRatio Result = Current;
     if (Axis == EDragAxis::Horizontal)
@@ -346,7 +346,7 @@ FSplitRatio ClampSplitRatio(const FSplitRatio& Raw, const float MinRatio)
 }
 
 // 가로·세로 Split 위치로 창을 빈틈없는 네 Rect로 나눈다.
-void ComputeViewRects(const FSplitRatio& Ratio, const FVector2 WindowSize, FRect OutRects[4])
+void ComputeViewRects(const FSplitRatio& Ratio, const FVector2D WindowSize, FRect OutRects[4])
 {
     assert(WindowSize.X >= 0.0f && WindowSize.Y >= 0.0f);
     assert(Ratio.Horizontal >= 0.0f && Ratio.Horizontal <= 1.0f);

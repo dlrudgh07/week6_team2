@@ -3,9 +3,9 @@
 
 #include "Editor/Gizmo/Gizmo.h"
 
-#include "Particles/ParticleActor.h"
+#include "Particles/Emitter.h"
 #include "Engine/StaticMeshActor.h"
-#include "Engine/LightActor.h"
+#include "Engine/SpotLight.h"
 #include "Engine/TextRenderActor.h"
 
 class FMultipleViewportsAdapter;
@@ -41,9 +41,9 @@ public:
 	TArray<UClass*> Classes
 	{
 		AStaticMeshActor::StaticClass(),
-		AParticleActor::StaticClass(),
+		AEmitter::StaticClass(),
 		ATextRenderActor::StaticClass(),
-		ALightActor::StaticClass(),
+		ASpotLight::StaticClass(),
 	};
 
     void SetViewportAdapter(FMultipleViewportsAdapter* InAdapter) { ViewportAdapter = InAdapter; }

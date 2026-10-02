@@ -89,13 +89,13 @@ namespace
 
 bool FObjViewerApp::Init(HINSTANCE hInstance)
 {
-	RenderDevice = MakeUnique<FRenderDevice>();
-	RenderCommand::Init(RenderDevice.get());
+	RenderDevice = MakeUnique<FDynamicRHI>();
+	FRenderCommand::Init(RenderDevice.get());
 
 	Renderer = MakeUnique<FRenderer>();
 	Renderer->Init();
 
-	MainWindow = MakeUnique<FWindow>();
+	MainWindow = MakeUnique<FWindowsWindow>();
 	if (!MainWindow->Create(hInstance, WindowWidth, WindowHeight, WindowTitle))
 	{
 		return false;
@@ -222,15 +222,15 @@ void FObjViewerApp::RenderFrame()
 	FRenderingInfo Info = Swapchain->GetRenderingInfo();
 	Info.DepthSteincil.Texture = DepthBuffer.get();
 
-	RenderCommand::BeginRenderPass(Info);
+	FRenderCommand::BeginRenderPass(Info);
 
-	RenderCommand::SetRasterizerState(ERasterizerState::SolidBack);
-	RenderCommand::SetBlendState(EBlendState::Opaque);
-	RenderCommand::SetDepthStencilState(EDepthStencilState::Default);
-	RenderCommand::SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	FRenderCommand::SetRasterizerState(ERasterizerState::SolidBack);
+	FRenderCommand::SetBlendState(EBlendState::Opaque);
+	FRenderCommand::SetDepthStencilState(EDepthStencilState::Default);
+	FRenderCommand::SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	Renderer->RenderAll(RenderPackets, ViewProjection);
 
-	RenderCommand::EndRenderPass(Info);
+	FRenderCommand::EndRenderPass(Info);
 
 	Swapchain->SwapBuffers();
 }
@@ -261,7 +261,7 @@ void FObjViewerApp::UpdateWindowTitle()
 	FString Title = WindowTitleWithHint;
 	if (Mesh)
 	{
-		const FStaticMeshData& Data = Mesh->GetMeshData();
+		const FStaticMeshRenderData& Data = Mesh->GetMeshData();
 		Title = std::filesystem::path(CurrentMeshPath).filename().string()
 			+ " (" + std::to_string(Data.Vertices.Num()) + " verts, "
 			+ std::to_string(Data.Indices.Num() / 3) + " tris) - " + Title;
@@ -301,9 +301,9 @@ void FObjViewerApp::CreateDepthBuffer(uint32 Width, uint32 Height)
 	Desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;   // 깊이 24bit + 스텐실 8bit
 	Desc.SampleDesc.Count = 1;                     // 백버퍼와 동일해야 함 (MSAA 없음)
 	Desc.Usage = D3D11_USAGE_DEFAULT;
-	Desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;     // FTexture2D가 DSV를 만들어 준다
+	Desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;     // FRHITexture2D가 DSV를 만들어 준다
 
-	DepthBuffer = RenderCommand::CreateTexture2D(Desc);
+	DepthBuffer = FRenderCommand::CreateTexture2D(Desc);
 }
 
 // 메쉬의 경계 구가 시야에 모두 들어오도록 Target과 Distance를 정한다.

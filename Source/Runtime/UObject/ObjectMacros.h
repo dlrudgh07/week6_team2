@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Types.h"
+#include "HAL/Platform.h"
 
 enum class EObjectFlags : uint32
 {

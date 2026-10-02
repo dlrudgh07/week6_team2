@@ -62,7 +62,7 @@ void UStaticMeshComponent::RebuildRenderPacketCache()
 	if (!StaticMesh)
 		return;
 
-	const FStaticMeshData& MeshData = StaticMesh->GetMeshData();
+	const FStaticMeshRenderData& MeshData = StaticMesh->GetMeshData();
 
 	for (const FStaticMeshSection& Section : MeshData.Sections)
 	{

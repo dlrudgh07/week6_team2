@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Property.h"
+#include "UObject/UnrealType.h"
 #include "Object.h"
 
 using ClassConstructor = UObject * (*)();

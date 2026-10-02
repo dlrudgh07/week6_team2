@@ -3,7 +3,7 @@
 
 #include "Engine/AssetManager.h"
 #include "Materials/Material.h"
-#include "Rendering/Texture2D.h"
+#include "Engine/Texture2D.h"
 #include "Serialization/TypeSerializer.h"
 
 

@@ -14,7 +14,7 @@ bool FSkyboxRenderer::Init(const FString& PanoramaPath)
 		return false;
 	}
 
-	FImageData Image = ImageLoader::LoadAuto(PanoramaPath);
+	FImageData Image = FImageLoader::LoadAuto(PanoramaPath);
 	if (!Image.IsValid())
 	{
 		LOG(Error, "[Skybox] panorama load failed: {}", PanoramaPath);
@@ -31,10 +31,10 @@ bool FSkyboxRenderer::Init(const FString& PanoramaPath)
 	Desc.Usage = D3D11_USAGE_IMMUTABLE;
 	Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-	PanoramaTexture = RenderCommand::CreateTexture2D(Desc, Image);
+	PanoramaTexture = FRenderCommand::CreateTexture2D(Desc, Image);
 	if (!PanoramaTexture) return false;
 
-	ConstantBuffer = RenderCommand::CreateConstantBuffer(sizeof(FSkyboxConstants));
+	ConstantBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FSkyboxConstants));
 
 	PipelineState.Shader = Shader;
 	PipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -57,13 +57,13 @@ void FSkyboxRenderer::OnRender(const FMatrix& ViewProjection, const FVector& Cam
 	Constants.InverseViewProjection = ViewProjection.Inverse();
 	Constants.CameraPosition = CameraPosition;
 
-	RenderCommand::BindPipelineState(&PipelineState);
-	RenderCommand::UpdateBufferData(ConstantBuffer.get(), &Constants);
-	RenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Pixel);
-	RenderCommand::BindShaderResource(0, PanoramaTexture.get(), EShaderBindFlagBits::Pixel);
+	FRenderCommand::BindPipelineState(&PipelineState);
+	FRenderCommand::UpdateBufferData(ConstantBuffer.get(), &Constants);
+	FRenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Pixel);
+	FRenderCommand::BindShaderResource(0, PanoramaTexture.get(), EShaderBindFlagBits::Pixel);
 	// 경도(U)가 0<->1에서 감기므로 Clamp가 아니라 Wrap이어야 이음매가 안 보인다.
-	RenderCommand::BindSamplerState(0, ESamplerState::LinearWrap, EShaderBindFlagBits::Pixel);
+	FRenderCommand::BindSamplerState(0, ESamplerState::LinearWrap, EShaderBindFlagBits::Pixel);
 
 	// 정점 버퍼 없이 3개. VS가 SV_VertexID로 삼각형을 만든다.
-	RenderCommand::Draw(3);
+	FRenderCommand::Draw(3);
 }

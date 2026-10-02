@@ -56,7 +56,7 @@ bool FJsonArchive::SaveWorld(UWorld* World, const FString& Path)
 	if (!World)
 		return false;
 
-	ULevel* Level = World->GetLevel();
+	ULevel* Level = World->GetCurrentLevel();
 
 	if (!Level)
 		return false;

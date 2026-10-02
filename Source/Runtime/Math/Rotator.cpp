@@ -1,6 +1,6 @@
 #include "EnginePCH.h"
 #include "Rotator.h"
-#include "Math/EngineMath.h"
+#include "Math/UnrealMathUtility.h"
 
 FRotator::FRotator()
 {

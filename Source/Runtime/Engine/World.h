@@ -3,7 +3,7 @@
 
 #include "UObject/Object.h"
 #include "UObject/Class.h"
-#include "UObject/TWeakObjectPtr.h"
+#include "UObject/WeakObjectPtrTemplates.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Math/Transform.h"
@@ -52,9 +52,9 @@ class UWorld : public UObject
 	ACameraActor* GetMainCamera() const;
 	void SetMainCamera(ACameraActor* Camera);
 
-	ULevel* GetLevel() const;
+	ULevel* GetCurrentLevel() const;
 
-	int32 GetActorNum();
+	int32 GetActorCount();
 
 	bool DestroyActor(AActor* Actor);
 

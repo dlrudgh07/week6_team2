@@ -63,7 +63,7 @@ bool UPrimitiveComponent::LineTraceComponent(const FRay& WorldRay, FHitResult& O
 	if (!RayIntersectsAABB(WorldRay, Bounds.Min, Bounds.Max, OutHit.Distance))
 		return false;
 
-	const FStaticMeshData* Mesh = GetMeshData();
+	const FStaticMeshRenderData* Mesh = GetMeshData();
 	return Mesh && TraceMesh(WorldRay, *Mesh, GetWorldMatrix(), OutHit);
 }
 
@@ -71,11 +71,11 @@ bool UPrimitiveComponent::LineTraceComponent(const FRay& WorldRay, FHitResult& O
 bool UPrimitiveComponent::LineTraceWithContext(const FTraceContext& Context, FHitResult& OutHit)
 {
 	// 월드 AABB 판정은 피킹 BVH가 이미 마쳤으므로 다시 하지 않는다. 메시 검사는 MaxT로 먼 히트를 잘라낸다.
-	const FStaticMeshData* Mesh = GetMeshData();
+	const FStaticMeshRenderData* Mesh = GetMeshData();
 	return Mesh && TraceMesh(Context.Ray, *Mesh, GetWorldMatrix(), OutHit, Context.BestDistance);
 }
 
-bool UPrimitiveComponent::TraceMesh(const FRay& WorldRay, const FStaticMeshData& Mesh, const FMatrix& WorldMatrix, FHitResult& OutResult, const float MaxT)
+bool UPrimitiveComponent::TraceMesh(const FRay& WorldRay, const FStaticMeshRenderData& Mesh, const FMatrix& WorldMatrix, FHitResult& OutResult, const float MaxT)
 {
 	FRay LocalRay;
 	if (!ToLocalRayAffine(WorldRay, WorldMatrix, LocalRay))

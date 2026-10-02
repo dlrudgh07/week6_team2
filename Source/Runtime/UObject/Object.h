@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/Types.h"
+#include "HAL/Platform.h"
 #include "Core/EngineStatics.h"
-#include "Core/NameTypes.h"
+#include "UObject/NameTypes.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/UObjectHash.h"
 #include "Serialization/Archive.h"

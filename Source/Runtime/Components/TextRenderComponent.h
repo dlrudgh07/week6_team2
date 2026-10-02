@@ -20,7 +20,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime) override;
 
-	virtual const FStaticMeshData* GetMeshData() const override;
+	virtual const FStaticMeshRenderData* GetMeshData() const override;
 
 
 	// 텍스트는 FTextRenderer가 따로 그리므로 렌더 패킷을 만들지 않음
@@ -42,7 +42,7 @@ private:
 	UFont* Font = nullptr;
 	float TextSize = 1.0f;
 
-	mutable FStaticMeshData PickingMesh;
+	mutable FStaticMeshRenderData PickingMesh;
 	mutable FString CachedText;
 	mutable float CachedTextSize = -1.0f;
 	mutable UFont* CachedFont = nullptr;

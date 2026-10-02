@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Rendering/Buffer.h"
-#include "Rendering/PipelineState.h"
+#include "RHI/RHIBuffer.h"
+#include "RHI/PipelineState.h"
 #include "Rendering/Vertex.h"
 
 class UFont;
 class UCameraComponent;
 
-struct TextTransformData
+struct FTextTransformData
 {
 	// 텍스트 Draw에 필요한 월드 행렬과 ViewProjection 행렬을 담는다.
 	FMatrix World;
@@ -15,7 +15,7 @@ struct TextTransformData
 };
 
 
-struct MSDFData
+struct FMSDFData
 {
 	// MSDF 텍스트의 화면 픽셀 크기와 정렬용 여유 값을 담는다.
 	float ScreenPx;
@@ -48,14 +48,14 @@ private:
 	FShaderProgram* TextShader = nullptr;
 	FPipelineState PipelineState;
 
-	TUniquePtr<FVertexBuffer> VertexBuffer;
-	TUniquePtr<FIndexBuffer> IndexBuffer;
+	TUniquePtr<FRHIVertexBuffer> VertexBuffer;
+	TUniquePtr<FRHIIndexBuffer> IndexBuffer;
 
 	TArray<FTextVertex> Vertices;
 	TArray<uint32> Indices;
 
-	TUniquePtr<FConstantBuffer> MVP;
-	TUniquePtr<FConstantBuffer> ScreenPx;
+	TUniquePtr<FRHIUniformBuffer> MVP;
+	TUniquePtr<FRHIUniformBuffer> ScreenPx;
 	uint32 MaxCharacters = 64; // 대략 UUID 문자열 길이(32~36자) 여유있게
 	uint32 MaxVertices = 0;
 	uint32 MaxIndices = 0;

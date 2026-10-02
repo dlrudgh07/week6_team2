@@ -136,11 +136,11 @@ bool FGridRenderer::Init(FRenderer* InRenderer)
     BatchGridShader = FRenderResourceManager::GetShaderProgram("Resources/Shader/GridShaderBatch.hlsl");
     MaxVertices = 100000;
     BatchGridVertices = new FGridLineVertex[MaxVertices];
-    BatchGridVertexBuffer = RenderCommand::CreateDynamicVertexBuffer(sizeof(FGridLineVertex) * MaxVertices, sizeof(FGridLineVertex));
-    BatchGridConstantBuffer = RenderCommand::CreateConstantBuffer(sizeof(FBatchGridData));
+    BatchGridVertexBuffer = FRenderCommand::CreateDynamicVertexBuffer(sizeof(FGridLineVertex) * MaxVertices, sizeof(FGridLineVertex));
+    BatchGridConstantBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FBatchGridData));
 
     PSGridShader = FRenderResourceManager::GetShaderProgram("Resources/Shader/GridShader.hlsl");
-    PSGridConstantBuffer = RenderCommand::CreateConstantBuffer(sizeof(FPSGridData));
+    PSGridConstantBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FPSGridData));
 
     BatchGridPipelineState.Shader = BatchGridShader;
     BatchGridPipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -201,15 +201,15 @@ void FGridRenderer::DrawWorldLines(uint32 VertexCount, const FMatrix& ViewProj, 
     FBatchGridData Data{};
     // GridShaderBatch cbuffer가 row_major이므로 전치 없이 올린다.
     Data.ViewProjection = ViewProj;
-    Data.ViewportSize = FVector2(static_cast<float>(Viewport.Width), static_cast<float>(Viewport.Height));
+    Data.ViewportSize = FVector2D(static_cast<float>(Viewport.Width), static_cast<float>(Viewport.Height));
     Data.FadeOriginAndRadius = FVector4(FadeOrigin, FadeRadius);
-    RenderCommand::UpdateBufferData(BatchGridConstantBuffer.get(), &Data, sizeof(Data));
-    RenderCommand::BindConstantBuffer(0, BatchGridConstantBuffer.get(), EShaderBindFlagBits::Vertex);
-    RenderCommand::BindConstantBuffer(0, BatchGridConstantBuffer.get(), EShaderBindFlagBits::Pixel);
-    RenderCommand::UpdateBufferData(BatchGridVertexBuffer.get(), BatchGridVertices, sizeof(FGridLineVertex) * VertexCount);
-    RenderCommand::BindPipelineState(&BatchGridPipelineState);
-    RenderCommand::BindVertexBuffer(BatchGridVertexBuffer.get());
-    RenderCommand::Draw(VertexCount);
+    FRenderCommand::UpdateBufferData(BatchGridConstantBuffer.get(), &Data, sizeof(Data));
+    FRenderCommand::BindConstantBuffer(0, BatchGridConstantBuffer.get(), EShaderBindFlagBits::Vertex);
+    FRenderCommand::BindConstantBuffer(0, BatchGridConstantBuffer.get(), EShaderBindFlagBits::Pixel);
+    FRenderCommand::UpdateBufferData(BatchGridVertexBuffer.get(), BatchGridVertices, sizeof(FGridLineVertex) * VertexCount);
+    FRenderCommand::BindPipelineState(&BatchGridPipelineState);
+    FRenderCommand::BindVertexBuffer(BatchGridVertexBuffer.get());
+    FRenderCommand::Draw(VertexCount);
 }
 
 // 직교 Grid를 평면에 고정하고 Current의 평면 관통 축은 뒤쪽·Grid·앞쪽 순서로 합성한다.
@@ -340,12 +340,12 @@ void FGridRenderer::OnRenderPSGrid(const FMatrix& ViewProj, const FVector& Camer
 
 	if (InEditorSettings.bDrawGrid)
 	{
-		RenderCommand::BindPipelineState(&PSGridPipelineState);
-		RenderCommand::BindVertexBuffer(nullptr);
-		RenderCommand::UpdateBufferData(PSGridConstantBuffer.get(), &Data, sizeof(Data));
-		RenderCommand::BindConstantBuffer(0, PSGridConstantBuffer.get(), EShaderBindFlagBits::Vertex);
-		RenderCommand::BindConstantBuffer(0, PSGridConstantBuffer.get(), EShaderBindFlagBits::Pixel);
-		RenderCommand::Draw(4);
+		FRenderCommand::BindPipelineState(&PSGridPipelineState);
+		FRenderCommand::BindVertexBuffer(nullptr);
+		FRenderCommand::UpdateBufferData(PSGridConstantBuffer.get(), &Data, sizeof(Data));
+		FRenderCommand::BindConstantBuffer(0, PSGridConstantBuffer.get(), EShaderBindFlagBits::Vertex);
+		FRenderCommand::BindConstantBuffer(0, PSGridConstantBuffer.get(), EShaderBindFlagBits::Pixel);
+		FRenderCommand::Draw(4);
 	}
 
 	if (InEditorSettings.bDrawAxis)

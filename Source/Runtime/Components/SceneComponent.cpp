@@ -19,7 +19,7 @@ USceneComponent::~USceneComponent()
 			OwnerActor->SetRootComponent(Children.Num() > 0 ? Children[0] : nullptr);
 	}
 
-	DetachFromParent();
+	DetachFromComponent();
 }
 
 void USceneComponent::SetupAttachment(USceneComponent* InParent)
@@ -32,7 +32,7 @@ void USceneComponent::SetupAttachment(USceneComponent* InParent)
 		if (Parent == this)
 			return;
 
-	DetachFromParent();
+	DetachFromComponent();
 	AttachParent = InParent;
 	if (AttachParent)
 	{
@@ -41,7 +41,7 @@ void USceneComponent::SetupAttachment(USceneComponent* InParent)
 	MarkTransformDirtyRecursive();
 }
 
-void USceneComponent::DetachFromParent()
+void USceneComponent::DetachFromComponent()
 {
 	if (!AttachParent)
 		return;
@@ -98,11 +98,11 @@ void USceneComponent::Serialize(json& Handle, const bool bIsLoading)
 		MarkTransformDirtyRecursive();
 }
 
-FRotator USceneComponent::GetWorldRotation() const
+FRotator USceneComponent::GetComponentRotation() const
 {
 	if (AttachParent)
 	{
-		FQuat ParentQuat = AttachParent->GetWorldRotation().Quaternion();
+		FQuat ParentQuat = AttachParent->GetComponentRotation().Quaternion();
 		FQuat LocalQuat = Transform.GetOrientation();
 
 		return (ParentQuat * LocalQuat).ToFRotator();
@@ -111,18 +111,18 @@ FRotator USceneComponent::GetWorldRotation() const
 	return Transform.Rotation;
 }
 
-FVector USceneComponent::GetWorldLocation() const
+FVector USceneComponent::GetComponentLocation() const
 {
 	FMatrix WorldMatrix = GetWorldMatrix();
 
 	return FVector(WorldMatrix[3][0], WorldMatrix[3][1], WorldMatrix[3][2]);
 }
 
-FVector USceneComponent::GetWorldScale3D() const
+FVector USceneComponent::GetComponentScale() const
 {
 	if (AttachParent)
 	{
-		FVector ParentScale = AttachParent->GetWorldScale3D();
+		FVector ParentScale = AttachParent->GetComponentScale();
 
 		return FVector(Transform.Scale.X * ParentScale.X, Transform.Scale.Y * ParentScale.Y, Transform.Scale.Z * ParentScale.Z);
 	}

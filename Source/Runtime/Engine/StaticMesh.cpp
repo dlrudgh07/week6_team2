@@ -29,7 +29,7 @@ UMaterial* UStaticMesh::GetMaterial(uint32 SlotIndex) const
 	return CachedDefaultMaterial;
 }
 
-FIndexBuffer* UStaticMesh::GetIndexBuffer(uint8 LODIndex) const
+FRHIIndexBuffer* UStaticMesh::GetIndexBuffer(uint8 LODIndex) const
 {
 	if (LODIndex > 0 && !LODs.IsEmpty())
 	{
@@ -69,12 +69,12 @@ bool UStaticMesh::GenerateLODs()
 	// 기본 원본 인덱스 버퍼 보존
 	if (!IndexBuffer)
 	{
-		IndexBuffer = RenderCommand::CreateStaticIndexBuffer(
+		IndexBuffer = FRenderCommand::CreateStaticIndexBuffer(
 			MeshData.Indices.GetData(),
 			TotalIndices);
 	}
 
-	FStaticMeshLOD LODZero;
+	FStaticMeshLODResources LODZero;
 	LODZero.IndexCount = IndexBuffer ? IndexBuffer->GetIndexCount() : TotalIndices;
 	LODZero.ScreenSizeThreshold = 0.15f;
 	LODs.Add(std::move(LODZero));
@@ -129,8 +129,8 @@ bool UStaticMesh::GenerateLODs()
 				1.05f
 			);
 
-			FStaticMeshLOD LOD1;
-			LOD1.IndexBuffer = RenderCommand::CreateStaticIndexBuffer(
+			FStaticMeshLODResources LOD1;
+			LOD1.IndexBuffer = FRenderCommand::CreateStaticIndexBuffer(
 				LOD1Indices.GetData(),
 				static_cast<uint32>(ReducedCount));
 			LOD1.IndexCount = static_cast<uint32>(ReducedCount);
@@ -195,8 +195,8 @@ bool UStaticMesh::GenerateLODs()
 				1.05f
 			);
 
-			FStaticMeshLOD LOD2;
-			LOD2.IndexBuffer = RenderCommand::CreateStaticIndexBuffer(
+			FStaticMeshLODResources LOD2;
+			LOD2.IndexBuffer = FRenderCommand::CreateStaticIndexBuffer(
 				LOD2Indices.GetData(),
 				static_cast<uint32>(ReducedCount));
 			LOD2.IndexCount = static_cast<uint32>(ReducedCount);
@@ -208,12 +208,12 @@ bool UStaticMesh::GenerateLODs()
 	return true;
 }
 
-bool UStaticMesh::RebuildFromMeshData(FStaticMeshData&& InData)
+bool UStaticMesh::RebuildFromMeshData(FStaticMeshRenderData&& InData)
 {
 	MeshData = std::move(InData);
 
-	VertexBuffer = RenderCommand::CreateStaticVertexBuffer(MeshData.Vertices.GetData(), sizeof(FVertexPNCT) * static_cast<uint32>(MeshData.Vertices.Num()), sizeof(FVertexPNCT));
-	IndexBuffer = RenderCommand::CreateStaticIndexBuffer(MeshData.Indices.GetData(), static_cast<uint32>(MeshData.Indices.Num()));
+	VertexBuffer = FRenderCommand::CreateStaticVertexBuffer(MeshData.Vertices.GetData(), sizeof(FVertexPNCT) * static_cast<uint32>(MeshData.Vertices.Num()), sizeof(FVertexPNCT));
+	IndexBuffer = FRenderCommand::CreateStaticIndexBuffer(MeshData.Indices.GetData(), static_cast<uint32>(MeshData.Indices.Num()));
 	if (!VertexBuffer || !IndexBuffer)
 	{
 		return false;

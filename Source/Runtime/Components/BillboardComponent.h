@@ -33,7 +33,7 @@ public:
 		}
 	}
 
-	virtual const FStaticMeshData* GetMeshData() const override { return QuadMesh ? &QuadMesh->GetMeshData() : nullptr; }
+	virtual const FStaticMeshRenderData* GetMeshData() const override { return QuadMesh ? &QuadMesh->GetMeshData() : nullptr; }
 
 	void GetWorldTransformedMatrix(FMatrix* OutWorldMatrix) const;
 	// 기본 카메라 기준 월드 행렬로 Billboard 렌더 패킷을 제출한다.

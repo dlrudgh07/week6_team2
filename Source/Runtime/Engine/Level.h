@@ -18,7 +18,7 @@ class ULevel : public UObject
 
 	UWorld* GetWorld() const;
 	const TArray<AActor*>& GetActors() const;
-	uint32 GetActorNum() const;
+	uint32 GetActorCount() const;
 	void AddActor(AActor* Actor);
 	void ClearActors();
 	//virtual void Serialize(FArchive& Ar) override; // Save Level 구현예정

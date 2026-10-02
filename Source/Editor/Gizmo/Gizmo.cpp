@@ -32,7 +32,7 @@ float FGizmo::ComputeScreenScale(const FVector& Location, const FMatrix& ViewPro
 }
 
 // 입력 View의 카메라 조건으로 축 선택과 드래그를 갱신한다.
-void FGizmo::Update(const FRay& MouseRay, const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH, bool bMouseDown, const FVector& CameraLocation, const bool bCameraOrthographic)
+void FGizmo::Update(const FRay& MouseRay, const FVector2D& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH, bool bMouseDown, const FVector& CameraLocation, const bool bCameraOrthographic)
 {
 	ViewCameraLocation = CameraLocation;
 	bViewCameraOrthographic = bCameraOrthographic;
@@ -64,7 +64,7 @@ void FGizmo::Update(const FRay& MouseRay, const FVector2& MousePos, const FMatri
 }
 
 // 모드에 따라 선형 축 또는 회전 링 피킹을 선택한다.
-int FGizmo::PickAxis(const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
+int FGizmo::PickAxis(const FVector2D& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
 {
 	if (Mode == EGizmoMode::Rotation)
 		return PickRotationAxis(MousePos, ViewProj, ScreenW, ScreenH);
@@ -73,12 +73,12 @@ int FGizmo::PickAxis(const FVector2& MousePos, const FMatrix& ViewProj, int Scre
 }
 
 // 투영한 축 선분과 마우스의 화면 거리로 조작 축을 고른다.
-int FGizmo::PickLinearAxis(const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
+int FGizmo::PickLinearAxis(const FVector2D& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
 {
 	FVector Origin = GetRenderLocation();
 
-	FVector2 Center = WorldToScreen(Origin, ViewProj, ScreenW, ScreenH);
-	FVector2 d = MousePos - Center;
+	FVector2D Center = WorldToScreen(Origin, ViewProj, ScreenW, ScreenH);
+	FVector2D d = MousePos - Center;
 	if (sqrtf(d.X * d.X + d.Y * d.Y) < 15.0f)
 		return AXIS_SCREEN;
 
@@ -87,8 +87,8 @@ int FGizmo::PickLinearAxis(const FVector2& MousePos, const FMatrix& ViewProj, in
 
 	for (int i = 0; i < 3; ++i)
 	{
-		FVector2 Start = WorldToScreen(Origin, ViewProj, ScreenW, ScreenH);
-		FVector2 End = WorldToScreen(Origin + GetAxisDirection(i) * (AxisLength * ViewScale), ViewProj, ScreenW, ScreenH);
+		FVector2D Start = WorldToScreen(Origin, ViewProj, ScreenW, ScreenH);
+		FVector2D End = WorldToScreen(Origin + GetAxisDirection(i) * (AxisLength * ViewScale), ViewProj, ScreenW, ScreenH);
 
 		float Dist = DistanceToSegment(MousePos, Start, End);
 		if (Dist < BestDist)
@@ -101,7 +101,7 @@ int FGizmo::PickLinearAxis(const FVector2& MousePos, const FMatrix& ViewProj, in
 }
 
 // 회전 링을 선분으로 나누어 화면 거리로 회전 축을 고른다.
-int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
+int FGizmo::PickRotationAxis(const FVector2D& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH)
 {
 	const FVector Origin = GetRenderLocation();
 	const int Segments = 32;
@@ -115,7 +115,7 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 		FVector u = GetAxisDirection((Axis + 1) % 3);
 		FVector v = GetAxisDirection((Axis + 2) % 3);
 
-		FVector2 prev;
+		FVector2D prev;
 		bool bHasPrev = false;
 
 		for (int s = 0; s <= Segments; ++s)
@@ -125,7 +125,7 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 				+ u * (ScaledRingRadius * cosf(theta))
 				+ v * (ScaledRingRadius * sinf(theta));
 
-			FVector2 screenPos = WorldToScreen(worldPos, ViewProj, ScreenW, ScreenH);
+			FVector2D screenPos = WorldToScreen(worldPos, ViewProj, ScreenW, ScreenH);
 
 			if (bHasPrev)
 			{
@@ -149,7 +149,7 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 
 	const float ScreenRingRadius = ScaledRingRadius * 1.3f;
 
-	FVector2 prev;
+	FVector2D prev;
 	bool bHasPrev = false;
 
 	for (int s = 0; s <= Segments; ++s)
@@ -159,7 +159,7 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 			+ u * (ScreenRingRadius * cosf(theta))
 			+ v * (ScreenRingRadius * sinf(theta));
 
-		FVector2 screenPos = WorldToScreen(worldPos, ViewProj, ScreenW, ScreenH);
+		FVector2D screenPos = WorldToScreen(worldPos, ViewProj, ScreenW, ScreenH);
 
 		if (bHasPrev)
 		{
@@ -179,7 +179,7 @@ int FGizmo::PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, 
 }
 
 // 시작 Transform·교차점을 저장하고 조작 축의 드래그 평면을 정한다.
-void FGizmo::BeginDrag(int Axis, const FRay& MouseRay, const FVector2& MousePos)
+void FGizmo::BeginDrag(int Axis, const FRay& MouseRay, const FVector2D& MousePos)
 {
 	DragStartMousePos = MousePos;
 	DraggingAxis = Axis;
@@ -230,7 +230,7 @@ void FGizmo::BeginDrag(int Axis, const FRay& MouseRay, const FVector2& MousePos)
 }
 
 // 평면 교차점 변화를 이동·회전·크기에 반영한다.
-void FGizmo::UpdateDrag(const FRay& MouseRay, const FVector2& MousePos)
+void FGizmo::UpdateDrag(const FRay& MouseRay, const FVector2D& MousePos)
 {
 	float t;
 	if (!RayIntersectsPlane(MouseRay, DragStartRenderLocation, DragPlaneNormal, t))

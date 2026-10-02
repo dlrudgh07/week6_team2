@@ -16,7 +16,7 @@ public:
 	virtual void BeginPlay();
 	virtual void TickComponent(float DeltaTime);
 
-	virtual const FStaticMeshData* GetMeshData() const override { return StaticMesh ? &StaticMesh->GetMeshData() : nullptr; }
+	virtual const FStaticMeshRenderData* GetMeshData() const override { return StaticMesh ? &StaticMesh->GetMeshData() : nullptr; }
 
 	// 메시가 바뀌면 슬롯 구성이 달라지므로 덮어쓰기를 비운다
 	void SetStaticMesh(UStaticMesh* InStaticMesh);

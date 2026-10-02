@@ -111,7 +111,7 @@ void FEditorControlsPanel::OnRender()
 	const float SpawnButtonWidth = 70.0f;
 
 	char CountText[32];
-	std::snprintf(CountText, sizeof(CountText), "%d Actors", World ? World->GetActorNum() : 0);
+	std::snprintf(CountText, sizeof(CountText), "%d Actors", World ? World->GetActorCount() : 0);
 
 	const float CountWidth = ImGui::CalcTextSize(CountText).x;
 	const float Available = ImGui::GetContentRegionAvail().x;
@@ -273,7 +273,7 @@ void FEditorControlsPanel::DrawCameraProperties()
 	}
 
 	bool bChanged = false;
-	bool bOrthogonal = ViewportAdapter ? Camera.Projection.Mode == EProjectionMode::Orthographic : CamCom->GetIsOrthogonal();
+	bool bOrthogonal = ViewportAdapter ? Camera.Projection.Mode == ECameraProjectionMode::Orthographic : CamCom->GetIsOrthogonal();
 
 	ImGui::Dummy(ImVec2(0.0f, SubsectionGap));
 	ImGui::TextDisabled("Projection");

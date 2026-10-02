@@ -2,7 +2,7 @@
 #include "Actor.h"
 #include "Engine/World.h"
 #include "Engine/Level.h"
-#include "UObject/ObjectFactory.h"
+#include "UObject/UObjectGlobals.h"
 #include "Components/SceneComponent.h"
 
 AActor::AActor()
@@ -168,7 +168,7 @@ FVector AActor::GetActorLocation() const
 {
 	if (RootComponent)
 	{
-		return RootComponent->GetWorldLocation();
+		return RootComponent->GetComponentLocation();
 	}
 	return FVector::ZeroVector;
 }
@@ -177,8 +177,8 @@ FVector AActor::GetActorLocation() const
 //{
 //    if (RootComponent)
 //    {
-//        // USceneComponent의 GetWorldRotation() 호출
-//        return RootComponent->GetWorldRotation();
+//        // USceneComponent의 GetComponentRotation() 호출
+//        return RootComponent->GetComponentRotation();
 //    }
 //    return FRotator::ZeroRotator;
 //}
@@ -187,7 +187,7 @@ FVector AActor::GetActorScale3D() const
 {
 	if (RootComponent)
 	{
-		return RootComponent->GetWorldScale3D();
+		return RootComponent->GetComponentScale();
 	}
 	return FVector::OneVector;
 }
@@ -196,7 +196,7 @@ FVector AActor::GetActorScale3D() const
 //{
 //    if (RootComponent)
 //    {
-//        return FQuat(RootComponent->GetWorldRotation());
+//        return FQuat(RootComponent->GetComponentRotation());
 //    }
 //    return FQuat::Identity;
 //}
@@ -205,7 +205,7 @@ FTransform AActor::GetActorTransform() const
 {
 	if (RootComponent)
 	{
-		return FTransform(RootComponent->GetWorldRotation(), RootComponent->GetWorldLocation(), RootComponent->GetWorldScale3D());
+		return FTransform(RootComponent->GetComponentRotation(), RootComponent->GetComponentLocation(), RootComponent->GetComponentScale());
 
 		// return FTransform(RootComponent->GetWorldMatrix());
 	}
