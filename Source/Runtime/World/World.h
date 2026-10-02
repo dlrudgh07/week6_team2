@@ -26,13 +26,12 @@ public:
 	virtual ~UWorld();
 
 	bool Init();
-	/*UPrimitiveComponent* SpawnPrimitive(FClass* Class);*/
+
 	AActor* SpawnActor(UClass* Class, FName InName = NAME_None, const FTransform * Transform = nullptr);
 
 	template <class T>
 	T* SpawnActor(FName InName = NAME_None, const FTransform* Transform = nullptr)
 	{
-
 		return CastChecked<T>(SpawnActor(T::StaticClass(), InName, Transform));
 	}
 
@@ -49,11 +48,8 @@ public:
 	ACameraActor* GetMainCamera() const { return MainCamera; }
 	
 	// Level
-	ULevel* GetPersistentLevel() const { return PersistentLevel; }
-	void SetPersistentLevel(ULevel* InLevel) { PersistentLevel = InLevel; }
-
-	ULevel* GetCurrentLevel() const { return CurrentLevel; }
-	void SetCurrentLevel(ULevel* InLevel) { CurrentLevel = InLevel; }
+	ULevel* GetLevel() const { return Level; }
+	void SetLevel(ULevel* InLevel) { Level = InLevel; }
 
 	FPathTracker& GetPathTracker() { return PathTracker; }
 	
@@ -97,9 +93,7 @@ private:
 
 	FPathTracker PathTracker;
 
-	ULevel* PersistentLevel = nullptr;
-	ULevel* CurrentLevel = nullptr;
-	TArray<ULevel*> Levels;
+	ULevel* Level = nullptr;
 	TArray<AActor*> TickActors;
 
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> WorldPrimitiveComponents;
@@ -107,5 +101,4 @@ private:
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> DirtyRenderPrimitiveComponents;
 	uint64 PrimitiveTopologyRevision = 1;
 	FPrimitiveBVH PrimitiveBVH;
-
 };

@@ -22,18 +22,16 @@ UWorld::~UWorld()
 bool UWorld::Init()
 {
 	// Spawn Actor로 카메라 생성하고 세팅하기
-	PersistentLevel = FObjectFactory::ConstructObject<ULevel>();
+	Level = FObjectFactory::ConstructObject<ULevel>();
 
-	if (!PersistentLevel)
+	if (!Level)
 	{
 		LOG(Error, "Failed to create PersistentLevel");
 		return false;
 	}
 
 	//레벨 연결
-	PersistentLevel->SetWorld(this);
-	Levels.Add(PersistentLevel);
-	CurrentLevel = PersistentLevel;
+	Level->OwningWorld = this;
 
 	//카메라 생성
 	CreateMainCamera();
@@ -49,7 +47,7 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 		return nullptr;
 
 	// 1. ObjectFactory로 Actor 생성
-	AActor* NewActor = Cast<AActor>(FObjectFactory::ConstructObject(Class, PersistentLevel, InName));
+	AActor* NewActor = Cast<AActor>(FObjectFactory::ConstructObject(Class, Level, InName));
 
 	if (!NewActor)
 	{
@@ -59,7 +57,7 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 
 	// 2. Actor에 World/Level 연결
 	NewActor->World = this;
-	NewActor->Level = PersistentLevel;
+	NewActor->Level = Level;
 
 	// 3. Transform 적용
 	const FTransform SpawnTransform = Transform ? *Transform : FTransform::Identity;
@@ -76,7 +74,7 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 	}
 
 	// 4. Level->Actors에 등록
-	PersistentLevel->AddActor(NewActor);
+	Level->AddActor(NewActor);
 	RefreshActorTickRegistration(NewActor);
 
 	// 5. PlayList에 추가
@@ -107,7 +105,6 @@ void UWorld::Tick(float DeltaTime)
 	// 모든 Actor와 Component의 Transform 갱신이 끝난 뒤 피킹 공간 인덱스를 갱신한다.
 	PrimitiveBVH.Update(WorldPrimitiveComponents, PrimitiveTopologyRevision, DirtyPrimitiveComponents);
 	DirtyPrimitiveComponents.Reset();
-
 }
 
 void UWorld::ClearWorld()
@@ -122,17 +119,15 @@ void UWorld::ClearWorld()
 	PathTracker.SetPathRenderingEnabled(false);
 	PathTracker.ClearPath();
 
-	for (ULevel* Level : Levels)
-	{
-		Level->ClearActors();
-	}
+	Level->ClearActors();
+
 	WorldPrimitiveComponents.Reset();
 	DirtyPrimitiveComponents.Reset();
 	DirtyRenderPrimitiveComponents.Reset();
 	TickActors.Reset();
 	++PrimitiveTopologyRevision;
 	PrimitiveBVH.Reset();
-	LOG(Info, "{} : ", PersistentLevel->GetActorNum());
+	LOG(Info, "{} : ", Level->GetActorNum());
 }
 
 void UWorld::GatherRenderPackets(TArray<FRenderPacket>& OutPackets)
@@ -167,7 +162,7 @@ void UWorld::CreateMainCamera()
 
 int32 UWorld::GetActorNum()
 {
-	return PersistentLevel->GetActorNum();
+	return Level->GetActorNum();
 }
 
 bool UWorld::DestroyActor(AActor* Actor)
@@ -275,8 +270,7 @@ bool UWorld::LineTraceCandidate(FTraceContext& Context, UPrimitiveComponent* Pri
 	return false;
 }
 
-void UWorld::GatherLineTraceCandidates(
-	const FRay& WorldRay, TArray<FLineTraceCandidate>& OutCandidates) const
+void UWorld::GatherLineTraceCandidates(const FRay& WorldRay, TArray<FLineTraceCandidate>& OutCandidates) const
 {
 	PrimitiveBVH.GatherRayCandidates(WorldRay, OutCandidates);
 }

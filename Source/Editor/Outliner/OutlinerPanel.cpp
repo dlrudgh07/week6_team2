@@ -23,7 +23,7 @@ void FOutlinerPanel::OnRender()
         return;
 
     // 현재 Level 가져오기
-    ULevel* Level = World->GetCurrentLevel();
+    ULevel* Level = World->GetLevel();
     if (!Level)
         return;
 

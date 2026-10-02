@@ -16,23 +16,17 @@ public:
     virtual ~ULevel() = default;
 
     UWorld* GetWorld() const { return OwningWorld; }
-    void SetWorld(UWorld* InWorld) { OwningWorld = InWorld; }
-
     const TArray<AActor*>& GetActors() const  { return Actors; }
     uint32 GetActorNum() const { return Actors.Num(); }
-
     void AddActor(AActor* Actor);
     void ClearActors();
-
     //virtual void Serialize(FArchive& Ar) override; // Save Level 구현예정
 
 private:
+	friend class UWorld;
+
     UWorld* OwningWorld = nullptr;
     TArray<AActor*> Actors;
-
     // AWorldSettings* WorldSettings = nullptr;
-
     bool bIsVisible = true;
-
-    friend class UWorld;
 };
