@@ -66,11 +66,7 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 	{
 		NewActor->GetRootComponent()->SetTransform(SpawnTransform);
 
-		if (UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(NewActor->GetRootComponent()))
-		{
-			WorldPrimitiveComponents.Add(PrimComp);
-			++PrimitiveTopologyRevision;
-		}
+		AddComponent(Cast<UPrimitiveComponent>(NewActor->GetRootComponent()));
 	}
 
 	// 4. Level->Actors에 등록
@@ -338,4 +334,13 @@ const TArray<TWeakObjectPtr<UPrimitiveComponent>>& UWorld::GetDirtyRenderPrimiti
 void UWorld::ClearDirtyRenderPrimitiveComponents()
 {
 	DirtyRenderPrimitiveComponents.Reset();
+}
+
+void UWorld::AddComponent(UPrimitiveComponent* PrimComp)
+{
+	if (PrimComp)
+	{
+		WorldPrimitiveComponents.Add(PrimComp);
+		++PrimitiveTopologyRevision;
+	}
 }

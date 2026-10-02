@@ -90,6 +90,8 @@ class UWorld : public UObject
 
 	void ClearDirtyRenderPrimitiveComponents();
 
+	void AddComponent(UPrimitiveComponent* PrimComp);
+
   private:
 	friend class AActor;
 	void RefreshActorTickRegistration(AActor* Actor);
