@@ -32,10 +32,13 @@ void AActor::BeginPlay()
 	{
 		Component->BeginPlay();
 	}
+
+	BeginPlayState = EActorBeginPlayState::BeginningPlay;
 }
 
 void AActor::EndPlay()
 {
+	BeginPlayState = EActorBeginPlayState::HasBegunPlay;
 }
 
 void AActor::Tick(float DeltaTime)
@@ -91,6 +94,45 @@ USceneComponent* AActor::GetRootComponent() const
 void AActor::SetRootComponent(USceneComponent* SceneComponent)
 {
 	RootComponent = SceneComponent;
+}
+
+UActorComponent* AActor::AddComponentByClass(UClass* Class, FName Name)
+{
+	if (!Class || !Class->IsChildOf(UActorComponent::StaticClass()))
+	{
+		return nullptr;
+	}
+
+	UActorComponent* Component = Cast<UActorComponent>(FObjectFactory::ConstructObject(Class, this, Name));
+
+	if (!Component)
+	{
+		return nullptr;
+	}
+
+	Component->SetOwner(this);
+	Components.Add(Component);
+
+	if (Component->IsA<USceneComponent>())
+	{
+		if (!RootComponent)
+		{
+			RootComponent = Cast<USceneComponent>(Component);
+		}
+		else
+		{
+			Cast<USceneComponent>(Component)->SetupAttachment(RootComponent);
+		}
+	}
+
+	GetWorld()->AddComponent(Cast<UPrimitiveComponent>(Component));
+
+	if (BeginPlayState == EActorBeginPlayState::BeginningPlay)
+	{
+		Component->BeginPlay();
+	}
+
+	return Component;
 }
 
 void AActor::SetCanEverTick(const bool bEnabled)
