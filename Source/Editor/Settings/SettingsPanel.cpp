@@ -5,7 +5,7 @@
 #include "Camera/CameraComponent.h"
 
 
-#include "World/World.h"
+#include "Engine/World.h"
 
 // 종료 시 렌더·에디터·뷰포트 설정을 함께 저장한다.
 FSettingsPanel::~FSettingsPanel()

@@ -1,13 +1,20 @@
 #pragma once
 
-#include "ObjectSystem/Object.h"
-#include "Component/PrimitiveComponent.h"
-#include "ObjectSystem/Class.h"
-#include "ObjectSystem/ObjectFactory.h"
-#include "Container/Set.h"
+#include "UObject/Object.h"
+#include "Components/PrimitiveComponent.h"
+#include "UObject/Class.h"
+#include "UObject/UObjectGlobals.h"
+#include "Containers/Set.h"
 
 class ULevel;
 class UWorld;
+
+enum class EActorBeginPlayState
+{
+	HasNotBegunPlay,
+	BeginningPlay,
+	HasBegunPlay,
+};
 
 class AActor : public UObject
 {
@@ -18,7 +25,8 @@ class AActor : public UObject
 	AActor();
 	virtual ~AActor();
 
-	virtual void BeginPlay();           // xx World->AddPrimitive 책임이동 필요
+	virtual void BeginPlay(); // xx World->AddPrimitive 책임이동 필요
+	virtual void EndPlay();
 	virtual void Tick(float DeltaTime); // xx component 호출
 	bool CanEverTick() const;
 	bool IsActorTickEnabled() const;
@@ -35,7 +43,7 @@ class AActor : public UObject
 	FVector GetActorLocation() const;
 	FRotator GetActorRotation() const;
 	FVector GetActorScale3D() const;
-	FQuat GetActorQuat() const; //xx 타입명변경
+	FQuat GetActorQuat() const; // xx 타입명변경
 	FTransform GetActorTransform() const;
 
 	bool Destroy();
@@ -51,6 +59,8 @@ class AActor : public UObject
 		return Component;
 	}
 
+	UActorComponent* AddComponentByClass(UClass* Class, FName Name = NAME_None);
+
   protected:
 	void SetCanEverTick(bool bEnabled);
 
@@ -61,6 +71,8 @@ class AActor : public UObject
 	ULevel* Level = nullptr;
 	bool bCanEverTick = true;
 	bool bTickEnabled = true;
+	bool bTickInEditor = false;
+	EActorBeginPlayState BeginPlayState = EActorBeginPlayState::HasNotBegunPlay;
 
   private:
 };

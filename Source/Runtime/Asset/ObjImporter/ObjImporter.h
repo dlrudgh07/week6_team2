@@ -4,24 +4,24 @@
 
 #include "ObjInfo.h"
 #include "ObjImportSettings.h"
-#include "Core/Types.h"
-#include "Core/EngineString.h"
+#include "HAL/Platform.h"
+#include "Containers/UnrealString.h"
 
-struct FStaticMeshData;
+struct FStaticMeshRenderData;
 
 class FObjImporter
 {
 public:
-	static TUniquePtr<FStaticMeshData> LoadStaticMeshData(const FString& Path, EObjAxisPreset& Preset);
+	static TUniquePtr<FStaticMeshRenderData> LoadStaticMeshData(const FString& Path, EObjAxisPreset& Preset);
 
 	// 디버그용 출력
 	static void PrintObjInfo(const FObjInfo& ObjInfo);
-	static void PrintSMD(const FStaticMeshData& SMD);
+	static void PrintSMD(const FStaticMeshRenderData& SMD);
 
 private:
 	// .obj 파일 경로 -> FObjInfo 변환
 	static bool ParseObj(const FString& Path, FObjInfo& Out);
 
-	// FObjInfo -> FStaticMeshData 변환
-	static bool Cook(const FObjInfo& Raw, FStaticMeshData& Out, EObjAxisPreset Preset);
+	// FObjInfo -> FStaticMeshRenderData 변환
+	static bool Cook(const FObjInfo& Raw, FStaticMeshRenderData& Out, EObjAxisPreset Preset);
 };

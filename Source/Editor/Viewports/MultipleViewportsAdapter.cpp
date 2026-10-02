@@ -4,22 +4,22 @@
 
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
-#include "Component/PrimitiveComponent.h"
-#include "Component/StaticMeshComponent.h"
-#include "Component/BillboardComponent.h"
-#include "Component/ParticleSubUVComponent.h"
-#include "Core/ScopeStyleCounter.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/BillboardComponent.h"
+#include "Particles/ParticleSubUVComponent.h"
+#include "Stats/ScopeCycleCounter.h"
 
-#include "Core/Stats.h"
-#include "Core/StatDefinitions.h"
-#include "Component/PrimitiveComponent.h"
+#include "Stats/Stats.h"
+#include "Stats/StatDefinitions.h"
+#include "Components/PrimitiveComponent.h"
 #include "Editor/Outliner/OutlinerPanel.h"
 #include "Editor/Rendering/GridRenderer.h"
 #include "Input/InputSystem.h"
-#include "Rendering/Material.h"
+#include "Materials/Material.h"
 #include "Rendering/LineBatcher.h"
-#include "ObjectSystem/UObjectIterator.h"
-#include "World/World.h"
+#include "UObject/UObjectIterator.h"
+#include "Engine/World.h"
 
 
 #include "Tasks/Tasks.h"
@@ -60,7 +60,7 @@ void ConstrainOrthographicWidth(FCameraProjection &Projection,
 
 // 네 View Rect의 중앙 경계에서 절반씩 줄여 Splitter가 차지할 실제 빈 공간을
 // 만든다.
-void ApplySplitterGutter(const FVector2 WindowSize, FRect ViewRects[4]) {
+void ApplySplitterGutter(const FVector2D WindowSize, FRect ViewRects[4]) {
   const float SplitX = ViewRects[0].Width;
   const float SplitY = ViewRects[0].Height;
   const float HalfThickness = SplitterThickness * 0.5f;
@@ -214,13 +214,13 @@ void FMultipleViewportsAdapter::InitializeFromWorld(UWorld& World)
     assert(MainCamera != nullptr);
 
   const FCameraProjection Perspective{
-      EProjectionMode::Perspective, MainCamera->GetFieldOfView(),
+      ECameraProjectionMode::Perspective, MainCamera->GetFieldOfView(),
       MainCamera->GetOrthoWidth(), MainCamera->GetNearZ(),
       MainCamera->GetFarZ()};
   Views.Mode = ELayoutMode::QuadSplit;
   // 씬의 메인 카메라 위치와 회전을 반영한다
   Views.Cameras[0] = {
-      {MainCamera->GetWorldLocation(), MainCamera->GetRelativeRotationQuat()},
+      {MainCamera->GetComponentLocation(), MainCamera->GetRelativeRotationQuat()},
       Perspective};
   Views.Cameras[0].Transform.Rotation = MakeCameraRotation(
       CameraYawDegrees(Views.Cameras[0].Transform.Rotation),
@@ -228,7 +228,7 @@ void FMultipleViewportsAdapter::InitializeFromWorld(UWorld& World)
   CameraPresets[0] = EMultipleViewportsCameraPreset::Perspective;
 
   FCameraProjection Orthographic = Perspective;
-  Orthographic.Mode = EProjectionMode::Orthographic;
+  Orthographic.Mode = ECameraProjectionMode::Orthographic;
   Views.Cameras[1] = {
       {{0.0f, 0.0f, 10.0f}, {0.0f, 0.70710678f, 0.0f, 0.70710678f}},
       Orthographic}; // 위쪽에서 -Z 방향을 본다.
@@ -258,12 +258,12 @@ void FMultipleViewportsAdapter::SetViewCamera(const int32 ViewIndex,
   Views.Cameras[ViewIndex] = Camera;
   ConstrainOrthographicWidth(Views.Cameras[ViewIndex].Projection,
                              ViewRects[ViewIndex]);
-  if (Views.Cameras[ViewIndex].Projection.Mode == EProjectionMode::Perspective)
+  if (Views.Cameras[ViewIndex].Projection.Mode == ECameraProjectionMode::Perspective)
     Views.Cameras[ViewIndex].Transform.Rotation = MakeCameraRotation(
         CameraYawDegrees(Views.Cameras[ViewIndex].Transform.Rotation),
         CameraPitchDegrees(Views.Cameras[ViewIndex].Transform.Rotation));
   CameraPresets[ViewIndex] =
-      Camera.Projection.Mode == EProjectionMode::Perspective
+      Camera.Projection.Mode == ECameraProjectionMode::Perspective
           ? EMultipleViewportsCameraPreset::Perspective
           : EMultipleViewportsCameraPreset::OrthographicView;
 }
@@ -299,8 +299,8 @@ void FMultipleViewportsAdapter::ApplyCameraPreset(
   ConstrainOrthographicWidth(Camera.Projection, ViewRects[ViewIndex]);
   CameraPresets[ViewIndex] = Preset;
   Camera.Projection.Mode = Preset == EMultipleViewportsCameraPreset::Perspective
-                               ? EProjectionMode::Perspective
-                               : EProjectionMode::Orthographic;
+                               ? ECameraProjectionMode::Perspective
+                               : ECameraProjectionMode::Orthographic;
 
   switch (Preset) {
   case EMultipleViewportsCameraPreset::Top:
@@ -379,7 +379,7 @@ FMultipleViewportsAdapter::GetGridPlane(const int32 ViewIndex) const {
 // Core Rect 계산 결과를 Single 대상 슬롯에 재배치하고 Hover·활성 View를
 // 갱신한다.
 void FMultipleViewportsAdapter::UpdateLayout(
-    const FVector2 WindowSize, const FVector2 LocalMousePosition) {
+    const FVector2D WindowSize, const FVector2D LocalMousePosition) {
   ComputeViewRects(SplitRatio, WindowSize, ViewRects);
   if (Views.Mode == ELayoutMode::Single) {
     for (int32 ViewIndex = 0; ViewIndex < 4; ++ViewIndex)
@@ -414,7 +414,7 @@ void FMultipleViewportsAdapter::UpdateLayout(
 // Quad 레이아웃에서만 Core Splitter Drag 계산 결과를 상태에 반영한다.
 void FMultipleViewportsAdapter::ApplySplitterDrag(const EDragAxis Axis,
                                                   const float DeltaPixels,
-                                                  const FVector2 WindowSize) {
+                                                  const FVector2D WindowSize) {
   // 동명 멤버가 전역 계산 함수를 가리므로 이 호출에만 전역 한정이 필요하다.
   SplitRatio = ::ApplySplitterDrag(SplitRatio, Axis, DeltaPixels, WindowSize,
                                    MinimumSplitRatio);
@@ -424,7 +424,7 @@ void FMultipleViewportsAdapter::ApplySplitterDrag(const EDragAxis Axis,
 // 우클릭 Capture 상태를 갱신하고 Perspective는 회전, Ortho는 화면 평면
 // 드래그·폭 줌을 적용한다.
 void FMultipleViewportsAdapter::UpdateInput(const float DeltaTime,
-                                            const FVector2 LocalMousePosition,
+                                            const FVector2D LocalMousePosition,
                                             const float MoveSpeed,
                                             const float MouseSensitivity) {
   const int WheelDelta =
@@ -460,7 +460,7 @@ void FMultipleViewportsAdapter::UpdateInput(const float DeltaTime,
   const float VerticalAxis =
       bCameraCaptured ? AxisValue(EKeyCode::E, EKeyCode::Q) : 0.0f;
   const bool bOrthographic = Views.Cameras[ActiveViewIndex].Projection.Mode ==
-                             EProjectionMode::Orthographic;
+                             ECameraProjectionMode::Orthographic;
   // 직교 카메라 이동은 화면 평면으로 제한한다.
   // A/D는 수평, W/S는 수직으로 이동한다. 선택한 축 정렬 View가 뒤집히거나
   // 깊이축을 따라 이동하지 않도록 Q/E와 마우스 회전은 의도적으로 무시한다.
@@ -687,7 +687,7 @@ FViewCamera
 FMultipleViewportsAdapter::GetRenderCamera(const int32 ViewIndex) const {
   assert(ViewIndex >= 0 && ViewIndex < 4);
   FViewCamera Camera = Views.Cameras[ViewIndex];
-  if (Camera.Projection.Mode != EProjectionMode::Orthographic)
+  if (Camera.Projection.Mode != ECameraProjectionMode::Orthographic)
     return Camera;
 
   const FRect &Rect = ViewRects[ViewIndex];
@@ -716,7 +716,7 @@ FMultipleViewportsAdapter::GetRenderCamera(const int32 ViewIndex) const {
 
 // 모든 원본 입력을 비교하므로 속성 창·프리셋·입력·리사이즈 경로의 변경을
 // 빠짐없이 반영한다.
-const FMultipleViewportsAdapter::PreparedView &
+const FMultipleViewportsAdapter::FPreparedView &
 FMultipleViewportsAdapter::PrepareView(const int32 ViewIndex) const {
   assert(IsViewActive(ViewIndex));
   const auto &Source = Views.Cameras[ViewIndex];
@@ -729,7 +729,7 @@ FMultipleViewportsAdapter::PrepareView(const int32 ViewIndex) const {
       R.Y,          R.Z,          R.W,        static_cast<float>(P.Mode),
       P.FovDegrees, P.OrthoWidth, P.NearClip, P.FarClip,
       Rect.Width,   Rect.Height};
-  PreparedView &Cached = PreparedViews[ViewIndex];
+  FPreparedView &Cached = PreparedViews[ViewIndex];
   // 고정 크기 입력 키는 할당 없는 배열로 비교하며 NaN도 매번 변경으로 취급한다.
   bool bKeyChanged = !Cached.bValid;
   for (int Index = 0; Index < 14; ++Index)
@@ -777,7 +777,7 @@ FMatrix FMultipleViewportsAdapter::BuildEngineBillboardMatrix(
     const float Height) const {
   assert(ViewIndex >= 0 && ViewIndex < 4);
   const FViewCamera &ViewCamera = Views.Cameras[ViewIndex];
-  if (ViewCamera.Projection.Mode == EProjectionMode::Orthographic) {
+  if (ViewCamera.Projection.Mode == ECameraProjectionMode::Orthographic) {
     // 직교 투영의 모든 시선은 평행하므로 카메라 위치가 아니라 고정된 화면
     // 기저를 사용한다. 위치 기반 LookAt을 사용하면 평면 이동 시 오브젝트-카메라
     // 벡터가 달라져 Billboard가 회전한다.
@@ -822,12 +822,12 @@ FMatrix FMultipleViewportsAdapter::BuildEngineBillboardMatrix(
 bool FMultipleViewportsAdapter::IsOrthographic(const int32 ViewIndex) const {
   assert(ViewIndex >= 0 && ViewIndex < 4);
   return Views.Cameras[ViewIndex].Projection.Mode ==
-         EProjectionMode::Orthographic;
+         ECameraProjectionMode::Orthographic;
 }
 
 // 활성 View Rect 기준 로컬 좌표를 Core로 역투영하고 엔진 Ray로 변환한다.
 bool FMultipleViewportsAdapter::TryGetActiveViewRay(
-    const FVector2 LocalMousePosition, FRay &OutRay) const {
+    const FVector2D LocalMousePosition, FRay &OutRay) const {
   if (ActiveViewIndex == InvalidViewIndex || !IsViewActive(ActiveViewIndex))
     return false;
   // Splitter gutter나 다른 View 위의 좌표를 이전 Active View의 Ray로 잘못
@@ -835,7 +835,7 @@ bool FMultipleViewportsAdapter::TryGetActiveViewRay(
   if (DetermineHoveredView(LocalMousePosition, ViewRects) != ActiveViewIndex)
     return false;
   const FRect &Rect = ViewRects[ActiveViewIndex];
-  const FVector2 ViewLocal{LocalMousePosition.X - Rect.X,
+  const FVector2D ViewLocal{LocalMousePosition.X - Rect.X,
                            LocalMousePosition.Y - Rect.Y};
   const FRay Ray = Deproject(GetRenderCamera(ActiveViewIndex), ViewLocal,
                              {Rect.Width, Rect.Height});
@@ -856,7 +856,7 @@ void FMultipleViewportsAdapter::BuildRenderPackets(
 {
     OutPackets.Reset();
     if (!IsViewActive(ViewIndex)) return;
-    const PreparedView& View = PrepareView(ViewIndex);
+    const FPreparedView& View = PrepareView(ViewIndex);
     const FViewCamera RenderCamera = GetRenderCamera(ViewIndex);
 
     SoftwareOcclusion.Cull(
@@ -1018,7 +1018,7 @@ void FMultipleViewportsAdapter::AppendSoftwareOcclusionDebugBounds(FLineBatcher&
 }
 
 // 클릭한 View의 Ray를 World에 전달하고 Component의 최근접 교차 결과를 보관한다.
-FPickHit FMultipleViewportsAdapter::PickActiveView(const FVector2 LocalMousePosition, UWorld& World)
+FPickHit FMultipleViewportsAdapter::PickActiveView(const FVector2D LocalMousePosition, UWorld& World)
 {
     LastPick = {};
     LastPickObjectCount = World.GetWorldPrimitiveComponents().Num();
@@ -1030,8 +1030,8 @@ FPickHit FMultipleViewportsAdapter::PickActiveView(const FVector2 LocalMousePosi
 	const auto ResolveBillboardTransform = [](const UBillboardComponent& Billboard, const void* Context) -> FMatrix
 	{
 		const auto& Adapter = *static_cast<const FMultipleViewportsAdapter*>(Context);
-		const FVector Scale = Billboard.GetWorldScale3D();
-		return Adapter.BuildEngineBillboardMatrix(Adapter.GetActiveViewIndex(), Billboard.GetWorldLocation(), Scale.Y, Scale.Z);
+		const FVector Scale = Billboard.GetComponentScale();
+		return Adapter.BuildEngineBillboardMatrix(Adapter.GetActiveViewIndex(), Billboard.GetComponentLocation(), Scale.Y, Scale.Z);
 	};
 
 	FHitResult Hit;

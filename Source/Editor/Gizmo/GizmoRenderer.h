@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Rendering/Renderer.h"
-#include "Rendering/PipelineState.h"
+#include "RHI/PipelineState.h"
 #include "Editor/Gizmo/Gizmo.h"
 
 class UCameraComponent;
@@ -46,7 +46,7 @@ private:
 	UStaticMesh* RotationMesh;
 	UStaticMesh* ScaleMesh;
 	UStaticMesh* SphereMesh;
-	TUniquePtr<FConstantBuffer> CB;
+	TUniquePtr<FRHIUniformBuffer> CB;
 
 	//EGizmoMode Mode = EGizmoMode::Scale;
 };

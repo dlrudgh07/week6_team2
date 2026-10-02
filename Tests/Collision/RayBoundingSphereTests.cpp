@@ -1,5 +1,5 @@
 #include "EnginePCH.h"
-#include "Collision/Ray.h"
+#include "Math/Ray.h"
 
 #include <algorithm>
 #include <cmath>

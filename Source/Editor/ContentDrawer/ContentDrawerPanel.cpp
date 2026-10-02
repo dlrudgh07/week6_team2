@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "Editor/ContentDrawer/ContentDrawerPanel.h"
-#include "Asset/AssetManager.h"
-#include "Text/Font.h"
+#include "Engine/AssetManager.h"
+#include "Engine/Font.h"
 #include "Editor/Application/EditorDragDrop.h"
 
 bool FContentDrawerPanel::Init()

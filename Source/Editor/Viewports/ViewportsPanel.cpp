@@ -2,9 +2,9 @@
 #include "Editor/Viewports/ViewportsPanel.h"
 #include "Editor/Viewports/MultipleViewportsAdapter.h"
 
-#include "Core/StatOverlay.h"
-#include "Core/Stats.h"
-#include "Core/StatDefinitions.h"
+#include "Stats/StatOverlay.h"
+#include "Stats/Stats.h"
+#include "Stats/StatDefinitions.h"
 #include "Rendering/RenderCommand.h"
 
 #include <algorithm>
@@ -64,7 +64,7 @@ const FRenderingInfo& FViewportsPanel::GetRenderingInfo(const int32 ViewIndex) c
 }
 
 // 마우스 위치에서 패널 원점을 빼 로컬 좌표로 바꾼다.
-FVector2 FViewportsPanel::GetLocalMousePosition() const
+FVector2D FViewportsPanel::GetLocalMousePosition() const
 {
 	const ImVec2 Mouse = ImGui::GetMousePos();
 	return {Mouse.x - ContentOrigin.x, Mouse.y - ContentOrigin.y};
@@ -333,11 +333,11 @@ void FViewportsPanel::ResizeSlot(FViewSlot& Slot, const uint32 Width, const uint
 	Desc.SampleDesc.Count = 1;
 	Desc.Usage = D3D11_USAGE_DEFAULT;
 	Desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	Slot.ColorTarget = RenderCommand::CreateTexture2D(Desc);
+	Slot.ColorTarget = FRenderCommand::CreateTexture2D(Desc);
 
 	Desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	Desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-	Slot.DepthTarget = RenderCommand::CreateTexture2D(Desc);
+	Slot.DepthTarget = FRenderCommand::CreateTexture2D(Desc);
 
 	Slot.Width = Width;
 	Slot.Height = Height;

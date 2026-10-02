@@ -1,11 +1,11 @@
 #include "EnginePCH.h"
 #include "Editor/Outliner/OutlinerPanel.h"
 
-#include "World/Level.h"
-#include "World/World.h"
+#include "Engine/Level.h"
+#include "Engine/World.h"
 
-#include "Component/ActorComponent.h"
-#include "Component/PrimitiveComponent.h"
+#include "Components/ActorComponent.h"
+#include "Components/PrimitiveComponent.h"
 
 bool FOutlinerPanel::Init()
 {
@@ -23,7 +23,7 @@ void FOutlinerPanel::OnRender()
         return;
 
     // 현재 Level 가져오기
-    ULevel* Level = World->GetLevel();
+    ULevel* Level = World->GetCurrentLevel();
     if (!Level)
         return;
 
@@ -144,10 +144,8 @@ void FOutlinerPanel::SelectActor(AActor* Actor)
 
     LOG(Info, "{} UUID {} is selected", SelectedObject->GetName(), SelectedObject->GetUUID());
 
-    UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(Actor->GetRootComponent());
-
     if (Callback)
-        Callback(Primitive);
+		Callback(Actor);
 }
 
 

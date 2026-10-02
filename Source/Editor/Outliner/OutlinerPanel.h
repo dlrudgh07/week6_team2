@@ -10,7 +10,7 @@ class AActor;
 class UActorComponent;
 class UPrimitiveComponent;
 
-using SelectionCallback = std::function<void(UPrimitiveComponent*)>;
+using SelectionCallback = std::function<void(AActor*)>;
 using DeleteActorCallback = std::function<void(AActor*)>;
 
 class FOutlinerPanel : public IEditorPanel

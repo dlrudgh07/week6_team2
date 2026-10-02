@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Collision/Ray.h"
+#include "Math/Ray.h"
 #include "Math/Transform.h"
-#include "Component/SceneComponent.h"
+#include "Components/SceneComponent.h"
 
 class UCameraComponent;
 
@@ -34,26 +34,26 @@ public:
 	EGizmoSpace GetSpace() const { return Space; }
 
 	// Active View의 Ray와 행렬만 사용해 Hover·Drag 상태를 갱신한다.
-	void Update(const FRay& MouseRay, const FVector2& MousePos,
+	void Update(const FRay& MouseRay, const FVector2D& MousePos,
 		const FMatrix& ViewProj, int ScreenW, int ScreenH,
 		bool bMouseDown, const FVector& CameraLocation, bool bCameraOrthographic);
 
 	bool IsUsing() const { return DraggingAxis >= 0; }
 	int GetHoveredAxis() const { return HoveredAxis; }
 
-	int PickAxis(const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
+	int PickAxis(const FVector2D& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
 
-	int PickLinearAxis(const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
-	int PickRotationAxis(const FVector2& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
+	int PickLinearAxis(const FVector2D& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
+	int PickRotationAxis(const FVector2D& MousePos, const FMatrix& ViewProj, int ScreenW, int ScreenH);
 
 
-	void BeginDrag(int Axis, const FRay& MouseRay, const FVector2& MousePos);
-	void UpdateDrag(const FRay& MouseRay, const FVector2& MousePos);
+	void BeginDrag(int Axis, const FRay& MouseRay, const FVector2D& MousePos);
+	void UpdateDrag(const FRay& MouseRay, const FVector2D& MousePos);
 	void EndDrag();
 
 	float ComputeAngleOnPlane(const FVector& Point, int Axis) const;
 
-	inline FTransform GetTransform() const { return Target ? Target->GetTransform() : FTransform(); }
+	inline FTransform GetTransform() const { return Target ? Target->GetRelativeTransform() : FTransform(); }
 	inline FVector GetLocation() const { return Target ? Target->GetRelativeLocation() : FVector(0, 0, 0); }
 	inline FRotator GetRotation() const { return Target ? Target->GetRelativeRotation() : FRotator(0, 0, 0); }
 	inline FVector GetScale() const { return Target ? Target->GetRelativeScale3D() : FVector(0, 0, 0); }
@@ -75,7 +75,7 @@ private:
 	int HoveredAxis = -1;
 	int DraggingAxis = -1;
 
-	FVector2 DragStartMousePos;
+	FVector2D DragStartMousePos;
 	FVector DragStartPoint;
 	FVector DragStartLocation;
 	FRotator DragStartRotation;

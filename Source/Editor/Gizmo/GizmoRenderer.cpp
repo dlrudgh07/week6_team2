@@ -1,12 +1,12 @@
 #include "EnginePCH.h"
 #include "Editor/Gizmo/GizmoRenderer.h"
-#include "Rendering/Mesh.h"
+#include "Engine/StaticMesh.h"
 
 #include "Rendering/GeometryGenerator.h"
 #include "Camera/CameraComponent.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/RenderResourceManager.h"
-#include "Asset/AssetManager.h"
+#include "Engine/AssetManager.h"
 
 
 // Gizmo 축 렌더링의 초기 상태를 구성한다.
@@ -24,7 +24,7 @@ bool FGizmoRenderer::Init(FRenderer* InRenderer)
 	ScaleMesh = UAssetManager::GetAssetByKey<UStaticMesh>("ScaleBar");
 	SphereMesh = UAssetManager::GetAssetByKey<UStaticMesh>("GizmoSphere");
 
-	CB = RenderCommand::CreateConstantBuffer(sizeof(FGizmoData));
+	CB = FRenderCommand::CreateConstantBuffer(sizeof(FGizmoData));
 
 	AxisDataArray.Add({ FRotator(90.0f, 0.0f, 0.0f) ,FVector4(1.0f, 0.0f, 0.0f, 1.0f) });
 	AxisDataArray.Add({ FRotator(0.0f, 0.0f, -90.0f) ,FVector4(0.0f, 1.0f, 0.0f, 1.0f) });
@@ -62,7 +62,7 @@ void FGizmoRenderer::OnRender(
 	default: return;
 	}
 
-	RenderCommand::BindPipelineState(&PipelineState);
+	FRenderCommand::BindPipelineState(&PipelineState);
 
 	// GizmoShader cbuffer가 row_major이므로 행렬을 전치 없이 그대로 올린다.
 	// const FVector GizmoLocation = Gizmo.GetLocation();
@@ -74,7 +74,7 @@ void FGizmoRenderer::OnRender(
 	FMatrix ViewScale = FMatrix::Identity;
 	ViewScale.M[0][0] = ViewScale.M[1][1] = ViewScale.M[2][2] = FGizmo::ComputeScreenScale(GizmoLocation, ViewProj);
 	// 축 3개
-	RenderCommand::BindMesh(AxisMesh);
+	FRenderCommand::BindMesh(AxisMesh);
 	Transform.Location = GizmoLocation;
 
 	for (int i = 0; i < 3; ++i)
@@ -150,8 +150,8 @@ void FGizmoRenderer::OnRender(
 // 행렬·색상 상수를 바인딩해 지정 Gizmo Mesh를 그린다.
 void FGizmoRenderer::DrawMesh(UStaticMesh* Mesh, const FGizmoData& Data)
 {
-	RenderCommand::BindMesh(Mesh);
-	RenderCommand::UpdateBufferData(CB.get(), &Data, sizeof(FGizmoData));
-	RenderCommand::BindConstantBuffer(0, CB.get(), EShaderBindFlagBits::Vertex);
-	RenderCommand::DrawIndexed(Mesh ? Mesh->GetIndexCount() : 0);
+	FRenderCommand::BindMesh(Mesh);
+	FRenderCommand::UpdateBufferData(CB.get(), &Data, sizeof(FGizmoData));
+	FRenderCommand::BindConstantBuffer(0, CB.get(), EShaderBindFlagBits::Vertex);
+	FRenderCommand::DrawIndexed(Mesh ? Mesh->GetIndexCount() : 0);
 }

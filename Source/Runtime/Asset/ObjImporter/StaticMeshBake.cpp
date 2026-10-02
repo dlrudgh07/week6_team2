@@ -1,8 +1,8 @@
 #include "EnginePCH.h"
 #include "StaticMeshBake.h"
 
-#include "Rendering/StaticMeshData.h"
-#include "Core/EngineLog.h"
+#include "Rendering/StaticMeshResources.h"
+#include "Logging/LogMacros.h"
 
 #include <cstring>
 #include <fstream>
@@ -18,7 +18,7 @@ static_assert(std::is_trivially_copyable_v<FBox>);
 
 namespace
 {
-// FStaticMeshData, FVertexPNCT, FStaticMeshSection, FStaticMaterialSlot 구조가 바뀌면 올린다
+// FStaticMeshRenderData, FVertexPNCT, FStaticMeshSection, FStaticMaterial 구조가 바뀌면 올린다
 constexpr uint32 BakeVersion = 3;
 
 struct FBakeHeader
@@ -91,7 +91,7 @@ bool ReadString(std::ifstream& In, FString& Str)
 }
 } // namespace
 
-TUniquePtr<FStaticMeshData> FStaticMeshBake::ReadBaked(const FString& BinPath, EObjAxisPreset& OutPreset)
+TUniquePtr<FStaticMeshRenderData> FStaticMeshBake::ReadBaked(const FString& BinPath, EObjAxisPreset& OutPreset)
 {
 	std::ifstream In(BinPath, std::ios::binary);
 	if (!In)
@@ -99,7 +99,7 @@ TUniquePtr<FStaticMeshData> FStaticMeshBake::ReadBaked(const FString& BinPath, E
 		return nullptr; // .bin이 없음 (처음 로드)
 	}
 
-	TUniquePtr<FStaticMeshData> Data = MakeUnique<FStaticMeshData>();
+	TUniquePtr<FStaticMeshRenderData> Data = MakeUnique<FStaticMeshRenderData>();
 	uint32 MaxCount = 1000000;
 
 	// 우리 형식이 맞는지, 같은 구조로 저장했는지 확인
@@ -126,7 +126,7 @@ TUniquePtr<FStaticMeshData> FStaticMeshBake::ReadBaked(const FString& BinPath, E
 
 	for (uint32 i = 0; i < MaterialSlotsNum; ++i)
 	{
-		FStaticMaterialSlot Slot;
+		FStaticMaterial Slot;
 		if (!ReadString(In, Slot.Name) || !ReadPod<FVector4>(In, Slot.BaseColor) || !ReadString(In, Slot.DiffuseTexturePath))
 		{
 			return nullptr;
@@ -152,7 +152,7 @@ TUniquePtr<FStaticMeshData> FStaticMeshBake::ReadBaked(const FString& BinPath, E
 	return Data;
 }
 
-void FStaticMeshBake::WriteBaked(const FString& BinPath, const FStaticMeshData& Data, EObjAxisPreset Preset)
+void FStaticMeshBake::WriteBaked(const FString& BinPath, const FStaticMeshRenderData& Data, EObjAxisPreset Preset)
 {
 	std::ofstream Out(BinPath, std::ios::binary);
 	if (!Out)

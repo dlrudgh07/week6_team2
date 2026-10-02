@@ -2,7 +2,7 @@
 
 #include <d3d11.h>
 #include "Rendering/Renderer.h"
-#include "Rendering/PipelineState.h"
+#include "RHI/PipelineState.h"
 
 struct FPSGridData
 {
@@ -28,7 +28,7 @@ enum class EGridPlane : int32
 struct FBatchGridData
 {
     FMatrix ViewProjection;
-    FVector2 ViewportSize;
+    FVector2D ViewportSize;
     float Padding[2];
     // 원근 축에만 적용할 Grid 거리 페이드의 중심과 반경을 담는다.
     FVector4 FadeOriginAndRadius;
@@ -74,14 +74,14 @@ private:
 	// Batch Grid
 	FShaderProgram*			BatchGridShader;
 	FPipelineState				BatchGridPipelineState;
-	TUniquePtr<FVertexBuffer>	BatchGridVertexBuffer;
-	TUniquePtr<FConstantBuffer>	BatchGridConstantBuffer;
+	TUniquePtr<FRHIVertexBuffer>	BatchGridVertexBuffer;
+	TUniquePtr<FRHIUniformBuffer>	BatchGridConstantBuffer;
 	FGridLineVertex* BatchGridVertices = nullptr;
 	uint32						MaxVertices = 0;
 
 	// PS Grid
 	FShaderProgram*			PSGridShader;
 	FPipelineState									PSGridPipelineState;
-	TUniquePtr<FConstantBuffer>						PSGridConstantBuffer;
+	TUniquePtr<FRHIUniformBuffer>						PSGridConstantBuffer;
 	ComPtr<ID3D11RasterizerState>	RasterizerState;
 };

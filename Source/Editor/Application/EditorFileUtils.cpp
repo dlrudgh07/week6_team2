@@ -1,8 +1,8 @@
 #include "EnginePCH.h"
 #include "Editor/Application/EditorFileUtils.h"
-#include "World/World.h"
+#include "Engine/World.h"
 
-#include "Core/EngineLog.h"
+#include "Logging/LogMacros.h"
 #include <commdlg.h>
 #include "Serialization/JsonArchive.h"
 #include "Serialization/DefaultSceneLoader.h"

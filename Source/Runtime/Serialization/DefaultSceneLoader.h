@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/EngineString.h"
+#include "Containers/UnrealString.h"
 #include <functional>
 
 class UWorld;

@@ -3,12 +3,12 @@
 #include "Editor/Viewports/MultipleViewportsAdapterTypes.h"
 #include "Editor/Viewports/SoftwareOcclusion.h"
 
-#include "Collision/Ray.h"
+#include "Math/Ray.h"
 #include "Math/Matrix.h"
 #include "Rendering/RenderPacket.h"
 
-#include "Container/Map.h"
-#include "Container/Array.h"
+#include "Containers/Map.h"
+#include "Containers/Array.h"
 
 class FOutlinerPanel;
 class FLineBatcher;
@@ -45,11 +45,11 @@ public:
     EGridPlane GetGridPlane(int32 ViewIndex) const;
 
     // 레이아웃 Rect를 계산하고 마우스 위치로 Hover·활성 View를 갱신한다.
-    void UpdateLayout(FVector2 WindowSize, FVector2 LocalMousePosition);
+    void UpdateLayout(FVector2D WindowSize, FVector2D LocalMousePosition);
     // Splitter Drag 픽셀을 Core 비율 계산에 전달해 레이아웃 상태를 갱신한다.
-    void ApplySplitterDrag(EDragAxis Axis, float DeltaPixels, FVector2 WindowSize);
+    void ApplySplitterDrag(EDragAxis Axis, float DeltaPixels, FVector2D WindowSize);
     // 우클릭 Capture View에 이동·Euler Yaw/Pitch·줌 입력을 적용한다.
-    void UpdateInput(float DeltaTime, FVector2 LocalMousePosition, float MoveSpeed, float MouseSensitivity);
+    void UpdateInput(float DeltaTime, FVector2D LocalMousePosition, float MoveSpeed, float MouseSensitivity);
     // Tick 뒤 현재 World의 ID·경계만 캡처하며 피킹은 Component에 위임한다.
     void CaptureWorld(UWorld& World);
 
@@ -92,7 +92,7 @@ public:
     // 지정 View가 직교 투영인지 반환한다.
     bool IsOrthographic(int32 ViewIndex) const;
     // 활성 View의 로컬 마우스 좌표를 Core로 역투영해 엔진 Ray로 반환한다.
-    bool TryGetActiveViewRay(FVector2 LocalMousePosition, FRay& OutRay) const;
+    bool TryGetActiveViewRay(FVector2D LocalMousePosition, FRay& OutRay) const;
     // 지정 View의 절두체를 통과한 오브젝트 수를 반환한다.
     std::size_t GetVisibleObjectCount(int32 ViewIndex) const;
     // 최근 World 스냅샷에 Billboard가 포함됐는지 반환한다.
@@ -108,13 +108,13 @@ public:
         return OcclusionStats[ViewIndex];
     }
     void AppendSoftwareOcclusionDebugBounds(FLineBatcher& LineBatcher) const;
-    void PostRenderOpaque(int32 ViewIndex, FTexture2D* SceneDepthTexture) { SoftwareOcclusion.PostRenderOpaque(ViewIndex, SceneDepthTexture); }
+    void PostRenderOpaque(int32 ViewIndex, FRHITexture2D* SceneDepthTexture) { SoftwareOcclusion.PostRenderOpaque(ViewIndex, SceneDepthTexture); }
     void SettleDynamicObjects() { SoftwareOcclusion.SettleDynamicObjects(); }
 
     // 파이버 잡으로 월드 및 MVP 행렬을 병렬 연산하여 TArray에 수집한다.
     void BuildRenderPackets(int32 ViewIndex, TArray<FRenderPacket>& OutPackets);
     // 활성 View Ray를 World·Component 피킹으로 전달하고 마지막 결과를 보관한다.
-    FPickHit PickActiveView(FVector2 LocalMousePosition, UWorld& World);
+    FPickHit PickActiveView(FVector2D LocalMousePosition, UWorld& World);
     // 마지막 Hit Component의 Owner를 찾아 Outliner 선택에 반영한다.
     void ApplyLastPickToOutliner(FOutlinerPanel& OutlinerPanel) const;
 
@@ -127,7 +127,7 @@ private:
     // 직교 View의 논리 위치는 유지하고 렌더·컬링·피킹용 깊이 범위만 확장한다.
     FViewCamera GetRenderCamera(int32 ViewIndex) const;
     // 카메라·투영·화면 크기 키와 파생 행렬·절두체를 보관한다.
-    struct PreparedView
+    struct FPreparedView
     {
         float Key[14]{};
         FFrustumPlanes Frustum{};
@@ -135,8 +135,8 @@ private:
         bool bValid = false;
     };
     // 카메라·투영·화면 크기가 같으면 VP와 절두체를 재사용한다.
-    const PreparedView& PrepareView(int32 ViewIndex) const;
-    mutable PreparedView PreparedViews[4]{};
+    const FPreparedView& PrepareView(int32 ViewIndex) const;
+    mutable FPreparedView PreparedViews[4]{};
     static constexpr float MinimumSplitRatio = 0.1f;
 
     FViewSet Views{};

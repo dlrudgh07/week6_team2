@@ -1,12 +1,12 @@
 #include "EnginePCH.h"
 #include "ObjImporter.h"
 
-#include "Core/EngineLog.h"
-#include "Rendering/StaticMeshData.h"
+#include "Logging/LogMacros.h"
+#include "Rendering/StaticMeshResources.h"
 #include "Rendering/Vertex.h"
-#include "Container/Map.h"
-#include "Container/StringView.h"
-#include "Container/Array.h"
+#include "Containers/Map.h"
+#include "Containers/StringView.h"
+#include "Containers/Array.h"
 #include "Asset/ObjImporter/StaticMeshBake.h"
 
 #include <fstream>
@@ -257,7 +257,7 @@ bool FObjImporter::ParseObj(const FString& Path, FObjInfo& Out)
 		}
 		else if (Keyword == "vt")
 		{
-			FVector2 UV;
+			FVector2D UV;
 			if (!(Stream >> UV.X >> UV.Y))
 			{
 				LOG(Error, "[OBJ] {}:{}: invalid uv '{}'", Path, LineNumber, Line);
@@ -388,14 +388,14 @@ bool FObjImporter::ParseObj(const FString& Path, FObjInfo& Out)
 	return true;
 }
 
-bool FObjImporter::Cook(const FObjInfo& Raw, FStaticMeshData& Out, EObjAxisPreset Preset)
+bool FObjImporter::Cook(const FObjInfo& Raw, FStaticMeshRenderData& Out, EObjAxisPreset Preset)
 {
-	FStaticMeshData Cooked;
+	FStaticMeshRenderData Cooked;
 
 	// MaterialSlots 채우기
 	for (const auto& RawMtl : Raw.MaterialInfos)
 	{
-		FStaticMaterialSlot CookedMtl;
+		FStaticMaterial CookedMtl;
 		CookedMtl.Name = RawMtl.Name;
 		CookedMtl.BaseColor.Set(RawMtl.Kd, RawMtl.D);
 		CookedMtl.DiffuseTexturePath = RawMtl.MapKd;
@@ -497,18 +497,18 @@ bool FObjImporter::Cook(const FObjInfo& Raw, FStaticMeshData& Out, EObjAxisPrese
 	return true;
 }
 
-TUniquePtr<FStaticMeshData> FObjImporter::LoadStaticMeshData(const FString& Path, EObjAxisPreset& Preset)
+TUniquePtr<FStaticMeshRenderData> FObjImporter::LoadStaticMeshData(const FString& Path, EObjAxisPreset& Preset)
 {
 	const FString BinPath = Path + ".bin";
 
 	// .bin 파일 읽기
-	if (TUniquePtr<FStaticMeshData> Baked = FStaticMeshBake::ReadBaked(BinPath, Preset))
+	if (TUniquePtr<FStaticMeshRenderData> Baked = FStaticMeshBake::ReadBaked(BinPath, Preset))
 	{
 		return Baked;
 	}
 
 	FObjInfo Info;
-	TUniquePtr<FStaticMeshData> Data = MakeUnique<FStaticMeshData>();
+	TUniquePtr<FStaticMeshRenderData> Data = MakeUnique<FStaticMeshRenderData>();
 
 	if (!ParseObj(Path, Info) || !Cook(Info, *Data, Preset))
 	{
@@ -532,7 +532,7 @@ void FObjImporter::PrintObjInfo(const FObjInfo& ObjInfo)
 	LOG(Info, "MaterialInfos Size: {}", ObjInfo.MaterialInfos.Num());
 }
 
-void FObjImporter::PrintSMD(const FStaticMeshData& SMD)
+void FObjImporter::PrintSMD(const FStaticMeshRenderData& SMD)
 {
 	LOG(Info, "Vertices Size: {}", SMD.Vertices.Num());
 	LOG(Info, "Indices Size: {}", SMD.Indices.Num());

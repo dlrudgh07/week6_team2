@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Container/Array.h"
-#include "Core/EngineString.h"
-#include "Core/Types.h"
+#include "Containers/Array.h"
+#include "Containers/UnrealString.h"
+#include "HAL/Platform.h"
 #include <dxgiformat.h>
 
 struct FImageData
@@ -11,7 +11,7 @@ struct FImageData
 
 	bool IsValid() const { return !Pixels.IsEmpty(); }
 
-	// 행 하나의 바이트 수. FTexture2D가 SysMemPitch로 쓴다.
+	// 행 하나의 바이트 수. FRHITexture2D가 SysMemPitch로 쓴다.
 	uint32 GetRowPitch() const { return Width * BytesPerPixel; }
 
 	TArray<uint8> Pixels;
@@ -21,7 +21,7 @@ struct FImageData
 	DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN;
 };
 
-class ImageLoader
+class FImageLoader
 {
 public:
 	static FImageData Load(const FString& Path);

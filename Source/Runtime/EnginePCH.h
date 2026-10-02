@@ -30,10 +30,10 @@ using namespace Microsoft::WRL;
 
 #include <iostream>
 #include <fstream>
-#include "Container/Containers.h"
-#include "Core/EngineString.h"
-#include "ObjectSystem/Casts.h"
-#include "Math/EngineMath.h"
-#include "Core/EngineLog.h"
+#include "Containers/Containers.h"
+#include "Containers/UnrealString.h"
+#include "Templates/Casts.h"
+#include "Math/UnrealMathUtility.h"
+#include "Logging/LogMacros.h"
 
 

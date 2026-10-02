@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "CameraComponent.h"
 #include "Input/InputSystem.h"
-#include "../Collision/Ray.h"
+#include "Math/Ray.h"
 
 // 외부 입력 관리 시 기본 입력을 생략해 Adapter와 카메라의 중복 갱신을 막는다.
 void UCameraComponent::TickComponent(float DeltaTime)
@@ -57,7 +57,7 @@ void UCameraComponent::UpdateZoom(float DeltaTime)
 
 
 // 화면 좌표를 투영 모드에 맞는 월드 광선으로 역투영한다.
-FRay UCameraComponent::DeProjection(FVector2 MousePos, float ScreenW, float ScreenH)
+FRay UCameraComponent::DeprojectScreenToWorld(FVector2D MousePos, float ScreenW, float ScreenH)
 {
     // 마우스 화면 좌표를 NDC 좌표(-1 ~ 1)로 변환
     const float NDCX = 2.0f * MousePos.X / ScreenW - 1.0f;
@@ -102,7 +102,7 @@ FRay UCameraComponent::DeProjection(FVector2 MousePos, float ScreenW, float Scre
     // 원근 투영은 모든 Ray가 카메라 위치에서 시작
     else
     {
-        Ray.Origin = GetWorldLocation();
+        Ray.Origin = GetComponentLocation();
     }
 
     // 시작점에서 Far 지점을 향하는 방향을 Ray 방향으로 사용
@@ -116,8 +116,8 @@ FMatrix UCameraComponent::GetViewMatrix() const
 {
     //return GetWorldMatrix().Inverse();
 
-    FVector WorldLocation = GetWorldLocation();
-    FRotator WorldRotation = GetWorldRotation();
+    FVector WorldLocation = GetComponentLocation();
+    FRotator WorldRotation = GetComponentRotation();
 
     FQuat WorldQuat = WorldRotation.Quaternion();
     FMatrix RotationMatrix = WorldQuat.ToFMatrix();

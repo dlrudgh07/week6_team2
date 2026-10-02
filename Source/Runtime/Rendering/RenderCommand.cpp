@@ -1,98 +1,98 @@
 #include "EnginePCH.h"
 #include "RenderCommand.h"
 
-#include "PipelineState.h"
-#include "Buffer.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "Texture2D.h"
-#include "TextureCube.h"
+#include "RHI/PipelineState.h"
+#include "RHI/RHIBuffer.h"
+#include "Engine/StaticMesh.h"
+#include "RHI/RHIShader.h"
+#include "Engine/Texture2D.h"
+#include "RHI/RHITextureCube.h"
 #include "RenderingInfo.h"
 
-void RenderCommand::Init(FRenderDevice* InRenderDevice)
+void FRenderCommand::Init(FDynamicRHI* InRenderDevice)
 {
 	RenderDevice = InRenderDevice;
 }
 
-TUniquePtr<FVertexBuffer> RenderCommand::CreateStaticVertexBuffer(const void* InVertices, uint32 InSize, uint32 Stride)
+TUniquePtr<FRHIVertexBuffer> FRenderCommand::CreateStaticVertexBuffer(const void* InVertices, uint32 InSize, uint32 Stride)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateStaticVertexBuffer(InVertices, InSize, Stride);
 }
 
-TUniquePtr<FVertexBuffer> RenderCommand::CreateDynamicVertexBuffer(uint32 MaxSize, uint32 Stride)
+TUniquePtr<FRHIVertexBuffer> FRenderCommand::CreateDynamicVertexBuffer(uint32 MaxSize, uint32 Stride)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateDynamicVertexBuffer(MaxSize, Stride);
 }
 
-TUniquePtr<FIndexBuffer> RenderCommand::CreateStaticIndexBuffer(const uint32* InIndices, uint32 MaxIndexCount)
+TUniquePtr<FRHIIndexBuffer> FRenderCommand::CreateStaticIndexBuffer(const uint32* InIndices, uint32 MaxIndexCount)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateStaticIndexBuffer(InIndices, MaxIndexCount);
 }
 
-TUniquePtr<FIndexBuffer> RenderCommand::CreateDynamicIndexBuffer(uint32 MaxIndexCount)
+TUniquePtr<FRHIIndexBuffer> FRenderCommand::CreateDynamicIndexBuffer(uint32 MaxIndexCount)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateDynamicIndexBuffer(MaxIndexCount);
 }
 
-TUniquePtr<FConstantBuffer> RenderCommand::CreateConstantBuffer(uint32 BufferSize)
+TUniquePtr<FRHIUniformBuffer> FRenderCommand::CreateConstantBuffer(uint32 BufferSize)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateConstantBuffer(BufferSize);
 }
 
-TUniquePtr<FTexture2D> RenderCommand::CreateTexture2D(const D3D11_TEXTURE2D_DESC& Desc, const FImageData& Image)
+TUniquePtr<FRHITexture2D> FRenderCommand::CreateTexture2D(const D3D11_TEXTURE2D_DESC& Desc, const FImageData& Image)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateTexture2D(Desc, Image);
 }
 
-TUniquePtr<FTexture2D> RenderCommand::CreateTexture2D(const D3D11_TEXTURE2D_DESC& Desc, const void* InitialData)
+TUniquePtr<FRHITexture2D> FRenderCommand::CreateTexture2D(const D3D11_TEXTURE2D_DESC& Desc, const void* InitialData)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateTexture2D(Desc, InitialData);
 }
 
-TUniquePtr<FTextureCube> RenderCommand::CreateTextureCube(const D3D11_TEXTURE2D_DESC& Desc, const TArray<const void*>& InitialDatas)
+TUniquePtr<FRHITextureCube> FRenderCommand::CreateTextureCube(const D3D11_TEXTURE2D_DESC& Desc, const TArray<const void*>& InitialDatas)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateTextureCube(Desc, InitialDatas);
 }
 
-TUniquePtr<FVertexShader> RenderCommand::CreateVertexShader(const FShaderByteCode& ByteCode)
+TUniquePtr<FRHIVertexShader> FRenderCommand::CreateVertexShader(const FShaderByteCode& ByteCode)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateVertexShader(ByteCode);
 }
 
-TUniquePtr<FPixelShader> RenderCommand::CreatePixelShader(const FShaderByteCode& ByteCode)
+TUniquePtr<FRHIPixelShader> FRenderCommand::CreatePixelShader(const FShaderByteCode& ByteCode)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreatePixelShader(ByteCode);
 }
 
-TUniquePtr<FComputeShader> RenderCommand::CreateComputeShader(const FShaderByteCode& ByteCode)
+TUniquePtr<FRHIComputeShader> FRenderCommand::CreateComputeShader(const FShaderByteCode& ByteCode)
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateComputeShader(ByteCode);
 }
 
-ComPtr<ID3D11DeviceContext> RenderCommand::CreateDeferredContext()
+ComPtr<ID3D11DeviceContext> FRenderCommand::CreateDeferredContext()
 {
 	assert(RenderDevice);
 	return RenderDevice->CreateDeferredContext();
 }
 
-void RenderCommand::ExecuteCommandList(ID3D11CommandList* CommandList, bool bRestoreState)
+void FRenderCommand::ExecuteCommandList(ID3D11CommandList* CommandList, bool bRestoreState)
 {
 	assert(RenderDevice);
 	RenderDevice->GetContext()->ExecuteCommandList(CommandList, bRestoreState ? TRUE : FALSE);
 }
 
-void RenderCommand::BindPipelineState(const FPipelineState* PipelineState, ID3D11DeviceContext* Context)
+void FRenderCommand::BindPipelineState(const FPipelineState* PipelineState, ID3D11DeviceContext* Context)
 {
 	if (!PipelineState)
 	{
@@ -106,7 +106,7 @@ void RenderCommand::BindPipelineState(const FPipelineState* PipelineState, ID3D1
 	SetDepthStencilState(PipelineState->DepthStencilState, Context);
 }
 
-void RenderCommand::BindShaderProgram(FShaderProgram* Shader, ID3D11DeviceContext* Context)
+void FRenderCommand::BindShaderProgram(FShaderProgram* Shader, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->VSSetShader(Shader->VertexShader->GetShader(), nullptr, 0);
@@ -114,30 +114,30 @@ void RenderCommand::BindShaderProgram(FShaderProgram* Shader, ID3D11DeviceContex
 	Ctx->IASetInputLayout(Shader->VertexShader->GetLayout());
 }
 
-void RenderCommand::BindMesh(UStaticMesh* Mesh, uint8 LODIndex, ID3D11DeviceContext* Context)
+void FRenderCommand::BindMesh(UStaticMesh* Mesh, uint8 LODIndex, ID3D11DeviceContext* Context)
 {
 	BindVertexBuffer(Mesh->VertexBuffer.get(), Context);
 	BindIndexBuffer(Mesh->GetIndexBuffer(LODIndex), Context);
 }
 
-void RenderCommand::Draw(uint32 VertexCount, uint32 StartIndexLocation, ID3D11DeviceContext* Context)
+void FRenderCommand::Draw(uint32 VertexCount, uint32 StartIndexLocation, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->Draw(VertexCount, StartIndexLocation);
 }
 
-void RenderCommand::DrawIndexed(uint32 IndexCount, uint32 StartIndexLocation, int32 BaseVertexLocation, ID3D11DeviceContext* Context)
+void FRenderCommand::DrawIndexed(uint32 IndexCount, uint32 StartIndexLocation, int32 BaseVertexLocation, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
 }
 
-void RenderCommand::DrawInstance(uint32 IndexCount, uint32 StartIndexLocation, int32 BaseVertexLocation, ID3D11DeviceContext* Context)
+void FRenderCommand::DrawInstance(uint32 IndexCount, uint32 StartIndexLocation, int32 BaseVertexLocation, ID3D11DeviceContext* Context)
 {
 	// 인스턴싱 드로우
 }
 
-void* RenderCommand::MapBufferWriteDiscard(FBuffer* Buffer, ID3D11DeviceContext* Context)
+void* FRenderCommand::MapBufferWriteDiscard(FRHIBuffer* Buffer, ID3D11DeviceContext* Context)
 {
 	if (!Buffer || !Buffer->GetBuffer())
 	{
@@ -161,13 +161,13 @@ void* RenderCommand::MapBufferWriteDiscard(FBuffer* Buffer, ID3D11DeviceContext*
 	return Mapped.pData;
 }
 
-void RenderCommand::UnmapBuffer(FBuffer* Buffer, ID3D11DeviceContext* Context)
+void FRenderCommand::UnmapBuffer(FRHIBuffer* Buffer, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->Unmap(Buffer->GetBuffer(), 0);
 }
 
-void RenderCommand::UpdateBufferData(FBuffer* InBuffer, const void* Data, uint32 DataSize, ID3D11DeviceContext* Context)
+void FRenderCommand::UpdateBufferData(FRHIBuffer* InBuffer, const void* Data, uint32 DataSize, ID3D11DeviceContext* Context)
 {
 	if (!InBuffer || !Data || DataSize > InBuffer->GetBufferSize())
 	{
@@ -183,7 +183,7 @@ void RenderCommand::UpdateBufferData(FBuffer* InBuffer, const void* Data, uint32
 	UnmapBuffer(InBuffer, Context);
 }
 
-void RenderCommand::BindVertexBuffer(FVertexBuffer* VertexBuffer, ID3D11DeviceContext* Context)
+void FRenderCommand::BindVertexBuffer(FRHIVertexBuffer* VertexBuffer, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	ID3D11Buffer* Buffer = VertexBuffer ? VertexBuffer->GetBuffer() : nullptr;
@@ -193,7 +193,7 @@ void RenderCommand::BindVertexBuffer(FVertexBuffer* VertexBuffer, ID3D11DeviceCo
 	Ctx->IASetVertexBuffers(0, 1, &Buffer, &Stride, &Offset);
 }
 
-void RenderCommand::BindIndexBuffer(FIndexBuffer* IndexBuffer, ID3D11DeviceContext* Context)
+void FRenderCommand::BindIndexBuffer(FRHIIndexBuffer* IndexBuffer, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	ID3D11Buffer* Buffer = IndexBuffer ? IndexBuffer->GetBuffer() : nullptr;
@@ -202,7 +202,7 @@ void RenderCommand::BindIndexBuffer(FIndexBuffer* IndexBuffer, ID3D11DeviceConte
 	Ctx->IASetIndexBuffer(Buffer, DXGI_FORMAT_R32_UINT, Offset);
 }
 
-void RenderCommand::BindConstantBuffer(uint32 Slot, FConstantBuffer* ConstantBuffer, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
+void FRenderCommand::BindConstantBuffer(uint32 Slot, FRHIUniformBuffer* ConstantBuffer, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	ID3D11Buffer* Buffer = ConstantBuffer->GetBuffer();
@@ -212,7 +212,7 @@ void RenderCommand::BindConstantBuffer(uint32 Slot, FConstantBuffer* ConstantBuf
 		Ctx->PSSetConstantBuffers(Slot, 1, &Buffer);
 }
 
-void RenderCommand::BindConstantBufferRange(uint32 Slot, FConstantBuffer* ConstantBuffer, EShaderBindFlagBits FlagBits, uint32 FirstConstant, uint32 NumConstants, ID3D11DeviceContext1* Context)
+void FRenderCommand::BindConstantBufferRange(uint32 Slot, FRHIUniformBuffer* ConstantBuffer, EShaderBindFlagBits FlagBits, uint32 FirstConstant, uint32 NumConstants, ID3D11DeviceContext1* Context)
 {
 	ID3D11DeviceContext1* Ctx1 = Context ? Context : RenderDevice->GetContext1();
 
@@ -232,7 +232,7 @@ void RenderCommand::BindConstantBufferRange(uint32 Slot, FConstantBuffer* Consta
 	}
 }
 
-void RenderCommand::BindShaderResource(uint32 Slot, FTexture2D* Texture2D, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
+void FRenderCommand::BindShaderResource(uint32 Slot, FRHITexture2D* Texture2D, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	ID3D11ShaderResourceView* SRV = Texture2D->GetSRV();
@@ -247,12 +247,12 @@ void RenderCommand::BindShaderResource(uint32 Slot, FTexture2D* Texture2D, EShad
 	}
 }
 
-void RenderCommand::BindShaderResource(uint32 Slot, UTexture2D* Texture2D, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
+void FRenderCommand::BindShaderResource(uint32 Slot, UTexture2D* Texture2D, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
 {
 	BindShaderResource(Slot, Texture2D->GetResource(), FlagBits, Context);
 }
 
-void RenderCommand::BeginRenderPass(const FRenderingInfo& RenderingInfo)
+void FRenderCommand::BeginRenderPass(const FRenderingInfo& RenderingInfo)
 {
 	TArray<ID3D11RenderTargetView*> RTVs;
 	for (const FRenderingDesc& RenderTargetDesc : RenderingInfo.ColorRenderTargets)
@@ -284,12 +284,12 @@ void RenderCommand::BeginRenderPass(const FRenderingInfo& RenderingInfo)
 		RenderingInfo.ViewportSetting.Height);
 }
 
-void RenderCommand::EndRenderPass(const FRenderingInfo& RenderingInfo)
+void FRenderCommand::EndRenderPass(const FRenderingInfo& RenderingInfo)
 {
 	RenderDevice->GetContext()->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
-void RenderCommand::ClearDepthStencil(FTexture2D* DepthStencilTexture, float Depth, uint8 Stencil)
+void FRenderCommand::ClearDepthStencil(FRHITexture2D* DepthStencilTexture, float Depth, uint8 Stencil)
 {
 	if (DepthStencilTexture == nullptr)
 	{
@@ -299,7 +299,7 @@ void RenderCommand::ClearDepthStencil(FTexture2D* DepthStencilTexture, float Dep
 	RenderDevice->GetContext()->ClearDepthStencilView(DepthStencilTexture->GetDSV(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, Depth, Stencil);
 }
 
-void RenderCommand::SetViewport(uint32 InX, uint32 InY, uint32 InWidth, uint32 InHeight, ID3D11DeviceContext* Context)
+void FRenderCommand::SetViewport(uint32 InX, uint32 InY, uint32 InWidth, uint32 InHeight, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	D3D11_VIEWPORT Viewport;
@@ -313,25 +313,25 @@ void RenderCommand::SetViewport(uint32 InX, uint32 InY, uint32 InWidth, uint32 I
 	Ctx->RSSetViewports(1, &Viewport);
 }
 
-void RenderCommand::SetRasterizerState(ERasterizerState State, ID3D11DeviceContext* Context)
+void FRenderCommand::SetRasterizerState(ERasterizerState State, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->RSSetState(RenderDevice->GetRasterizerState(State));
 }
 
-void RenderCommand::SetBlendState(EBlendState State, ID3D11DeviceContext* Context)
+void FRenderCommand::SetBlendState(EBlendState State, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->OMSetBlendState(RenderDevice->GetBlendState(State), nullptr, 0xffffffff);
 }
 
-void RenderCommand::SetDepthStencilState(EDepthStencilState State, ID3D11DeviceContext* Context)
+void FRenderCommand::SetDepthStencilState(EDepthStencilState State, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->OMSetDepthStencilState(RenderDevice->GetDepthStencilState(State), 0);
 }
 
-void RenderCommand::BindSamplerState(uint32 Slot, ESamplerState SamplerState, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
+void FRenderCommand::BindSamplerState(uint32 Slot, ESamplerState SamplerState, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	ID3D11SamplerState* Sampler = RenderDevice->GetSamplerState(SamplerState);
@@ -351,58 +351,58 @@ void RenderCommand::BindSamplerState(uint32 Slot, ESamplerState SamplerState, ES
 	}
 }
 
-void RenderCommand::CSSetSampler(uint32 Slot, ESamplerState SamplerState, ID3D11DeviceContext* Context)
+void FRenderCommand::CSSetSampler(uint32 Slot, ESamplerState SamplerState, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	ID3D11SamplerState* Sampler = RenderDevice->GetSamplerState(SamplerState);
 	Ctx->CSSetSamplers(Slot, 1, &Sampler);
 }
 
-void RenderCommand::Dispatch(uint32 X, uint32 Y, uint32 Z, ID3D11DeviceContext* Context)
+void FRenderCommand::Dispatch(uint32 X, uint32 Y, uint32 Z, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->Dispatch(X, Y, Z);
 }
 
-void RenderCommand::CSSetShader(FComputeShader* Shader, ID3D11DeviceContext* Context)
+void FRenderCommand::CSSetShader(FRHIComputeShader* Shader, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->CSSetShader(Shader ? Shader->GetShader() : nullptr, nullptr, 0);
 }
 
-void RenderCommand::CSSetShaderResource(uint32 Slot, ID3D11ShaderResourceView* SRV, ID3D11DeviceContext* Context)
+void FRenderCommand::CSSetShaderResource(uint32 Slot, ID3D11ShaderResourceView* SRV, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->CSSetShaderResources(Slot, 1, &SRV);
 }
 
-void RenderCommand::CSSetShaderResources(uint32 StartSlot, uint32 NumViews, ID3D11ShaderResourceView* const* ppShaderResourceViews, ID3D11DeviceContext* Context)
+void FRenderCommand::CSSetShaderResources(uint32 StartSlot, uint32 NumViews, ID3D11ShaderResourceView* const* ppShaderResourceViews, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->CSSetShaderResources(StartSlot, NumViews, ppShaderResourceViews);
 }
 
-void RenderCommand::CSSetUnorderedAccessView(uint32 Slot, ID3D11UnorderedAccessView* UAV, ID3D11DeviceContext* Context)
+void FRenderCommand::CSSetUnorderedAccessView(uint32 Slot, ID3D11UnorderedAccessView* UAV, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	uint32 InitialCount = 0xffffffff;
 	Ctx->CSSetUnorderedAccessViews(Slot, 1, &UAV, &InitialCount);
 }
 
-void RenderCommand::CSSetUnorderedAccessViews(uint32 StartSlot, uint32 NumUAVs, ID3D11UnorderedAccessView* const* ppUnorderedAccessViews, const uint32* pUAVInitialCounts, ID3D11DeviceContext* Context)
+void FRenderCommand::CSSetUnorderedAccessViews(uint32 StartSlot, uint32 NumUAVs, ID3D11UnorderedAccessView* const* ppUnorderedAccessViews, const uint32* pUAVInitialCounts, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->CSSetUnorderedAccessViews(StartSlot, NumUAVs, ppUnorderedAccessViews, pUAVInitialCounts);
 }
 
-void RenderCommand::CSSetConstantBuffer(uint32 Slot, FConstantBuffer* ConstantBuffer, ID3D11DeviceContext* Context)
+void FRenderCommand::CSSetConstantBuffer(uint32 Slot, FRHIUniformBuffer* ConstantBuffer, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	ID3D11Buffer* Buffer = ConstantBuffer ? ConstantBuffer->GetBuffer() : nullptr;
 	Ctx->CSSetConstantBuffers(Slot, 1, &Buffer);
 }
 
-void RenderCommand::CopyResource(ID3D11Resource* Dst, ID3D11Resource* Src, ID3D11DeviceContext* Context)
+void FRenderCommand::CopyResource(ID3D11Resource* Dst, ID3D11Resource* Src, ID3D11DeviceContext* Context)
 {
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->CopyResource(Dst, Src);

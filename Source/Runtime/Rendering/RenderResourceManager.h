@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Shader.h"
-#include "RenderDevice.h"
-#include "PipelineState.h"
+#include "RHI/RHIShader.h"
+#include "RHI/DynamicRHI.h"
+#include "RHI/PipelineState.h"
 
 enum class EPSOType : uint8
 {
@@ -46,8 +46,8 @@ private:
 	void LoadOrCompileShader(const FString& Path);
 	void InitPipelineStates();
 
-	TMap<FString, TUniquePtr<FVertexShader>> VertexShaderMap;
-	TMap<FString, TUniquePtr<FPixelShader>>  PixelShaderMap;
+	TMap<FString, TUniquePtr<FRHIVertexShader>> VertexShaderMap;
+	TMap<FString, TUniquePtr<FRHIPixelShader>>  PixelShaderMap;
 	TMap<FString, TUniquePtr<FShaderProgram>> ShaderProgramMap;
 
 

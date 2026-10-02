@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "Quat.h"
 #include "Rotator.h"
-#include "EngineMath.h"
+#include "Math/UnrealMathUtility.h"
 
 FQuat::FQuat()
 {

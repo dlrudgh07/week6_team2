@@ -1,9 +1,9 @@
 #pragma once
 
 #include "RenderPacket.h"
-#include "Buffer.h"
-#include "Texture2D.h"
-#include "Text/Font.h"
+#include "RHI/RHIBuffer.h"
+#include "Engine/Texture2D.h"
+#include "Engine/Font.h"
 
 
 #include "RenderingInfo.h"
@@ -40,9 +40,9 @@ public:
 private:
 	// 정렬된 RenderPackets에서 반투명 패킷이 시작되는 위치
 	uint32 FirstTranslucentIndex = 0;
-	TUniquePtr<FConstantBuffer> CB;
-	TUniquePtr<FConstantBuffer> Temp;
-	TUniquePtr<FConstantBuffer> ViewCB;
+	TUniquePtr<FRHIUniformBuffer> CB;
+	TUniquePtr<FRHIUniformBuffer> Temp;
+	TUniquePtr<FRHIUniformBuffer> ViewCB;
 
 	D3D11_VIEWPORT ViewportInfo;
 
@@ -59,13 +59,13 @@ private:
 	{
 		ComPtr<ID3D11DeviceContext> Context;
 		ComPtr<ID3D11DeviceContext1> Context1;
-		TUniquePtr<FConstantBuffer> PerObjectCB;
+		TUniquePtr<FRHIUniformBuffer> PerObjectCB;
 	};
 	TArray<FDeferredWorker> DeferredWorkers;
 	bool bDeferredWorkersInitialized = false;
 
 	void EnsureDeferredWorkers();
-	bool EnsureConstantBufferCapacity(TUniquePtr<FConstantBuffer>& Buffer, uint32 PacketCount);
+	bool EnsureConstantBufferCapacity(TUniquePtr<FRHIUniformBuffer>& Buffer, uint32 PacketCount);
 	void DrawPackets(uint32 Begin, uint32 End, const FMatrix& ViewProjection);
 	void BindMaterial(UMaterial* material, ID3D11DeviceContext* Context = nullptr, bool bBindPipelineState = true, bool bWireframe = false);
 	void UpdateMaterialParams(UMaterial* material);

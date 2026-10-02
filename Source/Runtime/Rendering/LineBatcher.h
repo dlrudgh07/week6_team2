@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Buffer.h"
-#include "StaticMeshData.h"
-#include "PipelineState.h"
+#include "RHI/RHIBuffer.h"
+#include "Rendering/StaticMeshResources.h"
+#include "RHI/PipelineState.h"
 
 class FRenderer;
 class UWorld;
@@ -37,9 +37,9 @@ private:
 	FPipelineState PipelineState;
 	FVertex* VertexBufferBase;  
 	FVertex* VertexBufferPtr;  
-	TUniquePtr<FConstantBuffer> CB;
+	TUniquePtr<FRHIUniformBuffer> CB;
 	uint32 VertexCount;
 
 	uint32 MaxVertices = 0;
-	TUniquePtr<FVertexBuffer> VertexBuffer;
+	TUniquePtr<FRHIVertexBuffer> VertexBuffer;
 };

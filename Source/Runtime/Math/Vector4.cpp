@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 
 #include "Vector4.h"
-#include "EngineMath.h"
+#include "Math/UnrealMathUtility.h"
 
 #include <cmath>
 #include <assert.h>

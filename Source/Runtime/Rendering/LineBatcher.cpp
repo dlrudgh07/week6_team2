@@ -1,11 +1,11 @@
 #include "EnginePCH.h"
 #include "LineBatcher.h"
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 
 #include "RenderCommand.h"
 #include "RenderResourceManager.h"
 
-#include "ObjectSystem/UObjectIterator.h"
+#include "UObject/UObjectIterator.h"
 
 FLineBatcher::~FLineBatcher()
 {
@@ -25,9 +25,9 @@ bool FLineBatcher::Init(FRenderer* InRenderer, UWorld* InWorld)
 	MaxVertices = 65536;
 	VertexBufferBase = new FVertex[MaxVertices];
 
-	VertexBuffer = RenderCommand::CreateDynamicVertexBuffer(sizeof(FVertex) * MaxVertices, sizeof(FVertex));
+	VertexBuffer = FRenderCommand::CreateDynamicVertexBuffer(sizeof(FVertex) * MaxVertices, sizeof(FVertex));
 
-	CB = RenderCommand::CreateConstantBuffer(sizeof(FMatrix));
+	CB = FRenderCommand::CreateConstantBuffer(sizeof(FMatrix));
 
 	return true;
 }
@@ -56,8 +56,8 @@ void FLineBatcher::AddLine(const FVector& A, const FVector& B, const FVector4& C
 	if (VertexCount + 2 > MaxVertices)
 		return;   // 넘치면 버림
 
-	*VertexBufferPtr++ = { A, FVector2(), Color };
-	*VertexBufferPtr++ = { B, FVector2(), Color };
+	*VertexBufferPtr++ = { A, FVector2D(), Color };
+	*VertexBufferPtr++ = { B, FVector2D(), Color };
 
 	VertexCount += 2;
 }
@@ -128,11 +128,11 @@ void FLineBatcher::AddPath(const TArray<FVector>& Points, const FVector4& Color)
 
 void FLineBatcher::Flush()
 {
-	RenderCommand::BindPipelineState(&PipelineState);
-	RenderCommand::BindVertexBuffer(VertexBuffer.get());
-	RenderCommand::BindConstantBuffer(0, CB.get(), EShaderBindFlagBits::Vertex);
+	FRenderCommand::BindPipelineState(&PipelineState);
+	FRenderCommand::BindVertexBuffer(VertexBuffer.get());
+	FRenderCommand::BindConstantBuffer(0, CB.get(), EShaderBindFlagBits::Vertex);
 
-	RenderCommand::Draw(VertexCount, 0);
+	FRenderCommand::Draw(VertexCount, 0);
 }
 
 void FLineBatcher::OnRender(const FMatrix& ViewProjection)
@@ -141,8 +141,8 @@ void FLineBatcher::OnRender(const FMatrix& ViewProjection)
 
 	// BoundingBoxShader cbuffer가 row_major이므로 전치 없이 올린다.
 	FMatrix VP = ViewProjection;
-	RenderCommand::UpdateBufferData(VertexBuffer.get(), VertexBufferBase, sizeof(FVertex) * VertexCount);
-	RenderCommand::UpdateBufferData(CB.get(), &VP, sizeof(FMatrix));
+	FRenderCommand::UpdateBufferData(VertexBuffer.get(), VertexBufferBase, sizeof(FVertex) * VertexCount);
+	FRenderCommand::UpdateBufferData(CB.get(), &VP, sizeof(FMatrix));
 
 	Flush();
 }

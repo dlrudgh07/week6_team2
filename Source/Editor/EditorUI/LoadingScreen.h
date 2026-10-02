@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Types.h"
-#include "Core/EngineString.h"
+#include "HAL/Platform.h"
+#include "Containers/UnrealString.h"
 #include <d3d11.h>
 
 class UTexture2D;

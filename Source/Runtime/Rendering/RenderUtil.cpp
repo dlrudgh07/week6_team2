@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "RenderUtil.h"
 
-FShaderByteCode RenderUtil::CompileShader(FString Path, const char* EntryPoint, EShaderType ShaderType)
+FShaderByteCode FRenderUtil::CompileShader(FString Path, const char* EntryPoint, EShaderType ShaderType)
 {
 	const char* Target = "vs_5_0";
 	if (ShaderType == EShaderType::Pixel) Target = "ps_5_0";
@@ -31,7 +31,7 @@ FShaderByteCode RenderUtil::CompileShader(FString Path, const char* EntryPoint, 
 	return ByteCode;
 }
 
-void RenderUtil::SaveByteCode(FString CsoPath, const FShaderByteCode& ByteCode)
+void FRenderUtil::SaveByteCode(FString CsoPath, const FShaderByteCode& ByteCode)
 {
 	fs::create_directories(fs::path(CsoPath).parent_path());
 	std::ofstream Out(CsoPath, std::ios::binary);
@@ -39,7 +39,7 @@ void RenderUtil::SaveByteCode(FString CsoPath, const FShaderByteCode& ByteCode)
 	Out.write(reinterpret_cast<const char*>(ByteCode.GetData()), ByteCode.GetSize());
 }
 
-FShaderByteCode RenderUtil::LoadByteCode(const FString& CsoPath)
+FShaderByteCode FRenderUtil::LoadByteCode(const FString& CsoPath)
 {
 	FShaderByteCode Result;
 
@@ -58,7 +58,7 @@ FShaderByteCode RenderUtil::LoadByteCode(const FString& CsoPath)
 	return Result;
 }
 
-FString RenderUtil::GetCsoPath(const FString& ShaderPath, EShaderType ShaderType)
+FString FRenderUtil::GetCsoPath(const FString& ShaderPath, EShaderType ShaderType)
 {
 	const fs::path Rel = fs::relative(ShaderPath, "Resources/Shader");
 	const char* Suffix = "_VS.cso";
@@ -71,7 +71,7 @@ FString RenderUtil::GetCsoPath(const FString& ShaderPath, EShaderType ShaderType
 }
 
 // .cso 파일이 최신 컴파일인지 비교한다.
-bool RenderUtil::IsCsoUpToDate(const FString& ShaderPath, const FString& CsoPath)
+bool FRenderUtil::IsCsoUpToDate(const FString& ShaderPath, const FString& CsoPath)
 {
 	std::error_code Ec;  
 	if (!fs::exists(CsoPath, Ec)) return false;
@@ -84,7 +84,7 @@ bool RenderUtil::IsCsoUpToDate(const FString& ShaderPath, const FString& CsoPath
 	return CsoTime > SrcTime;
 }
 
-FShaderByteCode RenderUtil::GetOrCompile(const FString& ShaderPath, const char* EntryPoint, EShaderType ShaderType, FString& OutCSOPath)
+FShaderByteCode FRenderUtil::GetOrCompile(const FString& ShaderPath, const char* EntryPoint, EShaderType ShaderType, FString& OutCSOPath)
 {
 	OutCSOPath = GetCsoPath(ShaderPath, ShaderType);
 

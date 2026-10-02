@@ -1,6 +1,6 @@
 #include "EnginePCH.h"
 #include "Editor/Rendering/OutlineRenderer.h"
-#include "Asset/AssetManager.h"
+#include "Engine/AssetManager.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/RenderResourceManager.h"
 
@@ -26,7 +26,7 @@ void FOutlineRenderer::Init(FRenderer* InRenderer)
 	OutlinePipelineState.DepthStencilState = EDepthStencilState::StencilOutline;
 
 	static_assert(sizeof(FOutlineData) == 208, "Outline constant buffer layout mismatch");
-	ConstantBuffer = RenderCommand::CreateConstantBuffer(sizeof(FOutlineData));
+	ConstantBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FOutlineData));
 }
 
 // 외부에서 지정한 Mesh 참조를 저장한다.
@@ -49,8 +49,8 @@ void FOutlineRenderer::OnRender(const FOutline& InOutline, const FMatrix& InView
 		return;
 	}
 
-	RenderCommand::BindMesh(InOutline.GetMesh());
-	RenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Vertex);
+	FRenderCommand::BindMesh(InOutline.GetMesh());
+	FRenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Vertex);
 
 	// OutlineShader cbuffer가 row_major이므로 World·ViewProj는 전치 없이 올린다.
 	const FMatrix OriginalWorld = InOutline.GetWorldMatrix();
@@ -65,17 +65,17 @@ void FOutlineRenderer::OnRender(const FOutline& InOutline, const FMatrix& InView
 
 	// 1패스: 두께 0(확장 없음)으로 선택 메시 영역을 스텐실에 찍는다.
 	FOutlineData MaskConst = { World, NormalMatrix, ViewProj, FVector4(ViewportWidth, ViewportHeight, 0.0f, 0.0f) };
-	RenderCommand::BindPipelineState(&MaskPipelineState);
-	RenderCommand::UpdateBufferData(ConstantBuffer.get(), &MaskConst, sizeof(MaskConst));
-	RenderCommand::DrawIndexed(IndexCount);
+	FRenderCommand::BindPipelineState(&MaskPipelineState);
+	FRenderCommand::UpdateBufferData(ConstantBuffer.get(), &MaskConst, sizeof(MaskConst));
+	FRenderCommand::DrawIndexed(IndexCount);
 
 	// 2패스: 확장 메시 중 스텐실 바깥 부분만 노란색으로 그린다.
 	FOutlineData OutlineConst = { World, NormalMatrix, ViewProj, FVector4(ViewportWidth, ViewportHeight, 2.0f, 0.0f) };
-	RenderCommand::BindPipelineState(&OutlinePipelineState);
-	RenderCommand::UpdateBufferData(ConstantBuffer.get(), &OutlineConst, sizeof(OutlineConst));
-	RenderCommand::DrawIndexed(IndexCount);
+	FRenderCommand::BindPipelineState(&OutlinePipelineState);
+	FRenderCommand::UpdateBufferData(ConstantBuffer.get(), &OutlineConst, sizeof(OutlineConst));
+	FRenderCommand::DrawIndexed(IndexCount);
 
 	// 이후 패스(Gizmo 등)에 스텐실·블렌드 상태가 새지 않도록 기본값으로 되돌린다.
-	RenderCommand::SetBlendState(EBlendState::Opaque);
-	RenderCommand::SetDepthStencilState(EDepthStencilState::Default);
+	FRenderCommand::SetBlendState(EBlendState::Opaque);
+	FRenderCommand::SetDepthStencilState(EDepthStencilState::Default);
 }

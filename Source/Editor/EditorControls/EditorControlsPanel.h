@@ -3,10 +3,10 @@
 
 #include "Editor/Gizmo/Gizmo.h"
 
-#include "GameFramework/Actor/ParticleActor.h"
-#include "GameFramework/Actor/StaticMeshActor.h"
-#include "GameFramework/Actor/LightActor.h"
-#include "GameFramework/Actor/TextRenderActor.h"
+#include "Particles/Emitter.h"
+#include "Engine/StaticMeshActor.h"
+#include "Engine/SpotLight.h"
+#include "Engine/TextRenderActor.h"
 
 class FMultipleViewportsAdapter;
 
@@ -41,9 +41,9 @@ public:
 	TArray<UClass*> Classes
 	{
 		AStaticMeshActor::StaticClass(),
-		AParticleActor::StaticClass(),
+		AEmitter::StaticClass(),
 		ATextRenderActor::StaticClass(),
-		ALightActor::StaticClass(),
+		ASpotLight::StaticClass(),
 	};
 
     void SetViewportAdapter(FMultipleViewportsAdapter* InAdapter) { ViewportAdapter = InAdapter; }

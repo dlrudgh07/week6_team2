@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Core/Window.h"
-#include "Rendering/RenderDevice.h"
+#include "Windows/WindowsWindow.h"
+#include "RHI/DynamicRHI.h"
 #include "Rendering/RenderPacket.h"
 #include "Rendering/Renderer.h"
-#include "Rendering/Swapchain.h"
-#include "Rendering/Texture2D.h"
+#include "RHI/Swapchain.h"
+#include "Engine/Texture2D.h"
 
 #include "Core/Application.h"
 
@@ -36,11 +36,11 @@ private:
 	FVector GetCameraEye() const;
 
 	// 선언 역순으로 해제되므로 의존 대상(Device)을 가장 위에 둔다.
-	TUniquePtr<FRenderDevice> RenderDevice;
+	TUniquePtr<FDynamicRHI> RenderDevice;
 	TUniquePtr<FRenderer> Renderer;
-	TUniquePtr<FWindow> MainWindow;
+	TUniquePtr<FWindowsWindow> MainWindow;
 	TUniquePtr<FSwapchain> Swapchain;
-	TUniquePtr<FTexture2D> DepthBuffer;
+	TUniquePtr<FRHITexture2D> DepthBuffer;
 	// 프레임마다 Reset해 기존 capacity를 재사용한다.
 	TArray<FRenderPacket> RenderPackets;
 

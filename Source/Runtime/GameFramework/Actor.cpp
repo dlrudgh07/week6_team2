@@ -1,9 +1,9 @@
 #include "EnginePCH.h"
 #include "Actor.h"
-#include "World/World.h"
-#include "World/Level.h"
-#include "ObjectSystem/ObjectFactory.h"
-#include "Component/SceneComponent.h"
+#include "Engine/World.h"
+#include "Engine/Level.h"
+#include "UObject/UObjectGlobals.h"
+#include "Components/SceneComponent.h"
 
 AActor::AActor()
 {
@@ -32,6 +32,13 @@ void AActor::BeginPlay()
 	{
 		Component->BeginPlay();
 	}
+
+	BeginPlayState = EActorBeginPlayState::BeginningPlay;
+}
+
+void AActor::EndPlay()
+{
+	BeginPlayState = EActorBeginPlayState::HasBegunPlay;
 }
 
 void AActor::Tick(float DeltaTime)
@@ -89,6 +96,45 @@ void AActor::SetRootComponent(USceneComponent* SceneComponent)
 	RootComponent = SceneComponent;
 }
 
+UActorComponent* AActor::AddComponentByClass(UClass* Class, FName Name)
+{
+	if (!Class || !Class->IsChildOf(UActorComponent::StaticClass()))
+	{
+		return nullptr;
+	}
+
+	UActorComponent* Component = Cast<UActorComponent>(FObjectFactory::ConstructObject(Class, this, Name));
+
+	if (!Component)
+	{
+		return nullptr;
+	}
+
+	Component->SetOwner(this);
+	Components.Add(Component);
+
+	if (Component->IsA<USceneComponent>())
+	{
+		if (!RootComponent)
+		{
+			RootComponent = Cast<USceneComponent>(Component);
+		}
+		else
+		{
+			Cast<USceneComponent>(Component)->SetupAttachment(RootComponent);
+		}
+	}
+
+	GetWorld()->AddComponent(Cast<UPrimitiveComponent>(Component));
+
+	if (BeginPlayState == EActorBeginPlayState::BeginningPlay)
+	{
+		Component->BeginPlay();
+	}
+
+	return Component;
+}
+
 void AActor::SetCanEverTick(const bool bEnabled)
 {
 	if (bCanEverTick == bEnabled)
@@ -122,7 +168,7 @@ FVector AActor::GetActorLocation() const
 {
 	if (RootComponent)
 	{
-		return RootComponent->GetWorldLocation();
+		return RootComponent->GetComponentLocation();
 	}
 	return FVector::ZeroVector;
 }
@@ -131,8 +177,8 @@ FVector AActor::GetActorLocation() const
 //{
 //    if (RootComponent)
 //    {
-//        // USceneComponent의 GetWorldRotation() 호출
-//        return RootComponent->GetWorldRotation();
+//        // USceneComponent의 GetComponentRotation() 호출
+//        return RootComponent->GetComponentRotation();
 //    }
 //    return FRotator::ZeroRotator;
 //}
@@ -141,7 +187,7 @@ FVector AActor::GetActorScale3D() const
 {
 	if (RootComponent)
 	{
-		return RootComponent->GetWorldScale3D();
+		return RootComponent->GetComponentScale();
 	}
 	return FVector::OneVector;
 }
@@ -150,7 +196,7 @@ FVector AActor::GetActorScale3D() const
 //{
 //    if (RootComponent)
 //    {
-//        return FQuat(RootComponent->GetWorldRotation());
+//        return FQuat(RootComponent->GetComponentRotation());
 //    }
 //    return FQuat::Identity;
 //}
@@ -159,7 +205,7 @@ FTransform AActor::GetActorTransform() const
 {
 	if (RootComponent)
 	{
-		return FTransform(RootComponent->GetWorldRotation(), RootComponent->GetWorldLocation(), RootComponent->GetWorldScale3D());
+		return FTransform(RootComponent->GetComponentRotation(), RootComponent->GetComponentLocation(), RootComponent->GetComponentScale());
 
 		// return FTransform(RootComponent->GetWorldMatrix());
 	}

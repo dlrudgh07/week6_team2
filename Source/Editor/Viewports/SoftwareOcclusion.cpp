@@ -1,9 +1,9 @@
 #include "EnginePCH.h"
 #include "Editor/Viewports/SoftwareOcclusion.h"
 #include "Editor/Viewports/GPUOcclusionCuller.h"
-#include "Rendering/Texture2D.h"
+#include "Engine/Texture2D.h"
 
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Tasks/Tasks.h"
 
 #include <algorithm>
@@ -1162,7 +1162,7 @@ void FSoftwareOcclusionCuller::RasterizeOccluder(const FRenderableObject& Object
 		return;
 	}
 
-	const FStaticMeshData& Mesh = *Object.StaticMeshData;
+	const FStaticMeshRenderData& Mesh = *Object.StaticMeshData;
 	const int32 NumVerts = Mesh.Vertices.Num();
 	const int32 NumIndices = Mesh.Indices.Num();
 	const bool bValidMesh = bUseMesh && NumVerts > 0 && NumIndices >= 3;
@@ -1810,7 +1810,7 @@ void FSoftwareOcclusionCuller::Cull(const int32 ViewIndex,
 	}
 }
 
-void FSoftwareOcclusionCuller::PostRenderOpaque(int32 ViewIndex, FTexture2D* SceneDepthTexture)
+void FSoftwareOcclusionCuller::PostRenderOpaque(int32 ViewIndex, FRHITexture2D* SceneDepthTexture)
 {
 	if (Settings.Mode == ESoftwareOcclusionMode::GPUCompute)
 	{

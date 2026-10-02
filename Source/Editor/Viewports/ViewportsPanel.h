@@ -22,8 +22,8 @@ public:
 	void SetView(int32 ViewIndex, const FRect& Rect, bool bActive);
 	const FRenderingInfo& GetRenderingInfo(int32 ViewIndex) const;
 
-	FVector2 GetContentSize() const { return {ContentSize.x, ContentSize.y}; }
-	FVector2 GetLocalMousePosition() const;
+	FVector2D GetContentSize() const { return {ContentSize.x, ContentSize.y}; }
+	FVector2D GetLocalMousePosition() const;
 	bool IsHovered() const { return bHovered; }
 
 	float ConsumeHorizontalDrag();
@@ -44,8 +44,8 @@ private:
 		bool bActive = false;
 		uint32 Width = 0;
 		uint32 Height = 0;
-		TUniquePtr<FTexture2D> ColorTarget;
-		TUniquePtr<FTexture2D> DepthTarget;
+		TUniquePtr<FRHITexture2D> ColorTarget;
+		TUniquePtr<FRHITexture2D> DepthTarget;
 		FRenderingInfo RenderingInfo{};
 	};
 

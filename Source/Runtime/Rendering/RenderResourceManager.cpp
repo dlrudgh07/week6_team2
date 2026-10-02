@@ -100,8 +100,8 @@ void FRenderResourceManager::LoadOrCompileShader(const FString& Path)
 { 
 	FString VSCSOPath;
 	FString PSCSOPath;
-	FShaderByteCode VSCode = RenderUtil::GetOrCompile(Path,"mainVS", EShaderType::Vertex, VSCSOPath);
-	FShaderByteCode PSCode = RenderUtil::GetOrCompile(Path, "mainPS", EShaderType::Pixel, PSCSOPath);
+	FShaderByteCode VSCode = FRenderUtil::GetOrCompile(Path,"mainVS", EShaderType::Vertex, VSCSOPath);
+	FShaderByteCode PSCode = FRenderUtil::GetOrCompile(Path, "mainPS", EShaderType::Pixel, PSCSOPath);
 
 	if (!VSCode.IsValid() || !PSCode.IsValid())
 	{
@@ -109,8 +109,8 @@ void FRenderResourceManager::LoadOrCompileShader(const FString& Path)
 		return;
 	}
 
-	TUniquePtr<FVertexShader> Vs = RenderCommand::CreateVertexShader(VSCode);
-	TUniquePtr<FPixelShader>  Ps = RenderCommand::CreatePixelShader(PSCode);
+	TUniquePtr<FRHIVertexShader> Vs = FRenderCommand::CreateVertexShader(VSCode);
+	TUniquePtr<FRHIPixelShader>  Ps = FRenderCommand::CreatePixelShader(PSCode);
 
 	if (!Vs || !Vs->IsValid() || !Ps || !Ps->IsValid())
 	{
@@ -118,8 +118,8 @@ void FRenderResourceManager::LoadOrCompileShader(const FString& Path)
 		return;
 	}
 
-	FVertexShader* VsRaw = Vs.get();
-	FPixelShader* PsRaw = Ps.get();
+	FRHIVertexShader* VsRaw = Vs.get();
+	FRHIPixelShader* PsRaw = Ps.get();
 
 	VertexShaderMap[VSCSOPath] = std::move(Vs);
 	PixelShaderMap[PSCSOPath] = std::move(Ps);

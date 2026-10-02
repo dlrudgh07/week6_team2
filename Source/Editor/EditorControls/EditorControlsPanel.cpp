@@ -5,7 +5,7 @@
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 
-#include "World/World.h"
+#include "Engine/World.h"
 
 #include "Input/InputSystem.h"
 
@@ -100,11 +100,18 @@ void FEditorControlsPanel::OnRender()
 	ImGui::Dummy(ImVec2(0.0f, SectionGap));
 	ImGui::SeparatorText("Actor Spawn");
 
+	if(ImGui::Button("Empty Actor"))
+	{
+		FTransform SpawnTransform;
+		SpawnTransform.Location = GetSpawnOrigin();
+		World->SpawnActor(AActor::StaticClass(), NAME_None, &SpawnTransform);
+	}
+
 	// Actor 종류 ComboBox로 골라 하나씩 스폰
 	const float SpawnButtonWidth = 70.0f;
 
 	char CountText[32];
-	std::snprintf(CountText, sizeof(CountText), "%d Actors", World ? World->GetActorNum() : 0);
+	std::snprintf(CountText, sizeof(CountText), "%d Actors", World ? World->GetActorCount() : 0);
 
 	const float CountWidth = ImGui::CalcTextSize(CountText).x;
 	const float Available = ImGui::GetContentRegionAvail().x;
@@ -266,7 +273,7 @@ void FEditorControlsPanel::DrawCameraProperties()
 	}
 
 	bool bChanged = false;
-	bool bOrthogonal = ViewportAdapter ? Camera.Projection.Mode == EProjectionMode::Orthographic : CamCom->GetIsOrthogonal();
+	bool bOrthogonal = ViewportAdapter ? Camera.Projection.Mode == ECameraProjectionMode::Orthographic : CamCom->GetIsOrthogonal();
 
 	ImGui::Dummy(ImVec2(0.0f, SubsectionGap));
 	ImGui::TextDisabled("Projection");

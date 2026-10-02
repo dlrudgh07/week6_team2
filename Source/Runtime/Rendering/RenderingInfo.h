@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Types.h"
+#include "HAL/Platform.h"
 #include "Math/Vector4.h"
-#include "Texture2D.h"
-#include "Container/Array.h"
+#include "Engine/Texture2D.h"
+#include "Containers/Array.h"
 
 enum class ERenderTargetLoadOp
 {
@@ -37,7 +37,7 @@ struct FClearValue
 
 struct FRenderingDesc
 {
-	FTexture2D* Texture = nullptr;
+	FRHITexture2D* Texture = nullptr;
 	ERenderTargetLoadOp  LoadOp = ERenderTargetLoadOp::Clear;
 	ERenderTargetStoreOp storeOp = ERenderTargetStoreOp::Store;
 	FClearValue ClearValue = FClearValue();

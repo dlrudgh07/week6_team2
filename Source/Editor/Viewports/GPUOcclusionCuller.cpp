@@ -1,12 +1,12 @@
 #include "EnginePCH.h"
 #include "Editor/Viewports/GPUOcclusionCuller.h"
 
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Rendering/RenderCommand.h"
-#include "Rendering/GPUProfiler.h"
-#include "Core/StatDefinitions.h"
+#include "RHI/GPUProfiler.h"
+#include "Stats/StatDefinitions.h"
 #include "Rendering/RenderUtil.h"
-#include "Rendering/Texture2D.h"
+#include "Engine/Texture2D.h"
 #include "Tasks/Tasks.h"
 
 #include <algorithm>
@@ -29,7 +29,7 @@ bool FGPUOcclusionCuller::Init()
     }
 
     FString CSOPath;
-    FShaderByteCode ByteCode = RenderUtil::GetOrCompile(
+    FShaderByteCode ByteCode = FRenderUtil::GetOrCompile(
         "Resources/Shader/OcclusionCullingCS.hlsl",
         "mainCS",
         EShaderType::Compute,
@@ -41,14 +41,14 @@ bool FGPUOcclusionCuller::Init()
         return false;
     }
 
-    ComputeShader = RenderCommand::CreateComputeShader(ByteCode);
+    ComputeShader = FRenderCommand::CreateComputeShader(ByteCode);
     if (!ComputeShader || !ComputeShader->IsValid())
     {
         LOG(Error, "[GPUOcclusion] Failed to create compute shader device object");
         return false;
     }
 
-    ConstantBuffer = RenderCommand::CreateConstantBuffer(sizeof(FGPUCullConstants));
+    ConstantBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FGPUCullConstants));
     if (!ConstantBuffer)
     {
         LOG(Error, "[GPUOcclusion] Failed to create constant buffer");
@@ -56,7 +56,7 @@ bool FGPUOcclusionCuller::Init()
     }
 
     FString HZBCSOPath;
-    FShaderByteCode HZBByteCode = RenderUtil::GetOrCompile(
+    FShaderByteCode HZBByteCode = FRenderUtil::GetOrCompile(
         "Resources/Shader/HZBBuildCS.hlsl",
         "mainCS",
         EShaderType::Compute,
@@ -64,10 +64,10 @@ bool FGPUOcclusionCuller::Init()
 
     if (HZBByteCode.IsValid())
     {
-        HZBBuildShader = RenderCommand::CreateComputeShader(HZBByteCode);
+        HZBBuildShader = FRenderCommand::CreateComputeShader(HZBByteCode);
     }
 
-    HZBBuildConstantBuffer = RenderCommand::CreateConstantBuffer(sizeof(FHZBBuildConstants));
+    HZBBuildConstantBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FHZBBuildConstants));
 
     bInitialized = true;
     return true;
@@ -93,7 +93,7 @@ void FGPUOcclusionCuller::EnsureCapacity(uint32 Count)
         return;
     }
 
-    ID3D11Device* Device = RenderCommand::GetDevice();
+    ID3D11Device* Device = FRenderCommand::GetDevice();
     if (!Device)
     {
         return;
@@ -190,7 +190,7 @@ void FGPUOcclusionCuller::EnsureCapacity(uint32 Count)
 
 void FGPUOcclusionCuller::EnsureHZBResources(int32 ViewIndex, uint32 Width, uint32 Height)
 {
-    ID3D11Device* Device = RenderCommand::GetDevice();
+    ID3D11Device* Device = FRenderCommand::GetDevice();
     if (!Device)
     {
         return;
@@ -260,14 +260,14 @@ void FGPUOcclusionCuller::EnsureHZBResources(int32 ViewIndex, uint32 Width, uint
     }
 }
 
-void FGPUOcclusionCuller::BuildHZB(int32 ViewIndex, FTexture2D* SceneDepthTexture)
+void FGPUOcclusionCuller::BuildHZB(int32 ViewIndex, FRHITexture2D* SceneDepthTexture)
 {
     if (!SceneDepthTexture || !HZBBuildShader || !HZBBuildConstantBuffer)
     {
         return;
     }
 
-    ID3D11DeviceContext* Context = RenderCommand::GetContext();
+    ID3D11DeviceContext* Context = FRenderCommand::GetContext();
     if (!Context)
     {
         return;
@@ -299,19 +299,19 @@ void FGPUOcclusionCuller::BuildHZB(int32 ViewIndex, FTexture2D* SceneDepthTextur
         Context->OMSetRenderTargets(1, CurrentRTVs, nullptr);
     }
 
-    RenderCommand::CSSetShader(HZBBuildShader.get(), Context);
-    RenderCommand::CSSetSampler(0, ESamplerState::PointClamp, Context);
+    FRenderCommand::CSSetShader(HZBBuildShader.get(), Context);
+    FRenderCommand::CSSetSampler(0, ESamplerState::PointClamp, Context);
 
     // 첫 패스 다운샘플링
-    RenderCommand::CSSetShaderResource(0, SceneDepthTexture->GetSRV(), Context);
-    RenderCommand::CSSetUnorderedAccessView(0, HZBMipUAV[ClampedView][0].Get(), Context);
+    FRenderCommand::CSSetShaderResource(0, SceneDepthTexture->GetSRV(), Context);
+    FRenderCommand::CSSetUnorderedAccessView(0, HZBMipUAV[ClampedView][0].Get(), Context);
 
-    RenderCommand::Dispatch((HZBWidth + 15) / 16, (HZBHeight + 15) / 16, 1, Context);
+    FRenderCommand::Dispatch((HZBWidth + 15) / 16, (HZBHeight + 15) / 16, 1, Context);
 
     ID3D11ShaderResourceView* NullSRV = nullptr;
     ID3D11UnorderedAccessView* NullUAV = nullptr;
-    RenderCommand::CSSetShaderResource(0, NullSRV, Context);
-    RenderCommand::CSSetUnorderedAccessView(0, NullUAV, Context);
+    FRenderCommand::CSSetShaderResource(0, NullSRV, Context);
+    FRenderCommand::CSSetUnorderedAccessView(0, NullUAV, Context);
 
     // OM 깊이 타겟 복원
     if (CurrentDSV)
@@ -330,13 +330,13 @@ void FGPUOcclusionCuller::BuildHZB(int32 ViewIndex, FTexture2D* SceneDepthTextur
         const uint32 MipW = (std::max)(1u, HZBWidth >> Mip);
         const uint32 MipH = (std::max)(1u, HZBHeight >> Mip);
 
-        RenderCommand::CSSetShaderResource(0, HZBMipSRV[ClampedView][Mip - 1].Get(), Context);
-        RenderCommand::CSSetUnorderedAccessView(0, HZBMipUAV[ClampedView][Mip].Get(), Context);
+        FRenderCommand::CSSetShaderResource(0, HZBMipSRV[ClampedView][Mip - 1].Get(), Context);
+        FRenderCommand::CSSetUnorderedAccessView(0, HZBMipUAV[ClampedView][Mip].Get(), Context);
 
-        RenderCommand::Dispatch((MipW + 15) / 16, (MipH + 15) / 16, 1, Context);
+        FRenderCommand::Dispatch((MipW + 15) / 16, (MipH + 15) / 16, 1, Context);
 
-        RenderCommand::CSSetShaderResource(0, NullSRV, Context);
-        RenderCommand::CSSetUnorderedAccessView(0, NullUAV, Context);
+        FRenderCommand::CSSetShaderResource(0, NullSRV, Context);
+        FRenderCommand::CSSetUnorderedAccessView(0, NullUAV, Context);
     }
 
     bHasHZB[ClampedView] = true;
@@ -393,7 +393,7 @@ void FGPUOcclusionCuller::Cull(
         return;
     }
 
-    ID3D11DeviceContext* Context = RenderCommand::GetContext();
+    ID3D11DeviceContext* Context = FRenderCommand::GetContext();
     if (!Context)
     {
         return;
@@ -441,38 +441,38 @@ void FGPUOcclusionCuller::Cull(
     Constants.ViewProjection = ViewProjection;
     Constants.CameraPosition = CameraLocation;
     Constants.Pad0 = 0.0f;
-    Constants.HZBSize = FVector2(static_cast<float>(HZBWidth), static_cast<float>(HZBHeight));
+    Constants.HZBSize = FVector2D(static_cast<float>(HZBWidth), static_cast<float>(HZBHeight));
     Constants.NumInstances = TotalObjects;
     Constants.NumWords = NumWords;
     Constants.bUseHZB = bHasHZB[ClampedView] ? 1 : 0;
     Constants.NumHZBMips = HZBMipCount;
     Constants.DepthBias = 0.0001f;
     Constants.Pad = 0.0f;
-    RenderCommand::UpdateBufferData(ConstantBuffer.get(), &Constants, sizeof(FGPUCullConstants), Context);
+    FRenderCommand::UpdateBufferData(ConstantBuffer.get(), &Constants, sizeof(FGPUCullConstants), Context);
 
     // 컴퓨트 파이프라인 바인딩
-    RenderCommand::CSSetShader(ComputeShader.get(), Context);
-    RenderCommand::CSSetConstantBuffer(0, ConstantBuffer.get(), Context);
-    RenderCommand::CSSetShaderResource(0, InstanceSRV.Get(), Context);
+    FRenderCommand::CSSetShader(ComputeShader.get(), Context);
+    FRenderCommand::CSSetConstantBuffer(0, ConstantBuffer.get(), Context);
+    FRenderCommand::CSSetShaderResource(0, InstanceSRV.Get(), Context);
     if (bHasHZB[ClampedView])
     {
-        RenderCommand::CSSetShaderResource(1, HZBFullSRV[ClampedView].Get(), Context);
-        RenderCommand::CSSetSampler(0, ESamplerState::PointClamp, Context);
+        FRenderCommand::CSSetShaderResource(1, HZBFullSRV[ClampedView].Get(), Context);
+        FRenderCommand::CSSetSampler(0, ESamplerState::PointClamp, Context);
     }
-    RenderCommand::CSSetUnorderedAccessView(0, VisibilityUAV.Get(), Context);
+    FRenderCommand::CSSetUnorderedAccessView(0, VisibilityUAV.Get(), Context);
 
     // 디스패치 실행
     const uint32 GroupCount = (TotalObjects + 63) / 64;
     {
         FGPUStatScope CullScope(StatIds::GpuCull(), L"Occlusion Dispatch");
-        RenderCommand::Dispatch(GroupCount, 1, 1, Context);
+        FRenderCommand::Dispatch(GroupCount, 1, 1, Context);
     }
 
     // 바인딩 해제
     ID3D11ShaderResourceView* NullSRVs[2] = { nullptr, nullptr };
     ID3D11UnorderedAccessView* NullUAV = nullptr;
-    RenderCommand::CSSetShaderResources(0, 2, NullSRVs, Context);
-    RenderCommand::CSSetUnorderedAccessView(0, NullUAV, Context);
+    FRenderCommand::CSSetShaderResources(0, 2, NullSRVs, Context);
+    FRenderCommand::CSSetUnorderedAccessView(0, NullUAV, Context);
 
     const int32 WriteSlot = CurrentWriteBufferIndex[ClampedView];
     ID3D11Buffer* TargetStaging = StagingBuffers[ClampedView][WriteSlot].Get();
@@ -480,7 +480,7 @@ void FGPUOcclusionCuller::Cull(
     // 결과 스테이징 복사
     if (TargetStaging && VisibilityBuffer)
     {
-        RenderCommand::CopyResource(TargetStaging, VisibilityBuffer.Get(), Context);
+        FRenderCommand::CopyResource(TargetStaging, VisibilityBuffer.Get(), Context);
     }
 
     int32 ReadSlot = WriteSlot;

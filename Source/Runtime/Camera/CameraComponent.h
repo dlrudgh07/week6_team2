@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ObjectSystem/Class.h"
-#include "../Component/SceneComponent.h"
-#include "../Math/EngineMath.h"
+#include "UObject/Class.h"
+#include "Components/SceneComponent.h"
+#include "Math/UnrealMathUtility.h"
 #include "../Math/Rotator.h"
 
 
@@ -24,7 +24,7 @@ public:
 	FMatrix GetViewProjectionMatrix() const;
 
 	// Picking
-	FRay DeProjection(FVector2 MousePos, float ScreenW, float ScreenH);
+	FRay DeprojectScreenToWorld(FVector2D MousePos, float ScreenW, float ScreenH);
 
 	// Get & Set
 	float GetFieldOfView() const { return FieldOfView; }

@@ -9,36 +9,36 @@
 #include "Editor/Viewports/ViewportsPanel.h"
 
 #include "Core/EngineStatics.h"
-#include "Core/EngineTimer.h"
-#include "Core/StatOverlay.h"
+#include "Misc/App.h"
+#include "Stats/StatOverlay.h"
 #include "Input/InputSystem.h"
 
-#include "ObjectSystem/ObjectFactory.h"
+#include "UObject/UObjectGlobals.h"
 
 #include "Rendering/GeometryGenerator.h"
 
-#include "World/Level.h"
-#include "World/World.h"
+#include "Engine/Level.h"
+#include "Engine/World.h"
 
 #include "Rendering/Renderer.h"
 
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/Actor/LightActor.h"
+#include "Engine/SpotLight.h"
 
-#include "Asset/AssetManager.h"
+#include "Engine/AssetManager.h"
 #include "Rendering/RenderResourceManager.h"
 
 #include "Editor/Application/EditorFileUtils.h"
 #include "Editor/Outliner/OutlinerPanel.h"
 #include "Editor/Stats/StatsPanel.h"
-#include "ObjectSystem/UObjectIterator.h"
+#include "UObject/UObjectIterator.h"
 #include "Rendering/RenderCommand.h"
-#include "Rendering/GPUProfiler.h"
+#include "RHI/GPUProfiler.h"
 
-#include "Core/EngineLog.h"
-#include "Core/Stats.h"
-#include "Core/StatDefinitions.h"
+#include "Logging/LogMacros.h"
+#include "Stats/Stats.h"
+#include "Stats/StatDefinitions.h"
 
 #include "Serialization/DefaultSceneLoader.h"
 #include "Serialization/JsonArchive.h"
@@ -66,14 +66,14 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
 
   LOG(Info, "Initialize Renderer...");
   Renderer = MakeUnique<FRenderer>();
-  RenderDevice = MakeUnique<FRenderDevice>();
-  RenderCommand::Init(RenderDevice.get());
+  RenderDevice = MakeUnique<FDynamicRHI>();
+  FRenderCommand::Init(RenderDevice.get());
   Renderer->Init();
 
   // Create Main Window & Swapchain
   FWindowContext MainWindowCtx;
   LOG(Info, "Create Main Window...");
-  MainWindowCtx.Window = MakeUnique<FWindow>();
+  MainWindowCtx.Window = MakeUnique<FWindowsWindow>();
   const int32 ScreenWidth = 1600;
   const int32 ScreenHeight = 900;
 
@@ -169,10 +169,11 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
 
   OutlinerPanel = EditorUI->AddEditorPanel<FOutlinerPanel>();
   OutlinerPanel->SetWorld(World);
-  OutlinerPanel->SetSelectionCallback([this](UPrimitiveComponent *Primitive) {
-    Gizmo->SetTarget(Primitive);
-    Outline->SetTarget(Primitive);
-    DetailsPanel->SetTarget(Primitive);
+  OutlinerPanel->SetSelectionCallback([this](AActor *Actor) {
+		  UPrimitiveComponent* Primitive = Actor ? Cast<UPrimitiveComponent>(Actor->GetRootComponent()) : nullptr;
+		  Gizmo->SetTarget(Primitive);
+		  Outline->SetTarget(Primitive);
+		  DetailsPanel->SetTarget(Actor);
   });
 
   OutlinerPanel->SetDeleteActorCallback(
@@ -197,7 +198,7 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
 
 // 프레임 시작·View 상태·월드 갱신·렌더·종료를 순차 반복한다.
 void FEditorApplication::Run() {
-  EngineTimer::Init();
+  FApp::Init();
 
   LOG(Info, "{}", "Hello, World!");
   LOG(Info, "{}", FName().ToString());
@@ -229,8 +230,8 @@ void FEditorApplication::Run() {
 // 창 이벤트·입력을 갱신하고 DeltaTime을 계산한다.
 bool FEditorApplication::BeginFrame(float &OutDeltaTime) {
 
-  EngineTimer::Tick();
-  OutDeltaTime = EngineTimer::GetDeltaTime();
+  FApp::Tick();
+  OutDeltaTime = FApp::GetDeltaTime();
   FStats::BeginFrame();
   Tasks::FTaskScheduler::Get().BeginFrame();
   FStatOverlay::Tick(OutDeltaTime);
@@ -251,8 +252,8 @@ bool FEditorApplication::BeginFrame(float &OutDeltaTime) {
 
 // 패널의 Layout·Preset 요청과 입력을 Adapter에 반영한다.
 void FEditorApplication::UpdateMultipleViewportState(const float DeltaTime) {
-  const FVector2 ViewportSize = ViewportsPanel->GetContentSize();
-  const FVector2 LocalMousePosition = ViewportsPanel->GetLocalMousePosition();
+  const FVector2D ViewportSize = ViewportsPanel->GetContentSize();
+  const FVector2D LocalMousePosition = ViewportsPanel->GetLocalMousePosition();
 
   ELayoutMode RequestedLayout{};
   int32 RequestedSingleViewIndex =
@@ -348,13 +349,13 @@ void FEditorApplication::UpdateGizmoAndPicking() {
   if (ViewIndex == InvalidViewIndex || (!ViewportsPanel->IsHovered() && !Gizmo->IsUsing()))
     return;
 
-  const FVector2 LocalMousePosition = ViewportsPanel->GetLocalMousePosition();
+  const FVector2D LocalMousePosition = ViewportsPanel->GetLocalMousePosition();
   FRay Ray{};
   if (!MultipleViewportsAdapter.TryGetActiveViewRay(LocalMousePosition, Ray))
     return;
 
   const FRect &Rect = MultipleViewportsAdapter.GetViewRect(ViewIndex);
-  const FVector2 ViewLocalMouse(LocalMousePosition.X - Rect.X,
+  const FVector2D ViewLocalMouse(LocalMousePosition.X - Rect.X,
                                 LocalMousePosition.Y - Rect.Y);
   const FMatrix ViewProjection =
       MultipleViewportsAdapter.GetEngineViewProjection(ViewIndex);
@@ -380,7 +381,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
                                      const FVector &ViewCameraLocation,
                                      const FVector &ViewCameraForward,
                                      TArray<FRenderPacket> &RenderPackets) {
-  RenderCommand::BeginRenderPass(ViewRenderingInfo);
+  FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
   const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
   const float FarClip = MultipleViewportsAdapter.GetViewCamera(ViewIndex).Projection.FarClip;
@@ -399,6 +400,17 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
   MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
 
+  // TextRenderComponent 렌더링
+  for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
+  {
+	  if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
+	  {
+		  continue;
+	  }
+
+	  TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
+  }
+
   {
     FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
   if (MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds) {
@@ -415,12 +427,12 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
   if (Gizmo->GetTarget()) {
     auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
     FBox box = Target->CalcBounds();
-    RenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
+    FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
     GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation,
                             MultipleViewportsAdapter.IsOrthographic(ViewIndex));
   }
 
-  RenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
+  FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
 
   if (Gizmo->GetTarget() && SystemFont) {
     if (UPrimitiveComponent *Primitive =
@@ -445,13 +457,13 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
   }
 
   }
-  RenderCommand::EndRenderPass(ViewRenderingInfo);
+  FRenderCommand::EndRenderPass(ViewRenderingInfo);
 }
 
 // View Texture가 포함된 UI를 Swapchain에 합성해 표시한다.
 void FEditorApplication::PresentFrame() {
   // Swapchain 렌더링
-  RenderCommand::BeginRenderPass(MainWindowSC->GetRenderingInfo());
+  FRenderCommand::BeginRenderPass(MainWindowSC->GetRenderingInfo());
 
   ImGuiRenderer->Begin();
 
@@ -464,7 +476,7 @@ void FEditorApplication::PresentFrame() {
 
   ImGuiRenderer->End();
 
-  RenderCommand::EndRenderPass(MainWindowSC->GetRenderingInfo());
+  FRenderCommand::EndRenderPass(MainWindowSC->GetRenderingInfo());
 
   // 버퍼 갱신
   MainWindowSC->SwapBuffers(0, 0);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Editor/EditorUI/EditorPanel.h"
-#include "Core/Stats.h"
+#include "Stats/Stats.h"
 #include <array>
 #include <deque>
 #include <vector>

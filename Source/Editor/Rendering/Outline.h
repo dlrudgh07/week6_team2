@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 
 class FOutline
 {
