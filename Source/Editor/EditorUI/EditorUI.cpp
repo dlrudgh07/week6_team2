@@ -108,7 +108,6 @@ void FEditorUI::DrawMainMenuBar()
 		{
 			if (ImGui::MenuItem("New Scene")) { if (OnNewScene) OnNewScene(); }
 			if (ImGui::MenuItem("Open Scene...")) { if (OnOpenScene) OnOpenScene(); }
-			if (ImGui::MenuItem("Open Competition Scene...")) { if (OnOpenCompetitionScene) OnOpenCompetitionScene(); }
 
 			ImGui::Separator();
 
@@ -130,6 +129,11 @@ void FEditorUI::DrawMainMenuBar()
 				}
 			}
 			ImGui::EndMenu();
+		}
+
+		if (ImGui::Button("Play In Editor"))
+		{
+			// PIE 실행
 		}
 
 		ImGui::EndMainMenuBar();
