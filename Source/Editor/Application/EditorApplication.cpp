@@ -400,6 +400,17 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
   MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
 
+  // TextRenderComponent 렌더링
+  for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
+  {
+	  if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
+	  {
+		  continue;
+	  }
+
+	  TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
+  }
+
   {
     FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
   if (MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds) {
