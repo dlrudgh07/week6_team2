@@ -19,6 +19,7 @@ class AActor : public UObject
 	virtual ~AActor();
 
 	virtual void BeginPlay();           // xx World->AddPrimitive 책임이동 필요
+	virtual void EndPlay();
 	virtual void Tick(float DeltaTime); // xx component 호출
 	bool CanEverTick() const;
 	bool IsActorTickEnabled() const;
@@ -61,6 +62,7 @@ class AActor : public UObject
 	ULevel* Level = nullptr;
 	bool bCanEverTick = true;
 	bool bTickEnabled = true;
+	bool bTickInEditor = false;
 
   private:
 };

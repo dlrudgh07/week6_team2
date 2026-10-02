@@ -34,6 +34,10 @@ void AActor::BeginPlay()
 	}
 }
 
+void AActor::EndPlay()
+{
+}
+
 void AActor::Tick(float DeltaTime)
 {
 	for (UActorComponent* Component : Components)
