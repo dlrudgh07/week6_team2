@@ -115,10 +115,6 @@ void UWorld::ClearWorld()
 		BeginPlayList.Dequeue();
 	}
 
-	PathTracker.SetPlaybackEnabled(false);
-	PathTracker.SetPathRenderingEnabled(false);
-	PathTracker.ClearPath();
-
 	Level->ClearActors();
 
 	WorldPrimitiveComponents.Reset();
@@ -158,6 +154,22 @@ void UWorld::CreateMainCamera()
 	MainCamera->World = this;
 	MainCamera->Level = nullptr;
 	MainCamera->GetCameraComponent()->SetRelativeLocation(FVector(-5.0f, -5.0f, 5.0f));
+}
+
+// 카메라 Get/Set
+void UWorld::SetMainCamera(ACameraActor* Camera)
+{
+	MainCamera = Camera;
+}
+
+ACameraActor* UWorld::GetMainCamera() const
+{
+	return MainCamera;
+}
+
+ULevel* UWorld::GetLevel() const
+{
+	return Level;
 }
 
 int32 UWorld::GetActorNum()
@@ -302,8 +314,30 @@ void UWorld::RefreshActorTickRegistration(AActor* Actor)
 
 void UWorld::BeginPlay()
 {
+
 }
 
 void UWorld::EndPlay()
 {
+
+}
+
+const TArray<TWeakObjectPtr<UPrimitiveComponent>>& UWorld::GetWorldPrimitiveComponents() const
+{
+	return WorldPrimitiveComponents;
+}
+
+uint64 UWorld::GetPrimitiveTopologyRevision() const
+{
+	return PrimitiveTopologyRevision;
+}
+
+const TArray<TWeakObjectPtr<UPrimitiveComponent>>& UWorld::GetDirtyRenderPrimitiveComponents() const
+{
+	return DirtyRenderPrimitiveComponents;
+}
+
+void UWorld::ClearDirtyRenderPrimitiveComponents()
+{
+	DirtyRenderPrimitiveComponents.Reset();
 }

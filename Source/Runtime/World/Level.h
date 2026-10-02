@@ -1,3 +1,4 @@
+// 액터 목록을 소유하고 관리하는 클래스
 #pragma once
 
 #include "ObjectSystem/Object.h"

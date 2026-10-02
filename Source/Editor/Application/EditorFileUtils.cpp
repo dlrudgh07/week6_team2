@@ -16,9 +16,6 @@ bool FEditorFileUtils::NewScene(UWorld* World)
 
 	World->ClearWorld();
 
-	// 라인 트래커도 삭제
-	World->GetPathTracker().ClearPath();
-
 	CurrentScenePath.clear();
 
 	return true;
