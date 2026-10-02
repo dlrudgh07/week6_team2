@@ -11,14 +11,14 @@ AActor::AActor()
 
 AActor::~AActor()
 {
-    TArray<UActorComponent*> ToDelete = Components;
-    Components.Reset();
-    RootComponent = nullptr;
+	TArray<UActorComponent*> ToDelete = Components;
+	Components.Reset();
+	RootComponent = nullptr;
 
-    for (UActorComponent* Component : ToDelete)
-    {
-        delete Component;
-    }
+	for (UActorComponent* Component : ToDelete)
+	{
+		delete Component;
+	}
 }
 
 void AActor::BeginPlay()
@@ -28,7 +28,7 @@ void AActor::BeginPlay()
 	//	World->AddPrimitive(Cast<UPrimitiveComponent>(RootComponent));
 	//}
 
-	for (UActorComponent* Component : Components) 
+	for (UActorComponent* Component : Components)
 	{
 		Component->BeginPlay();
 	}
@@ -42,7 +42,18 @@ void AActor::Tick(float DeltaTime)
 	}
 }
 
-void AActor::SetActorTickEnabled(const bool bEnabled)
+// xx component 호출
+bool AActor::CanEverTick() const
+{
+	return bCanEverTick;
+}
+
+bool AActor::IsActorTickEnabled() const
+{
+	return bCanEverTick && bTickEnabled;
+}
+
+void AActor::SetActorTickEnabled(bool bEnabled)
 {
 	const bool bNewEnabled = bCanEverTick && bEnabled;
 	if (bTickEnabled == bNewEnabled)
@@ -51,6 +62,31 @@ void AActor::SetActorTickEnabled(const bool bEnabled)
 	bTickEnabled = bNewEnabled;
 	if (World)
 		World->RefreshActorTickRegistration(this);
+}
+
+UWorld* AActor::GetWorld() const
+{
+	return World;
+}
+
+ULevel* AActor::GetLevel() const
+{
+	return Level;
+}
+
+const TArray<UActorComponent*>& AActor::GetComponents() const
+{
+	return Components;
+}
+
+USceneComponent* AActor::GetRootComponent() const
+{
+	return RootComponent;
+}
+
+void AActor::SetRootComponent(USceneComponent* SceneComponent)
+{
+	RootComponent = SceneComponent;
 }
 
 void AActor::SetCanEverTick(const bool bEnabled)
@@ -67,28 +103,28 @@ void AActor::SetCanEverTick(const bool bEnabled)
 
 void AActor::RemoveOwnedComponent(UActorComponent* Component)
 {
-    for (uint32 i = 0; i < Components.Num(); ++i)
-    {
-        if (Components[i] == Component)
-        {
-            Components.RemoveAt(i, 1);
-            break;
-        }
-    }
+	for (uint32 i = 0; i < Components.Num(); ++i)
+	{
+		if (Components[i] == Component)
+		{
+			Components.RemoveAt(i, 1);
+			break;
+		}
+	}
 
-    if (RootComponent == Component)
-    {
-        RootComponent = nullptr;
-    }
+	if (RootComponent == Component)
+	{
+		RootComponent = nullptr;
+	}
 }
 
 FVector AActor::GetActorLocation() const
 {
-    if (RootComponent)
-    {
-        return RootComponent->GetWorldLocation();
-    }
-    return FVector::ZeroVector;
+	if (RootComponent)
+	{
+		return RootComponent->GetWorldLocation();
+	}
+	return FVector::ZeroVector;
 }
 
 //FRotator AActor::GetActorRotation() const
@@ -103,11 +139,11 @@ FVector AActor::GetActorLocation() const
 
 FVector AActor::GetActorScale3D() const
 {
-    if (RootComponent)
-    {
-        return RootComponent->GetWorldScale3D();
-    }
-    return FVector::OneVector;
+	if (RootComponent)
+	{
+		return RootComponent->GetWorldScale3D();
+	}
+	return FVector::OneVector;
 }
 
 //FQuat AActor::GetActorQuat() const
@@ -121,23 +157,19 @@ FVector AActor::GetActorScale3D() const
 
 FTransform AActor::GetActorTransform() const
 {
-    if (RootComponent)
-    {
-        return FTransform(
-            RootComponent->GetWorldRotation(),
-            RootComponent->GetWorldLocation(),
-            RootComponent->GetWorldScale3D()
-        );
+	if (RootComponent)
+	{
+		return FTransform(RootComponent->GetWorldRotation(), RootComponent->GetWorldLocation(), RootComponent->GetWorldScale3D());
 
-        // return FTransform(RootComponent->GetWorldMatrix());
-    }
-    return FTransform::Identity;
+		// return FTransform(RootComponent->GetWorldMatrix());
+	}
+	return FTransform::Identity;
 }
 
 bool AActor::Destroy()
 {
-    if (!World)
-        return false;
+	if (!World)
+		return false;
 
-    return World->DestroyActor(this);
+	return World->DestroyActor(this);
 }
