@@ -1,3 +1,4 @@
+// 에셋을 관리하는 클래스 추후 경로 기준을 게임 프로젝트 내 에셋 폴더 기준으로 변경해야 함
 #pragma once
 
 #include "ObjectSystem/Object.h"
@@ -7,10 +8,6 @@
 
 #include <filesystem>
 #include <functional>
-
-enum class EAssetType
-{
-};
 
 class UStaticMesh;
 class FShader;
@@ -68,7 +65,6 @@ public:
 	}
 
 	void RegisterAsset(const FString& Key, URenderAsset* Asset);
-
 	UTexture2D* LoadTexture(const FString& InPath);
 	UFont* LoadFontAtlas(const FString& JsonPath, const FString& AtlasTexturePath);
 	static UStaticMesh* LoadObjStaticMesh(const FString& Path);

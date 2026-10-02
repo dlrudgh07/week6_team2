@@ -1,18 +1,18 @@
 #include "EnginePCH.h"
 #include "ObjImporter.h"
 
-#include <fstream>
-#include <sstream>
-#include <charconv>
-#include <filesystem>
-
 #include "Core/EngineLog.h"
 #include "Rendering/StaticMeshData.h"
 #include "Rendering/Vertex.h"
 #include "Container/Map.h"
 #include "Container/StringView.h"
+#include "Container/Array.h"
 #include "Asset/ObjImporter/StaticMeshBake.h"
 
+#include <fstream>
+#include <sstream>
+#include <charconv>
+#include <filesystem>
 #include <algorithm>
 
 namespace

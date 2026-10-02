@@ -1,3 +1,5 @@
+// .obj/.mtl 파일의 정보를 담는 구조체
+// 추후 관련된 경로 기준을 '엔진 프로젝트 루트' -> '게임 프로젝트 루트'로 변경해야 함
 #pragma once
 
 #include "Container/Array.h"
@@ -63,4 +65,3 @@ struct FObjInfo
 	TArray<FString> Mtllibs; // .obj 폴더 기준
 	TArray<FObjMaterialInfo> MaterialInfos;
 };
-

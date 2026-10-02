@@ -1,22 +1,19 @@
 #include "EnginePCH.h"
 #include "AssetManager.h"
+
 #include "Rendering/Buffer.h"
 #include "Rendering/Mesh.h"
 #include "Rendering/Material.h"
-
 #include "Rendering/Vertex.h"
 #include "Rendering/Texture2D.h"
 #include "Rendering/RenderCommand.h"
-
 #include "Rendering/RenderResourceManager.h"
-
 #include "Asset/ObjImporter/ObjImporter.h"
-
 #include "Rendering/GeometryGenerator.h"
 #include "ObjectSystem/ObjectFactory.h"
-
 #include "Rendering/ImageLoader.h"
 #include "Collision/Ray.h"
+
 #include <meshoptimizer.h>
 
 

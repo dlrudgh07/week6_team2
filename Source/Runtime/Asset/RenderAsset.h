@@ -1,3 +1,4 @@
+// 렌더링에 필요한 에셋들의 부모 클래스 (예: 폰트, 텍스쳐, ..)
 #pragma once
 
 #include "ObjectSystem/Object.h"

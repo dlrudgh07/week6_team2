@@ -1,12 +1,12 @@
 #include "EnginePCH.h"
 #include "StaticMeshBake.h"
 
+#include "Rendering/StaticMeshData.h"
+#include "Core/EngineLog.h"
+
 #include <cstring>
 #include <fstream>
 #include <type_traits>
-
-#include "Rendering/StaticMeshData.h"
-#include "Core/EngineLog.h"
 
 static_assert(sizeof(FVertexPNCT) == 48);
 

@@ -1,3 +1,4 @@
+// Cook이 끝난 FStaticMeshData를 .bin으로 저장하고 읽는 클래스
 #pragma once
 
 #include "Core/Types.h"
@@ -6,7 +7,6 @@
 
 struct FStaticMeshData;
 
-// Cook이 끝난 FStaticMeshData를 .bin으로 저장하고 읽는다.
 class FStaticMeshBake
 {
 public:
