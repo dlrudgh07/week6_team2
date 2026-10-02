@@ -1,23 +1,22 @@
 #include "EnginePCH.h"
 #include "World.h"
+
 #include "Level.h"
-#include <limits>
 #include "ObjectSystem/ObjectFactory.h"
 #include "Core/EngineStatics.h"
 #include "GameFramework/Actor/StaticMeshActor.h"
-
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Input/InputSystem.h"
-
 #include "ObjectSystem/UObjectIterator.h"
-
 #include "Collision/Ray.h"
 #include "Component/BillboardComponent.h"
+#include "GameFramework/Actor.h"
+
+#include <limits>
 
 UWorld::~UWorld()
 {
-
 }
 
 bool UWorld::Init()
@@ -94,7 +93,7 @@ void UWorld::Tick(float DeltaTime)
 
 	for (AActor* Actor : TickActors)
 	{
-		if (Actor)
+		if (Actor && Actor->IsActorTickEnabled())
 			Actor->Tick(DeltaTime);
 	}
 
@@ -315,12 +314,10 @@ void UWorld::RefreshActorTickRegistration(AActor* Actor)
 
 void UWorld::BeginPlay()
 {
-
 }
 
 void UWorld::EndPlay()
 {
-
 }
 
 const TArray<TWeakObjectPtr<UPrimitiveComponent>>& UWorld::GetWorldPrimitiveComponents() const

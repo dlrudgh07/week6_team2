@@ -4,7 +4,6 @@
 #include "ObjectSystem/Object.h"
 #include "ObjectSystem/Class.h"
 #include "ObjectSystem/TWeakObjectPtr.h"
-#include "GameFramework/Actor.h"
 #include "Component/PrimitiveComponent.h"
 #include "Component/TextRenderComponent.h"
 #include "Math/Transform.h"
@@ -12,8 +11,17 @@
 #include "World/PrimitiveBVH.h"
 #include "Camera/CameraActor.h"
 
+class AActor;
 class ULevel;
 class UBillboardComponent;
+
+enum class EWorldType
+{
+	Editor,
+	EditorPreview,
+	PIE,
+	Game,
+};
 
 class UWorld : public UObject
 {
@@ -87,13 +95,10 @@ class UWorld : public UObject
 	void RefreshActorTickRegistration(AActor* Actor);
 
 	TQueue<AActor*> BeginPlayList;
-
-	//메인 카메라
 	ACameraActor* MainCamera = nullptr;
-
 	ULevel* Level = nullptr;
+	EWorldType WorldType = EWorldType::Editor;
 	TArray<AActor*> TickActors;
-
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> WorldPrimitiveComponents;
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> DirtyPrimitiveComponents;
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> DirtyRenderPrimitiveComponents;
