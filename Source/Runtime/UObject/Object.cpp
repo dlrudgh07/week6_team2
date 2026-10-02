@@ -8,7 +8,7 @@
 
 #include "Serialization/TypeSerializer.h"
 #include "Engine/AssetManager.h"
-
+#include "UObject/UObjectGlobals.h"
 
 TArray<UObject*> GUObjectArray;
 
@@ -190,6 +190,17 @@ void UObject::Serialize(json& Handle, bool bIsLoading)
 			}
 		}
 	}
+}
+
+void UObject::DuplicateSubObjects()
+{
+
+}
+
+UObject* UObject::Duplicate()
+{
+	FObjectFactory::ConstructObject<UObject>();
+	return nullptr;
 }
 
 

@@ -114,6 +114,10 @@ public:
 		free(Ptr);
 	}
 
+	// 깊은 복사가 필요한 UObject의 상속 클래스에서 구현
+	virtual void DuplicateSubObjects();
+	virtual UObject* Duplicate();
+
 private:
 	uint32 ObjectUUID = 0;
 	uint32 InternalIndex = 0;

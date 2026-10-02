@@ -14,6 +14,4 @@ public:
 	}
 
 	static FName MakeUniqueObjectName(const UClass* Class, UObject* Outer = nullptr, FName BaseName = NAME_None);
-private:
-
 };
