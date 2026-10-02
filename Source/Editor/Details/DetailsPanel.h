@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Editor/EditorUI/EditorPanel.h"
+#include "GameFramework/Actor/StaticMeshActor.h"
+#include "GameFramework/Actor/TextRenderActor.h"
+#include "Core/EngineLog.h"
 
 class UWorld;
 class USceneComponent;
@@ -19,7 +22,7 @@ class FDetailsPanel : public IEditorPanel
 		return "Details";
 	}
 
-	void SetTarget(USceneComponent* InTargetOrNull)
+	void SetTarget(UObject* InTargetOrNull)
 	{
 		Target = InTargetOrNull;
 	}
@@ -36,12 +39,16 @@ class FDetailsPanel : public IEditorPanel
 
   private:
 	UWorld* World = nullptr;
-	USceneComponent* Target = nullptr;
+	UObject* Target = nullptr;
 	ImFont* CustomFont = nullptr;
 
 	int32 SelectedIndex = 0;
 	const char* ComponentList[2] = {
 		"StaticMesh",
 		"Text",
+	};
+	TArray<UClass*> Classes{
+		UStaticMeshComponent::StaticClass(),
+		UTextRenderComponent::StaticClass(),
 	};
 };

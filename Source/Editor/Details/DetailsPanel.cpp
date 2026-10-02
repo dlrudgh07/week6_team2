@@ -788,43 +788,38 @@ void FDetailsPanel::OnRender()
 
 	ImGui::Begin("Details");
 
-	const float SpawnButtonWidth = 70.0f;
-	const float Available = ImGui::GetContentRegionAvail().x;
-	const float ItemSpacing = ImGui::GetStyle().ItemSpacing.x;
-	const float ComboWidth = Available - SpawnButtonWidth - ItemSpacing * 2.0f;
-
-	ImGui::SetNextItemWidth(ComboWidth);
-	ImGui::Combo("##ComponentType", &SelectedIndex, ComponentList, IM_ARRAYSIZE(ComponentList));
-	ImGui::SameLine();
-	if (ImGui::Button("Spawn", ImVec2(SpawnButtonWidth, 0)))
+	if (Target && Target->IsA<AActor>())
 	{
-		// 컴포넌트 붙이기
-	}
+		AActor* TargetActor = Cast<AActor>(Target);
+		const float SpawnButtonWidth = 70.0f;
+		const float Available = ImGui::GetContentRegionAvail().x;
+		const float ItemSpacing = ImGui::GetStyle().ItemSpacing.x;
+		const float ComboWidth = Available - SpawnButtonWidth - ItemSpacing * 2.0f;
 
-	if (Target)
-	{
+		ImGui::SetNextItemWidth(ComboWidth);
+		ImGui::Combo("##ComponentType", &SelectedIndex, ComponentList, IM_ARRAYSIZE(ComponentList));
+		ImGui::SameLine();
+		if (ImGui::Button("Add", ImVec2(SpawnButtonWidth, 0)))
+		{
+			UActorComponent* Comp = TargetActor->AddComponentByClass(Classes[SelectedIndex]);
+			LOG(Info, "{}", Comp ? Comp->GetClass()->Name : "null");
+		}
+
 		// 액터 -> 컴포넌트 순으로, 클래스별 프로퍼티 표시
-		DrawProperties(Target->GetOwner(), CustomFont);
+		DrawProperties(TargetActor, CustomFont);
 
 		// 선택된 컴포넌트뿐 아니라 같은 액터의 다른 컴포넌트도 보여준다.
 		// (예: 라이트는 빌보드를 클릭해서 고르지만 수치는 SpotLight 쪽에 있다)
-		if (AActor* Owner = Target->GetOwner())
+		for (UActorComponent* Component : TargetActor->GetComponents())
 		{
-			for (UActorComponent* Component : Owner->GetComponents())
+			// 같은 클래스를 상속한 컴포넌트가 여럿이면 헤더 ID가 겹치므로 분리한다
+			ImGui::PushID(Component);
+			DrawProperties(Component, CustomFont);
+			if (UMeshComponent* MeshComponent = Cast<UMeshComponent>(Component))
 			{
-				// 같은 클래스를 상속한 컴포넌트가 여럿이면 헤더 ID가 겹치므로 분리한다
-				ImGui::PushID(Component);
-				DrawProperties(Component, CustomFont);
-				if (UMeshComponent* MeshComponent = Cast<UMeshComponent>(Component))
-				{
-					DrawMaterialSlots(MeshComponent);
-				}
-				ImGui::PopID();
+				DrawMaterialSlots(MeshComponent);
 			}
-		}
-		else
-		{
-			DrawProperties(Target, CustomFont);
+			ImGui::PopID();
 		}
 	}
 

@@ -169,10 +169,11 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
 
   OutlinerPanel = EditorUI->AddEditorPanel<FOutlinerPanel>();
   OutlinerPanel->SetWorld(World);
-  OutlinerPanel->SetSelectionCallback([this](UPrimitiveComponent *Primitive) {
-    Gizmo->SetTarget(Primitive);
-    Outline->SetTarget(Primitive);
-    DetailsPanel->SetTarget(Primitive);
+  OutlinerPanel->SetSelectionCallback([this](AActor *Actor) {
+		  UPrimitiveComponent* Primitive = Actor ? Cast<UPrimitiveComponent>(Actor->GetRootComponent()) : nullptr;
+		  Gizmo->SetTarget(Primitive);
+		  Outline->SetTarget(Primitive);
+		  DetailsPanel->SetTarget(Actor);
   });
 
   OutlinerPanel->SetDeleteActorCallback(
