@@ -100,6 +100,13 @@ void FEditorControlsPanel::OnRender()
 	ImGui::Dummy(ImVec2(0.0f, SectionGap));
 	ImGui::SeparatorText("Actor Spawn");
 
+	if(ImGui::Button("Empty Actor"))
+	{
+		FTransform SpawnTransform;
+		SpawnTransform.Location = GetSpawnOrigin();
+		World->SpawnActor(AActor::StaticClass(), NAME_None, &SpawnTransform);
+	}
+
 	// Actor 종류 ComboBox로 골라 하나씩 스폰
 	const float SpawnButtonWidth = 70.0f;
 
