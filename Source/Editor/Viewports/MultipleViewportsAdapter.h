@@ -3,12 +3,12 @@
 #include "Editor/Viewports/MultipleViewportsAdapterTypes.h"
 #include "Editor/Viewports/SoftwareOcclusion.h"
 
-#include "Collision/Ray.h"
+#include "Math/Ray.h"
 #include "Math/Matrix.h"
 #include "Rendering/RenderPacket.h"
 
-#include "Container/Map.h"
-#include "Container/Array.h"
+#include "Containers/Map.h"
+#include "Containers/Array.h"
 
 class FOutlinerPanel;
 class FLineBatcher;

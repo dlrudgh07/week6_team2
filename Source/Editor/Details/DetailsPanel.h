@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Editor/EditorUI/EditorPanel.h"
-#include "GameFramework/Actor/StaticMeshActor.h"
-#include "GameFramework/Actor/TextRenderActor.h"
+#include "Engine/StaticMeshActor.h"
+#include "Engine/TextRenderActor.h"
 #include "Core/EngineLog.h"
 
 class UWorld;

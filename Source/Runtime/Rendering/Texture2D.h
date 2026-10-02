@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
-#include "Asset/RenderAsset.h"
+#include "Engine/RenderAsset.h"
 #include "Rendering/RenderDevice.h"
 #include "Texture.h"
 #include "ImageLoader.h"

@@ -1,19 +1,19 @@
 #include "EnginePCH.h"
 #include "Editor/Details/DetailsPanel.h"
-#include "World/World.h"
+#include "Engine/World.h"
 #include <format>
 
 #include "imgui_internal.h"
 #include "Editor/Application/EditorDragDrop.h"
-#include "Component/PrimitiveComponent.h"
-#include "Component/StaticMeshComponent.h"
-#include "Component/TextRenderComponent.h"
-#include "Asset/AssetManager.h"
-#include "Rendering/Material.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/TextRenderComponent.h"
+#include "Engine/AssetManager.h"
+#include "Materials/Material.h"
 #include "Rendering/Texture2D.h"
-#include "Rendering/Mesh.h"
-#include "Text/Font.h"
-#include "ObjectSystem/UObjectIterator.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/Font.h"
+#include "UObject/UObjectIterator.h"
 #include "GameFramework/Actor.h"
 
 namespace

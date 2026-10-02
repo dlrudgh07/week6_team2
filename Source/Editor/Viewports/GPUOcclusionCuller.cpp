@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "Editor/Viewports/GPUOcclusionCuller.h"
 
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/GPUProfiler.h"
 #include "Core/StatDefinitions.h"

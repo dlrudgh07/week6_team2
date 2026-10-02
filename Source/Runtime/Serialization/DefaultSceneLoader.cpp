@@ -5,14 +5,14 @@
 #include <string>
 #include <sstream>
 
-#include "World/World.h"
-#include "World/Level.h"
-#include "GameFramework/Actor/StaticMeshActor.h"
-#include "Component/StaticMeshComponent.h"
+#include "Engine/World.h"
+#include "Engine/Level.h"
+#include "Engine/StaticMeshActor.h"
+#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
-#include "Asset/AssetManager.h"
-#include "Rendering/Mesh.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StaticMesh.h"
 #include "Core/EngineLog.h"
 
 bool FDefaultSceneLoader::LoadScene(UWorld* World, const FString& Path, std::function<void(float)> OnProgress)

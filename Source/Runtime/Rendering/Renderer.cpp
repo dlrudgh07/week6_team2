@@ -1,8 +1,8 @@
 #include "EnginePCH.h"
 #include "Renderer.h"
 #include "Shader.h"
-#include "Mesh.h"
-#include "Material.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/Material.h"
 
 #include "RenderCommand.h"
 #include "GPUProfiler.h"

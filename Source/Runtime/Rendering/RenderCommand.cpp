@@ -3,7 +3,7 @@
 
 #include "PipelineState.h"
 #include "Buffer.h"
-#include "Mesh.h"
+#include "Engine/StaticMesh.h"
 #include "Shader.h"
 #include "Texture2D.h"
 #include "TextureCube.h"

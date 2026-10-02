@@ -1,9 +1,9 @@
 #include "EnginePCH.h"
 #include "Actor.h"
-#include "World/World.h"
-#include "World/Level.h"
-#include "ObjectSystem/ObjectFactory.h"
-#include "Component/SceneComponent.h"
+#include "Engine/World.h"
+#include "Engine/Level.h"
+#include "UObject/ObjectFactory.h"
+#include "Components/SceneComponent.h"
 
 AActor::AActor()
 {

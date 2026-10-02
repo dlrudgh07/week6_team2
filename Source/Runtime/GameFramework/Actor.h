@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ObjectSystem/Object.h"
-#include "Component/PrimitiveComponent.h"
-#include "ObjectSystem/Class.h"
-#include "ObjectSystem/ObjectFactory.h"
-#include "Container/Set.h"
+#include "UObject/Object.h"
+#include "Components/PrimitiveComponent.h"
+#include "UObject/Class.h"
+#include "UObject/ObjectFactory.h"
+#include "Containers/Set.h"
 
 class ULevel;
 class UWorld;

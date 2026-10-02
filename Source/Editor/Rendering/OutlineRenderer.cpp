@@ -1,6 +1,6 @@
 #include "EnginePCH.h"
 #include "Editor/Rendering/OutlineRenderer.h"
-#include "Asset/AssetManager.h"
+#include "Engine/AssetManager.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/RenderResourceManager.h"
 

@@ -4,7 +4,7 @@
 #include "Core/Window.h"
 #include "Core/Types.h"
 
-#include "World/World.h"
+#include "Engine/World.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/RenderDevice.h"
 #include "Rendering/Swapchain.h"
@@ -23,8 +23,8 @@
 #include "Rendering/SkyboxRenderer.h"
 
 //Temp
-#include "Text/Font.h"
-#include "Text/TextRenderer.h"
+#include "Engine/Font.h"
+#include "Rendering/TextRenderer.h"
 
 class FOutputLogPanel;
 class FDetailsPanel;

@@ -1,11 +1,11 @@
 #include "EnginePCH.h"
 #include "LineBatcher.h"
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 
 #include "RenderCommand.h"
 #include "RenderResourceManager.h"
 
-#include "ObjectSystem/UObjectIterator.h"
+#include "UObject/UObjectIterator.h"
 
 FLineBatcher::~FLineBatcher()
 {

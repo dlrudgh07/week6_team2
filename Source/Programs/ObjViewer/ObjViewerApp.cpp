@@ -1,8 +1,8 @@
 #include "EnginePCH.h"
-#include "Rendering/Mesh.h"
+#include "Engine/StaticMesh.h"
 #include "ObjViewerApp.h"
 
-#include "Asset/AssetManager.h"
+#include "Engine/AssetManager.h"
 #include "Input/InputSystem.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/RenderResourceManager.h"

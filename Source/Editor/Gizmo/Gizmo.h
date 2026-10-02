@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Collision/Ray.h"
+#include "Math/Ray.h"
 #include "Math/Transform.h"
-#include "Component/SceneComponent.h"
+#include "Components/SceneComponent.h"
 
 class UCameraComponent;
 

@@ -3,10 +3,10 @@
 
 #include "Editor/Gizmo/Gizmo.h"
 
-#include "GameFramework/Actor/ParticleActor.h"
-#include "GameFramework/Actor/StaticMeshActor.h"
-#include "GameFramework/Actor/LightActor.h"
-#include "GameFramework/Actor/TextRenderActor.h"
+#include "Particles/ParticleActor.h"
+#include "Engine/StaticMeshActor.h"
+#include "Engine/LightActor.h"
+#include "Engine/TextRenderActor.h"
 
 class FMultipleViewportsAdapter;
 

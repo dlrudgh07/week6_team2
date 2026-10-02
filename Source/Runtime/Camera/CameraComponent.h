@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ObjectSystem/Class.h"
-#include "../Component/SceneComponent.h"
+#include "UObject/Class.h"
+#include "Components/SceneComponent.h"
 #include "../Math/EngineMath.h"
 #include "../Math/Rotator.h"
 

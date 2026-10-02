@@ -2,13 +2,13 @@
 #pragma once
 
 #include "Core/Types.h"
-#include "Container/Array.h"
-#include "Container/Map.h"
+#include "Containers/Array.h"
+#include "Containers/Map.h"
 #include "Math/Vector.h"
 #include "Math/Vector2.h"
 #include "Math/Quat.h"
 #include "Math/Matrix.h"
-#include "Collision/Ray.h"
+#include "Math/Ray.h"
 
 // 좌표 규약: +X Forward, +Y Right, +Z Up.
 using ObjectId = uint32;

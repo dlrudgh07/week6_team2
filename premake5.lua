@@ -119,8 +119,6 @@ project "HitoriEngine"
 	-- Group larger subsystems while keeping class and file names aligned.
 	vpaths
 	{
-		["ObjectSystem"] = { "Source/Runtime/ObjectSystem/**" },
-		["World"] = { "Source/Runtime/World/**" },
 		["Core/Names"] = { "Source/Runtime/Core/Name*" },
 		["Core/Profiling"] = { "Source/Runtime/Core/StatOverlay.*", "Source/Runtime/Core/ScopeCycleCounter.*" },
 		["Platform"] = { "Source/Runtime/Core/Window.*", "Source/Runtime/Core/EntryPoint.*" },
@@ -129,7 +127,7 @@ project "HitoriEngine"
 			"Source/Runtime/Rendering/Renderer.*", "Source/Runtime/Rendering/RenderPacket.*",
 			"Source/Runtime/Rendering/RenderCommand.*", "Source/Runtime/Rendering/RenderingInfo.*",
 			"Source/Runtime/Rendering/RenderUtil.*", "Source/Runtime/Rendering/LineBatcher.*",
-			"Source/Runtime/Rendering/SkyboxRenderer.*",
+			"Source/Runtime/Rendering/SkyboxRenderer.*", "Source/Runtime/Rendering/TextRenderer.*",
 			"Source/Runtime/Rendering/GPUProfiler.*",
 		},
 		["Rendering/Device"] =
@@ -144,10 +142,9 @@ project "HitoriEngine"
 			"Source/Runtime/Rendering/Texture*", "Source/Runtime/Rendering/RenderResourceManager.*",
 			"Source/Runtime/Rendering/ImageLoader.*",
 		},
-		["Rendering/Materials"] = { "Source/Runtime/Rendering/Material*" },
 		["Rendering/Geometry"] =
 		{
-			"Source/Runtime/Rendering/Mesh.*", "Source/Runtime/Rendering/StaticMeshData.*",
+			"Source/Runtime/Rendering/StaticMeshData.*",
 			"Source/Runtime/Rendering/Vertex.*", "Source/Runtime/Rendering/GeometryGenerator.*",
 		},
 	}

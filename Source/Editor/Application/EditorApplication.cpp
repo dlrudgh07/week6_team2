@@ -13,26 +13,26 @@
 #include "Core/StatOverlay.h"
 #include "Input/InputSystem.h"
 
-#include "ObjectSystem/ObjectFactory.h"
+#include "UObject/ObjectFactory.h"
 
 #include "Rendering/GeometryGenerator.h"
 
-#include "World/Level.h"
-#include "World/World.h"
+#include "Engine/Level.h"
+#include "Engine/World.h"
 
 #include "Rendering/Renderer.h"
 
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/Actor/LightActor.h"
+#include "Engine/LightActor.h"
 
-#include "Asset/AssetManager.h"
+#include "Engine/AssetManager.h"
 #include "Rendering/RenderResourceManager.h"
 
 #include "Editor/Application/EditorFileUtils.h"
 #include "Editor/Outliner/OutlinerPanel.h"
 #include "Editor/Stats/StatsPanel.h"
-#include "ObjectSystem/UObjectIterator.h"
+#include "UObject/UObjectIterator.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/GPUProfiler.h"
 

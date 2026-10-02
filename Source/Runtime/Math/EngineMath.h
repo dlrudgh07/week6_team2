@@ -7,7 +7,7 @@
 #include "Matrix.h"
 #include "Quat.h"
 #include "Rotator.h"
-#include "Collision/Ray.h"
+#include "Math/Ray.h"
 #include "VectorRegister.h"
 #include "MatrixRegister.h"
 

@@ -3,7 +3,7 @@
 #include "Editor/Viewports/GPUOcclusionCuller.h"
 #include "Rendering/Texture2D.h"
 
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Tasks/Tasks.h"
 
 #include <algorithm>

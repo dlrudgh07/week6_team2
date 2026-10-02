@@ -2,7 +2,7 @@
 // 추후 관련된 경로 기준을 '엔진 프로젝트 루트' -> '게임 프로젝트 루트'로 변경해야 함
 #pragma once
 
-#include "Container/Array.h"
+#include "Containers/Array.h"
 #include "Core/EngineString.h"
 #include "Core/Types.h"
 #include "Math/Vector.h"

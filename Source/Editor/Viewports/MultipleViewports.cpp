@@ -1,7 +1,7 @@
 // 다중 뷰포트의 레이아웃·카메라·가시성 계산을 제공한다.
 #include "EnginePCH.h"
 #include "Editor/Viewports/MultipleViewports.h"
-#include "Component/PrimitiveComponent.h"
+#include "Components/PrimitiveComponent.h"
 
 #include <algorithm>
 #include <cassert>

@@ -1,12 +1,12 @@
 #include "EnginePCH.h"
 #include "Editor/Gizmo/GizmoRenderer.h"
-#include "Rendering/Mesh.h"
+#include "Engine/StaticMesh.h"
 
 #include "Rendering/GeometryGenerator.h"
 #include "Camera/CameraComponent.h"
 #include "Rendering/RenderCommand.h"
 #include "Rendering/RenderResourceManager.h"
-#include "Asset/AssetManager.h"
+#include "Engine/AssetManager.h"
 
 
 // Gizmo 축 렌더링의 초기 상태를 구성한다.
