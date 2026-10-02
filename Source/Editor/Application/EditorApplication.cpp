@@ -57,7 +57,6 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
 
   EditorUI->SetNewSceneCallback([this]() { CreateNewScene(); });
   EditorUI->SetOpenSceneCallback([this]() { OpenScene(); });
-  EditorUI->SetOpenCompetitionSceneCallback([this]() { OpenCompetitionScene(); });
   EditorUI->SetSaveSceneCallback([this]() { SaveCurrentScene(); });
   EditorUI->SetSaveSceneAsCallback([this]() { SaveSceneAs(); });
 
@@ -155,18 +154,6 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   // Scene
   World = FObjectFactory::ConstructObject<UWorld>();
   World->Init();
-
-  // 공식 씬 파일 고속 로드
-  //if (!FDefaultSceneLoader::LoadScene(World, "Scenes/Default.scene", [this](float Ratio) {
-  //  if (LoadingScreen) {
-  //    LoadingScreen->SetProgress(0.1f + Ratio * 0.75f);
-  //    LoadingScreen->Tick(0.016f);
-  //    PresentFrame();
-  //    MainWindow->ProcessMessage(bIsRunning);
-  //  }
-  //})) {
-  //  LOG(Warning, "Failed to load Scenes/Default.scene");
-  //}
 
   // 투영 행렬 생성
   MultipleViewportsAdapter.InitializeFromWorld(*World);
@@ -537,15 +524,6 @@ void FEditorApplication::CreateNewScene() {
 // 씬 불러오기가 성공하면 에디터 선택 상태를 초기화한다.
 void FEditorApplication::OpenScene() {
   if (!FEditorFileUtils::LoadScene(World))
-    return;
-
-  ResetSceneSelection();
-  MultipleViewportsAdapter.ResetSoftwareOcclusionScene();
-}
-
-// 대회용 씬 불러오기가 성공하면 에디터 선택 상태를 초기화한다.
-void FEditorApplication::OpenCompetitionScene() {
-  if (!FEditorFileUtils::LoadCompetitionScene(World))
     return;
 
   ResetSceneSelection();
