@@ -381,10 +381,13 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
                                      const FVector &ViewCameraLocation,
                                      const FVector &ViewCameraForward,
                                      TArray<FRenderPacket> &RenderPackets) {
-  FRenderCommand::BeginRenderPass(ViewRenderingInfo);
+	//Render 초기화
+    FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
   const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
   const float FarClip = MultipleViewportsAdapter.GetViewCamera(ViewIndex).Projection.FarClip;
+  
+  //Grid 렌더링
   {
     FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
   GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation,
@@ -392,15 +395,21 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
                                ViewRenderingInfo.ViewportSetting, FarClip);
   }
 
-  const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
-  if (bDrawPrimitives) {
-    const bool bWireframe = MultipleViewportsAdapter.IsViewWireframe(ViewIndex);
-    Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
+  // Opaque(불투명) 렌더링
+  {
+	  const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
+	  if (bDrawPrimitives)
+	  {
+		  const bool bWireframe = MultipleViewportsAdapter.IsViewWireframe(ViewIndex);
+		  Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
+	  }
+  }
+  // HZB+ 렌더링
+  {
+	  MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
   }
 
-  MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
-
-  // TextRenderComponent 렌더링
+  // Text 렌더링
   for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
   {
 	  if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
@@ -411,25 +420,39 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 	  TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
   }
 
+  // Multi pass 렌더링
   {
-    FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
-  if (MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds) {
-    LineBatcher->BeginFrame();
-    MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
-    LineBatcher->OnRender(ViewProjection);
+	  // fog 렌더링
   }
 
-  if (Outline && Outline->GetTarget() && OutlineRenderer) {
-    OutlineRenderer->OnRender(*Outline, ViewProjection,
-                              ViewRenderingInfo.ViewportSetting);
+  // Line Batch 렌더링
+  {
+	  FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
+	  if (MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds)
+	  {
+		  LineBatcher->BeginFrame();
+		  MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
+		  LineBatcher->OnRender(ViewProjection);
+	  }
+	  if (Outline && Outline->GetTarget() && OutlineRenderer)
+	  {
+		  OutlineRenderer->OnRender(*Outline, ViewProjection, ViewRenderingInfo.ViewportSetting);
+	  }
+  }
+  // Gizmo 렌더링
+  {
+	  if (Gizmo->GetTarget())
+	  {
+		  auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
+		  FBox box = Target->CalcBounds();
+		  FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
+		  GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation, MultipleViewportsAdapter.IsOrthographic(ViewIndex));
+	  }
   }
 
-  if (Gizmo->GetTarget()) {
-    auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
-    FBox box = Target->CalcBounds();
-    FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
-    GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation,
-                            MultipleViewportsAdapter.IsOrthographic(ViewIndex));
+  // Anti Aliasing 처리
+  {
+
   }
 
   FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
@@ -456,8 +479,8 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
     }
   }
 
-  }
   FRenderCommand::EndRenderPass(ViewRenderingInfo);
+  
 }
 
 // View Texture가 포함된 UI를 Swapchain에 합성해 표시한다.
