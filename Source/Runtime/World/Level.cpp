@@ -3,6 +3,21 @@
 
 #include "GameFramework/Actor.h"
 
+UWorld* ULevel::GetWorld() const
+{
+	return OwningWorld;
+}
+
+const TArray<AActor*>& ULevel::GetActors() const
+{
+	return Actors;
+}
+
+uint32 ULevel::GetActorNum() const
+{
+	return Actors.Num();
+}
+
 void ULevel::AddActor(AActor* Actor)
 {
 	if (!Actor)
