@@ -407,5 +407,9 @@ void FRenderCommand::CopyResource(ID3D11Resource* Dst, ID3D11Resource* Src, ID3D
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->CopyResource(Dst, Src);
 }
-
+void FRenderCommand::PSSetShaderResource(uint32 Slot, ID3D11ShaderResourceView* SRV, ID3D11DeviceContext* Context)
+{
+	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
+	Ctx->CSSetShaderResources(Slot, 1, &SRV);
+}
 

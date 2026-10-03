@@ -151,6 +151,9 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   TextRenderer = MakeUnique<FTextRenderer>();
   TextRenderer->Init();
 
+  FogRenderer = MakeUnique<FFogRenderer>();
+  FogRenderer->Init();
+
   // Scene
   World = FObjectFactory::ConstructObject<UWorld>();
   World->Init();
@@ -380,56 +383,84 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
                                      const FMatrix &ViewProjection,
                                      const FVector &ViewCameraLocation,
                                      const FVector &ViewCameraForward,
-                                     TArray<FRenderPacket> &RenderPackets) {
+                                     TArray<FRenderPacket> &RenderPackets) 
+{
+  //Render 초기화
   FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
   const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
   const float FarClip = MultipleViewportsAdapter.GetViewCamera(ViewIndex).Projection.FarClip;
+  
+  //Grid 렌더링
   {
     FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
-  GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation,
+    GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation,
                                EditorSettings,
                                ViewRenderingInfo.ViewportSetting, FarClip);
   }
 
-  const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
-  if (bDrawPrimitives) {
-    const bool bWireframe = MultipleViewportsAdapter.IsViewWireframe(ViewIndex);
-    Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
-  }
-
-  MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
-
-  // TextRenderComponent 렌더링
-  for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
+  // Opaque(불투명) 렌더링
   {
-	  if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
+	  const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
+	  if (bDrawPrimitives)
 	  {
-		  continue;
+		  const bool bWireframe = MultipleViewportsAdapter.IsViewWireframe(ViewIndex);
+		  Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
 	  }
-
-	  TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
   }
-
+  // HZB+ 렌더링
   {
-    FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
-  if (MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds) {
-    LineBatcher->BeginFrame();
-    MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
-    LineBatcher->OnRender(ViewProjection);
+	  MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
   }
 
-  if (Outline && Outline->GetTarget() && OutlineRenderer) {
-    OutlineRenderer->OnRender(*Outline, ViewProjection,
-                              ViewRenderingInfo.ViewportSetting);
+
+  // Multi pass 렌더링
+  {
+	  // fog 렌더링 
+	  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation);
   }
 
-  if (Gizmo->GetTarget()) {
-    auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
-    FBox box = Target->CalcBounds();
-    FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
-    GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation,
-                            MultipleViewportsAdapter.IsOrthographic(ViewIndex));
+  // Text 렌더링
+  {
+	  for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
+	  {
+		  if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
+		  {
+			  continue;
+		  }
+
+		  TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
+	  }
+  }
+
+  // Line Batch 렌더링
+  {
+	  FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
+	  if (MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds)
+	  {
+		  LineBatcher->BeginFrame();
+		  MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
+		  LineBatcher->OnRender(ViewProjection);
+	  }
+	  if (Outline && Outline->GetTarget() && OutlineRenderer)
+	  {
+		  OutlineRenderer->OnRender(*Outline, ViewProjection, ViewRenderingInfo.ViewportSetting);
+	  }
+  }
+  // Gizmo 렌더링
+  {
+	  if (Gizmo->GetTarget())
+	  {
+		  auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
+		  FBox box = Target->CalcBounds();
+		  FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
+		  GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation, MultipleViewportsAdapter.IsOrthographic(ViewIndex));
+	  }
+  }
+
+  // Anti Aliasing 처리
+  {
+
   }
 
   FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
@@ -456,8 +487,8 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
     }
   }
 
-  }
   FRenderCommand::EndRenderPass(ViewRenderingInfo);
+  
 }
 
 // View Texture가 포함된 UI를 Swapchain에 합성해 표시한다.

@@ -43,4 +43,14 @@ namespace FMath
 	{
 		return Degree * (PI / 180.0f);
 	}
+
+	static inline bool Abs(float Value)
+	{
+		return (Value >= 0) ? Value : -Value;
+	}
+
+	static inline int32 Min(int32 A, int32 B)
+	{
+		return (A < B)? A : B;
+	}
 }
