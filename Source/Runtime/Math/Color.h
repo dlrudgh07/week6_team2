@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Archive.h"
+#include "Serialization/Archive.h"
 
 struct FColor;
 
@@ -68,7 +68,7 @@ struct FLinearColor
         return *this;
     }
 
-    inline FLinearColor& operator*(const FLinearColor& ColorB)
+    inline FLinearColor operator*(const FLinearColor& ColorB)
     {
         return FLinearColor(
             this-> R * ColorB.R,
@@ -87,7 +87,7 @@ struct FLinearColor
         return *this;
     }
 
-    inline FLinearColor& operator*(const float Scalar) const
+    inline FLinearColor operator*(const float Scalar) const
     {
         return FLinearColor(
             this-> R * Scalar,
@@ -106,7 +106,7 @@ struct FLinearColor
         return *this;
     }
 
-    inline FLinearColor& operator/(const FLinearColor& ColorB)
+    inline FLinearColor operator/(const FLinearColor& ColorB)
     {
         return FLinearColor(
             this-> R / ColorB.R,
@@ -125,7 +125,7 @@ struct FLinearColor
         return *this;
     }
 
-    inline FLinearColor& operator/(const float Scalar) const
+    inline FLinearColor operator/(const float Scalar) const
     {
         return FLinearColor(
             this-> R / Scalar,
@@ -144,7 +144,7 @@ struct FLinearColor
         return *this;
     }
     
-    inline FLinearColor& GetClamped(float InMin = 0.0f, float InMax = 1.0f)
+    inline FLinearColor GetClamped(float InMin = 0.0f, float InMax = 1.0f)
     {
         FLinearColor Ret;
 
