@@ -1,16 +1,16 @@
 #include "HeightFogCommon.hslsi"
 
-// Camera Constant Buffer
-cbuffer CameraParams : register(b0)
+// Camera + Fog Constant Buffer
+cbuffer FogConstants : register(b0)
 {
+    // 64-bytes
+    row_major matrix InvViewProj;
+    
+    // 16-bytes
     float3 CameraPos;
-    row_major matrix InvView;
-    row_major matrix InvProj;
-};
+    float Padding0;
 
-// Fog Constant Buffer
-cbuffer FogParams : register(b1)
-{
+    // 48-bytes
     FogParams Fog;
 };
 
@@ -49,7 +49,7 @@ float4 mainPS(PS_INPUT input) : SV_TARGET
     float Depth = DepthTexture.Sample(PointSampler, input.UV).r;
 
     // World Pos 계산
-    float3 WorldPos = ReconstructWorldPosition(input.UV, Depth, InvProj, InvView);
+    float3 WorldPos = ReconstructWorldPosition(input.UV, Depth, InvViewProj);
 
     // Fog Factor 계산
     float FogFactor = CalculateFogFactor(WorldPos, CameraPos, Fog);
