@@ -1,4 +1,4 @@
-#include "HeightFogCommon.hslsi"
+#include "HeightFogCommon.hlsli"
 
 // Camera + Fog Constant Buffer
 cbuffer FogConstants : register(b0)
