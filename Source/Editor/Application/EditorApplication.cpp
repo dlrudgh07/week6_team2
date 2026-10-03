@@ -7,6 +7,7 @@
 #include "Editor/OutputLog/OutputLogPanel.h"
 #include "Editor/Settings/SettingsPanel.h"
 #include "Editor/Viewports/ViewportsPanel.h"
+#include "Editor/Viewports/PIEViewportPanel.h"
 
 #include "Core/EngineStatics.h"
 #include "Misc/App.h"
@@ -138,6 +139,8 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   EditorControlsPanel = EditorUI->AddEditorPanel<FEditorControlsPanel>();
   SettingsPanel = EditorUI->AddEditorPanel<FSettingsPanel>();
   ViewportsPanel = EditorUI->AddEditorPanel<FViewportsPanel>();
+  PIEPanel = EditorUI->AddEditorPanel<FPIEViewportPanel>();
+  ViewportsPanel->SetPIEViewportPanel(PIEPanel);
   EditorUI->AddEditorPanel<FStatsPanel>();
   ContentDrawerPanel = EditorUI->AddEditorPanel<FContentDrawerPanel>();
 
@@ -163,6 +166,7 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   MultipleViewportsAdapter.SetLayoutMode(ELayoutMode::Single);
   MultipleViewportsAdapter.SetSingleViewIndex(0);
 
+  PIEViewAdapter.InitializeFromWorld(*World);
   if (LoadingScreen) {
     // 씬 적재 완료 상태 설정
     LoadingScreen->SetSceneLoaded(true);
@@ -219,11 +223,13 @@ void FEditorApplication::Run() {
     }
 
     UpdateMultipleViewportState(DeltaTime);
+	UpdatePIEViewportState(DeltaTime);
     TickWorldAndEditor(DeltaTime);
     FGPUProfiler::Get().BeginFrame(RenderDevice->GetDevice(), RenderDevice->GetContext());
     {
       FGPUStatScope Scope(StatIds::GpuFrame(), L"Viewport Render");
       RenderMultipleViewports();
+	  RenderPIEViewport();
     }
     FGPUProfiler::Get().EndFrame();
     EndFrame();
@@ -302,12 +308,48 @@ void FEditorApplication::UpdateMultipleViewportState(const float DeltaTime) {
     MultipleViewportsAdapter.SetEditorViewIndex(ActiveViewIndex);
 }
 
+void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
+{
+	(void)DeltaTime;
+
+	if (!PIEPanel)
+		return;
+	const FVector2D ViewportSize = PIEPanel->GetContentSize();
+	const FVector2D LocalMousePosition = PIEPanel->GetLocalMousePosition();
+	float MoveSpeed = 20.0f;
+	PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
+
+	// PIE는 단일 View이므로 전체 패널 영역을 하나의 View로 사용한다.
+	const FRect ViewRect{0.0f, 0.0f, std::max(1.0f, ViewportSize.X), std::max(1.0f, ViewportSize.Y)};
+
+	// Panel의 RenderTarget 크기와 활성 상태를 갱신한다.
+	PIEPanel->SetView(ViewRect);
+
+	// PIE Adapter도 동일한 화면 크기를 기준으로
+	// VP / Frustum / Orthographic 범위를 계산하도록 갱신한다.
+	PIEViewAdapter.SetViewRect(ViewRect);
+}
+
 // 월드를 한 번 Tick·Capture한 뒤 에디터와 피킹을 갱신한다.
 void FEditorApplication::TickWorldAndEditor(const float DeltaTime) {
   // 월드 상태는 프레임마다 정확히 한 번 갱신하고 캡처한다.
   World->Tick(DeltaTime);
+  // PIEWorld->Tick(DeltaTime);
   EditorUI->Tick(DeltaTime);
   MultipleViewportsAdapter.CaptureWorld(*World);
+
+  if (PIEPanel->IsActive())
+  {
+	  if (!bIsPlay)
+		  StartPIE();
+	  // PIEWorld로 변경
+	  PIEViewAdapter.CaptureWorld(*World);
+  }
+  else
+  {
+	  if (bIsPlay)
+		  EndPIE();
+  }
   //culling
   UpdateGizmoAndPicking();
 }
@@ -336,6 +378,26 @@ void FEditorApplication::RenderMultipleViewports() {
   ViewportsPanel->SetControlState(MultipleViewportsAdapter.GetLayoutMode(),
                                   MultipleViewportsAdapter.GetSingleViewIndex(),
                                   CameraPresets);
+ 
+}
+
+void FEditorApplication::RenderPIEViewport()
+{
+	if (PIEPanel)
+	{
+		const FRect PIEViewRect{0.0f, 0.0f, PIEPanel->GetContentSize().X, PIEPanel->GetContentSize().Y};
+
+		PIEPanel->SetView(PIEViewRect);
+
+		PIEViewAdapter.BuildRenderPackets(SceneRenderPackets);
+
+		RenderPIEFrame(
+			PIEPanel->GetRenderingInfo(),
+			PIEViewAdapter.GetEngineViewProjection(),
+			PIEViewAdapter.GetEngineCameraLocation(),
+			PIEViewAdapter.GetEngineCameraForward(),
+			SceneRenderPackets);
+	}
 }
 
 // 화면을 표시하고 UI 변경 후 View 설정을 보관한다.
@@ -491,6 +553,84 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
   
 }
 
+void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
+	const FMatrix& ViewProjection,
+	const FVector& ViewCameraLocation,
+	const FVector& ViewCameraForward,
+	TArray<FRenderPacket>& RenderPackets)
+{
+	FRenderCommand::BeginRenderPass(ViewRenderingInfo);
+
+	const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
+	const float FarClip = PIEViewAdapter.GetViewCamera().Projection.FarClip;
+	{
+		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
+		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting, FarClip);
+	}
+
+	const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
+	if (bDrawPrimitives)
+	{
+		const bool bWireframe = false;
+		Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
+	}
+
+	PIEViewAdapter.PostRenderOpaque(ViewRenderingInfo.DepthSteincil.Texture);
+
+	// TextRenderComponent 렌더링
+	for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
+	{
+		if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
+		{
+			continue;
+		}
+
+		TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
+	}
+
+	{
+		FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
+		
+
+		if (Outline && Outline->GetTarget() && OutlineRenderer)
+		{
+			OutlineRenderer->OnRender(*Outline, ViewProjection, ViewRenderingInfo.ViewportSetting);
+		}
+
+		if (Gizmo->GetTarget())
+		{
+			auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
+			FBox box = Target->CalcBounds();
+			FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
+			GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation, PIEViewAdapter.IsOrthographic());
+		}
+
+		FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
+
+		if (Gizmo->GetTarget() && SystemFont)
+		{
+			if (UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(Gizmo->GetTarget()))
+			{
+				if (AActor* SelectedActor = Primitive->GetOwner())
+				{
+					FBox Box = Primitive->CalcBounds();
+					FVector UUIDLocation;
+					UUIDLocation.X = (Box.Min.X + Box.Max.X) * 0.5f;
+					UUIDLocation.Y = (Box.Min.Y + Box.Max.Y) * 0.5f;
+					UUIDLocation.Z = Box.Max.Z + 0.5f;
+
+					FString Text = "UUID : " + std::to_string(SelectedActor->GetUUID());
+					TextRenderer->BuildTextMesh(Text, 0.5f, *SystemFont);
+
+					const FMatrix BillboardWorld = PIEViewAdapter.BuildEngineBillboardMatrix(UUIDLocation, 1.0f, 1.0f);
+					TextRenderer->OnRender(Text, BillboardWorld, 0.5f, *SystemFont, ViewProjection);
+				}
+			}
+		}
+	}
+	FRenderCommand::EndRenderPass(ViewRenderingInfo);
+}
+
 // View Texture가 포함된 UI를 Swapchain에 합성해 표시한다.
 void FEditorApplication::PresentFrame() {
   // Swapchain 렌더링
@@ -537,6 +677,20 @@ void FEditorApplication::HandleMainWindow() {
   }
 }
 
+void FEditorApplication::StartPIE()
+{
+	// PIEWorld = DuplicateWorld(*World);
+	// PIEWorld로 변경
+	PIEViewAdapter.InitializeFromWorld(*World);
+	bIsPlay = true;
+}
+
+void FEditorApplication::EndPIE()
+{
+	// PIEWorld->Destroy();
+	bIsPlay = false;
+}
+
 // 선택과 Gizmo 참조를 정리한 뒤 Actor를 삭제한다.
 void FEditorApplication::DeleteActor(AActor *Actor) {
   if (!Actor)
@@ -562,6 +716,7 @@ void FEditorApplication::CreateNewScene() {
 
   ResetSceneSelection();
   MultipleViewportsAdapter.ResetSoftwareOcclusionScene();
+  PIEViewAdapter.ResetSoftwareOcclusionScene();
 }
 
 // 씬 불러오기가 성공하면 에디터 선택 상태를 초기화한다.
@@ -571,6 +726,7 @@ void FEditorApplication::OpenScene() {
 
   ResetSceneSelection();
   MultipleViewportsAdapter.ResetSoftwareOcclusionScene();
+  PIEViewAdapter.ResetSoftwareOcclusionScene();
 }
 
 // 공통 파일 유틸리티로 현재 씬을 저장한다.

@@ -25,7 +25,6 @@ enum class ESoftwareOccluderGeometry : uint8
 
 struct FSoftwareOcclusionSettings
 {
-    ESoftwareOcclusionMode Mode = ESoftwareOcclusionMode::Disabled;
     ESoftwareOccluderGeometry OccluderGeometry = ESoftwareOccluderGeometry::DistanceAdaptive;
     int32 TileSize = 8;
     int32 MinimumOccluderTiles = 16;

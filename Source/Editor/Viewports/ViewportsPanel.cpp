@@ -1,7 +1,7 @@
 #include "EnginePCH.h"
 #include "Editor/Viewports/ViewportsPanel.h"
 #include "Editor/Viewports/MultipleViewportsAdapter.h"
-
+#include "../../Editor/Viewports/PIEViewportPanel.h"
 #include "Stats/StatOverlay.h"
 #include "Stats/Stats.h"
 #include "Stats/StatDefinitions.h"
@@ -115,6 +115,11 @@ bool FViewportsPanel::ConsumeCameraPresetRequest(int32& OutViewIndex, EMultipleV
 	OutPreset = PendingCameraPreset;
 	PendingCameraPresetViewIndex = InvalidViewIndex;
 	return true;
+}
+
+void FViewportsPanel::SetPIEViewportPanel(FPIEViewportPanel* PIE)
+{
+	PIEPanel = PIE;
 }
 
 // View Texture와 Splitter·Layout·Preset UI를 그리고 요청을 기록한다.
@@ -231,6 +236,7 @@ void FViewportsPanel::OnRender()
                 ViewportAdapter->SetViewWireframe(ViewIndex, Mode == 1);
             ImGui::SameLine();
         }
+
         if (CurrentLayoutMode == ELayoutMode::QuadSplit)
 		{
 			if (ImGui::SmallButton("Single"))
@@ -245,6 +251,22 @@ void FViewportsPanel::OnRender()
 			RequestedLayoutMode = ELayoutMode::QuadSplit;
 			RequestedSingleViewIndex = ViewIndex;
 			bHasLayoutRequest = true;
+		}
+
+		ImGui::SameLine();
+		if (!PIEPanel->IsActive())
+		{
+			if (ImGui::SmallButton("Play In Editor"))
+			{
+				PIEPanel->SetActive(true);
+			}
+		}
+		else
+		{
+			if (ImGui::SmallButton("Stop"))
+			{
+				PIEPanel->SetActive(false);
+			}
 		}
 		ImGui::PopID();
 	}
