@@ -417,7 +417,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
   // Multi pass 렌더링
   {
 	  // fog 렌더링 
-	  //FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture);
+	  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation);
   }
 
   // Text 렌더링

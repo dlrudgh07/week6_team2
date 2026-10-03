@@ -29,7 +29,7 @@ class FFogRenderer
 	bool Init();
 
 	bool IsValid() const{ return Shader != nullptr;}
-	void OnRender(FRHITexture2D* SceneDepthTexture, FMatrix& ViewProj, FVector& CameraLocation);
+	void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation);
 
 private:
 	FShaderProgram* Shader = nullptr;
