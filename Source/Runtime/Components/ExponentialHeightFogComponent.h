@@ -14,6 +14,7 @@ class UExponentialHeightFogComponent : public USceneComponent
 		PROPERTY(FogHeightFalloff)
 		PROPERTY(FogMaxOpacity)
 		PROPERTY(StartDistance)
+		PROPERTY(EndDistance)
 		PROPERTY(FogCutoffDistance)
 		PROPERTY_TYPE(FogInscatteringColor, Color)
 	REFLECT_END()
