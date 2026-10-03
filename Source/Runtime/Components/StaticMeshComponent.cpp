@@ -111,3 +111,9 @@ void UStaticMeshComponent::SubmitToRenderPackets(TArray<FRenderPacket>& OutPacke
 		OutPackets.Add(RenderPacket);
 	}
 }
+
+void UStaticMeshComponent::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	bRenderPacketCacheDirty = true;
+}

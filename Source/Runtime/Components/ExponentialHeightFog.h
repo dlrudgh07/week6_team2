@@ -10,7 +10,12 @@ public:
     AExponentialHeightFog();
     virtual ~AExponentialHeightFog() = default;
     UExponentialHeightFogComponent* GetExponentialHeightFogComponent() { return ExponentialHeightFogComponent; }
+	virtual void DuplicateSubObjects() override
+	{
+		Super::DuplicateSubObjects();
+		ExponentialHeightFogComponent = FindComponentByClass<UExponentialHeightFogComponent>();
+	}
 
-private:
+  private:
     UExponentialHeightFogComponent* ExponentialHeightFogComponent;
 };

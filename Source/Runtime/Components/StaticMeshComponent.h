@@ -31,8 +31,9 @@ public:
 	// 수동 지정 강제 세부 단계
 	int8 GetForcedLOD() const { return ForcedLOD; }
 	void SetForcedLOD(int8 InLOD) { ForcedLOD = InLOD; }
+	virtual void DuplicateSubObjects() override;
 
-private:
+  private:
 	UStaticMesh* StaticMesh = nullptr;
 	int8 ForcedLOD = -1;
 

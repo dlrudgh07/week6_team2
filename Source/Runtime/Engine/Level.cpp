@@ -38,3 +38,28 @@ void ULevel::ClearActors()
 
 	Actors.Reset();
 }
+
+void ULevel::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+
+	TArray<AActor*> Temp;
+	Temp.Reserve(Actors.Num());
+
+	for (auto* Actor : Actors)
+	{
+		AActor* NewActor = FObjectFactory::DuplicateObject(Actor, this);
+
+		if (!NewActor)
+		{
+			continue;
+		}
+
+		NewActor->SetWorld(OwningWorld);
+		NewActor->SetLevel(this);
+		NewActor->DuplicateSubObjects();
+		Temp.Add(NewActor);
+	}
+
+	Actors = std::move(Temp);
+}

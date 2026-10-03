@@ -23,6 +23,7 @@
 
 #include "Rendering/SkyboxRenderer.h"
 #include "Rendering/FogRenderer.h"
+#include "Engine/WorldContext.h"
 //Temp
 #include "Engine/Font.h"
 #include "Rendering/TextRenderer.h"
@@ -95,6 +96,7 @@ private:
 	FWindowsWindow* MainWindow;
 	FSwapchain* MainWindowSC;
 
+	TArray<FWorldContext> WorldContexts;
 	UWorld* World;
 	UWorld* PIEWorld;
 

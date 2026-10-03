@@ -97,6 +97,8 @@ class UWorld : public UObject
 	const FScene& GetScene() const { return SceneData; }
 	void UpdateSceneData();
 
+	virtual void DuplicateSubObjects() override;
+
   private:
 	friend class AActor;
 	void RefreshActorTickRegistration(AActor* Actor);

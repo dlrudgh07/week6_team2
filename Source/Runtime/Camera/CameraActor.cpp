@@ -12,3 +12,9 @@ ACameraActor::ACameraActor()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	SetRootComponent(CameraComponent);
 }
+
+void ACameraActor::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	CameraComponent = FindComponentByClass<UCameraComponent>();
+}

@@ -14,7 +14,8 @@ class AEmitter : public AActor
 public:
 	AEmitter();
 	UParticleSubUVComponent* GetParticleComponent() const;
+	virtual void DuplicateSubObjects() override;
 
-private:
+  private:
 	UParticleSubUVComponent* ParticleComponent;
 };

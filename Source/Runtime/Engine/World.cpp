@@ -360,6 +360,53 @@ void UWorld::AddComponent(UPrimitiveComponent* PrimComp)
 		++PrimitiveTopologyRevision;
 	}
 }
+
+void UWorld::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+
+	TickActors.Reset();
+	BeginPlayList.Reset();
+	WorldPrimitiveComponents.Reset();
+	PrimitiveBVH.Reset();
+	DirtyPrimitiveComponents.Reset();
+	DirtyRenderPrimitiveComponents.Reset();
+	
+	if (MainCamera)
+	{
+		MainCamera = FObjectFactory::DuplicateObject(MainCamera, this);
+		MainCamera->World = this;
+		MainCamera->DuplicateSubObjects();
+	}
+
+	if (Level)
+	{
+		Level = FObjectFactory::DuplicateObject(Level, this);
+		Level->OwningWorld = this;
+		Level->DuplicateSubObjects();
+
+		for (AActor* Actor : Level->GetActors())
+		{
+			if (!Actor)
+			{
+				continue;
+			}
+
+			RefreshActorTickRegistration(Actor);
+			BeginPlayList.Enqueue(Actor);
+
+			for (auto* Comp : Actor->GetComponents())
+			{
+				if (UPrimitiveComponent* Prim = Cast<UPrimitiveComponent>(Comp))
+				{
+					WorldPrimitiveComponents.Add(Prim);
+				}
+			}
+		}
+
+		++PrimitiveTopologyRevision;
+	}
+}
 void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 {
 	if (FogComp)

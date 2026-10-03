@@ -28,7 +28,4 @@ public:
 	TMap<uint64, float> KerningMap; // (Unicode1 << 32 | Unicode2) -> advance 보정값
 
 	UTexture2D* AtlasTexture;
-
 };
-
-

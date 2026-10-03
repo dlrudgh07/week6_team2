@@ -15,7 +15,8 @@ public:
 	virtual ~ATextRenderActor();
 
 	inline UTextRenderComponent* GetTextRenderComponent() const { return TextRenderComponent; }
+	virtual void DuplicateSubObjects() override;
 
-private:
+  private:
 	UTextRenderComponent* TextRenderComponent;
 };

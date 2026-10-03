@@ -24,6 +24,28 @@ UObject* FObjectFactory::ConstructObject(UClass* Class, UObject* Outer, FName Na
     return Object;
 }
 
+UObject* FObjectFactory::DuplicateObject(const UObject* Src, UObject* Outer, FName Name)
+{
+	if (!Src)
+	{
+		return nullptr;
+	}
+
+	UClass* Class = Src->GetClass();
+	if (!Class || !Class->CopyConstructor)
+	{
+		return nullptr;
+	}
+
+	UObject* Object = Class->CopyConstructor(Src);
+	Object->ClassPrivate = Class;
+	HashObject(Object, Class);
+
+	Object->SetOuter(Outer ? Outer : Src->GetOuter());
+	Object->SetName(MakeUniqueObjectName(Class, Object->GetOuter(), Name));
+	return Object;
+}
+
 FName FObjectFactory::MakeUniqueObjectName(const UClass* Class, UObject* Outer, FName BaseName)
 {
     if (!Class)

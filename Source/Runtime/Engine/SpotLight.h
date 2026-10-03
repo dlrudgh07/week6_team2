@@ -18,10 +18,10 @@ public:
 
 	UBillboardComponent* GetBillboardComponent() const { return BillboardComponent; }
 	USpotLightComponent* GetSpotLightComponent() const { return SpotLightComponent; }
+	virtual void DuplicateSubObjects() override;
 
-private:
+  private:
 	// 클릭해서 고를 수 있어야 하므로 프리미티브인 빌보드를 루트로 둔다
 	UBillboardComponent* BillboardComponent = nullptr;
-
 	USpotLightComponent* SpotLightComponent = nullptr;
 };

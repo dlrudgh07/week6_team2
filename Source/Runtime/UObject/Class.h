@@ -4,6 +4,7 @@
 #include "Object.h"
 
 using ClassConstructor = UObject * (*)();
+using ClassCopyConstructor = UObject * (*)(const UObject*);
 
 class UClass : public UObject
 {
@@ -13,6 +14,7 @@ public:
 	FString Name;
 	UClass* Super = nullptr;
 	ClassConstructor Constructor = nullptr;
+	ClassCopyConstructor CopyConstructor = nullptr;
 
 	TArray<FProperty> Properties;
 	UObject* DefaultObject = nullptr;

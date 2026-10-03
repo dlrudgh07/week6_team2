@@ -23,6 +23,8 @@ class ULevel : public UObject
 	void ClearActors();
 	//virtual void Serialize(FArchive& Ar) override; // Save Level 구현예정
 
+	virtual void DuplicateSubObjects() override;
+
   private:
 	friend class UWorld;
 

@@ -8,6 +8,23 @@
 #include "Serialization/Archive.h"
 
 class UClass;
+class UObject;
+
+// 복사 가능한 구체 클래스만 복사 생성자를 등록한다. (싱글턴 등 복사 금지 클래스는 nullptr)
+// if constexpr는 템플릿 안에서만 버려진 분기를 인스턴스화하지 않으므로 헬퍼 템플릿으로 분리한다.
+template <typename T>
+UObject* (*MakeCopyConstructor())(const UObject*)
+{
+	if constexpr (!std::is_abstract_v<T> && std::is_copy_constructible_v<T>)
+	{
+		return [](const UObject* Src) -> UObject* { return new T(*static_cast<const T*>(Src)); };
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
 // Property Reflection
 
 #define REFLECT_START(ClassName) \
@@ -45,6 +62,7 @@ public:                                                                 \
 			{															\
 				c.Constructor = []() -> UObject* { return new ClassName(); };\
 			}															\
+			c.CopyConstructor = MakeCopyConstructor<ClassName>();		\
 			if (&ClassName::RegisterProperties != &Super::RegisterProperties) \
 			{															\
 				ClassName::RegisterProperties(&c);						\
@@ -64,6 +82,7 @@ class UObject
 public:
 	UObject();
 	UObject(bool bRegister);
+	UObject(const UObject& Object);
 	virtual ~UObject();
 
 	static UClass* StaticClass();
@@ -113,6 +132,10 @@ public:
 		FEngineStatics::TotalAllocationCount -= 1;
 		free(Ptr);
 	}
+
+	// 깊은 복사가 필요한 UObject의 상속 클래스에서 구현
+	virtual void DuplicateSubObjects();
+	virtual UObject* Duplicate();
 
 private:
 	uint32 ObjectUUID = 0;

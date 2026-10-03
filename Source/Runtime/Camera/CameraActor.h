@@ -16,7 +16,8 @@ public:
 	ACameraActor();
 
 	UCameraComponent* GetCameraComponent() const { return CameraComponent; };
+	virtual void DuplicateSubObjects() override;
 
-private:
+  private:
 	UCameraComponent* CameraComponent;
 };

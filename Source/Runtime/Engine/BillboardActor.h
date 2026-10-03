@@ -11,6 +11,9 @@ public:
 	virtual ~ABillboardActor();
 
 	inline UBillboardComponent* GetBillboardComponent() const { return BillboardComponent; };
-private:
+
+	virtual void DuplicateSubObjects() override;
+
+  private:
 	UBillboardComponent* BillboardComponent;
 };

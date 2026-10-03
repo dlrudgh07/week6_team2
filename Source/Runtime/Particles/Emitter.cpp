@@ -16,4 +16,8 @@ UParticleSubUVComponent* AEmitter::GetParticleComponent() const
 	return static_cast<UParticleSubUVComponent*>(RootComponent);
 }
 
-
+void AEmitter::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	ParticleComponent = FindComponentByClass<UParticleSubUVComponent>();
+}
