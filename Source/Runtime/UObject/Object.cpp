@@ -199,6 +199,7 @@ void UObject::DuplicateSubObjects()
 
 UObject* UObject::Duplicate()
 {
+	// 복사 생성자 호출
 	FObjectFactory::ConstructObject<UObject>();
 	return nullptr;
 }

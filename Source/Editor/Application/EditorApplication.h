@@ -22,6 +22,7 @@
 
 #include "Rendering/SkyboxRenderer.h"
 #include "Rendering/FogRenderer.h"
+#include "Engine/WorldContext.h"
 //Temp
 #include "Engine/Font.h"
 #include "Rendering/TextRenderer.h"
