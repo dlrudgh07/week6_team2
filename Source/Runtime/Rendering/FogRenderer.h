@@ -4,19 +4,33 @@
 #include "Engine/Texture2D.h"
 
 #include "Rendering/RenderCommand.h"
+#include "Math/Color.h"
 
 struct FFogConstants
 {
-	FMatrix InverseViewProjection;
-	FVector CameraPosition;
-	float FogDensity; //안개의 전체적인 두께,밀도
-	float FogHeightFalloff; // 높이에 따른 안개 감소율
+	// 64-bytes
+	FMatrix InverseViewProjection;		
+
+	// 16-bytes
+	FVector CameraPosition;				// 12-bytes
+	float Padding0;						// 4-bytes (Padding)
+
+	// 16-bytes 
+	FLinearColor FogInscatteringColor; 	// 안개 색상
+	
+	// 16-bytes
+	float FogDensity; 					// 안개의 전체적인 두께,밀도
+	float FogHeightFalloff; 			// 높이에 따른 안개 감소율
 	float FogHeight;
-	float FogMaxOpacity; // 안개 최대 불투명도
-	float StartDistance;
+	float FogMaxOpacity; 				// 안개 최대 불투명도
+
+	// 16-bytes
+	float StartDistance;				
 	float FogCutoffDistance;
-	float FogInscatteringColor[3]; // 안개 색상
-	// Size = 112 Byte
+	float Padding1;
+	float Padding2;
+
+	// Total Size = 128 Byte
 };
 
 // Exponential Height Fog Render를 위한 class
