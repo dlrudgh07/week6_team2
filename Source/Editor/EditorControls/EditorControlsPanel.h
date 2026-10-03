@@ -7,7 +7,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine/SpotLight.h"
 #include "Engine/TextRenderActor.h"
-
+#include "Components/ExponentialHeightFog.h"
 class FMultipleViewportsAdapter;
 
 // 액터 생성과 카메라·기즈모 편집에 필요한 패널 상태를 보관한다.
@@ -29,7 +29,7 @@ public:
 
 	int32 SelectedIndex = 0;
 
-	const char* Items[4] ={"StaticMesh","Particle","Text","Light"};
+	const char* Items[5] = {"StaticMesh", "Particle", "Text", "Light", "Fog"};
 
 	FGizmo* Gizmo = nullptr;
 	int32 GizmoSelectedIndex = 0;
@@ -43,7 +43,8 @@ public:
 		AStaticMeshActor::StaticClass(),
 		AEmitter::StaticClass(),
 		ATextRenderActor::StaticClass(),
-		ASpotLight::StaticClass(),
+		ASpotLight::StaticClass(), 
+		AExponentialHeightFog::StaticClass(),
 	};
 
     void SetViewportAdapter(FMultipleViewportsAdapter* InAdapter) { ViewportAdapter = InAdapter; }

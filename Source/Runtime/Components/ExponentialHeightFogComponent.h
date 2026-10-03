@@ -8,6 +8,16 @@ class UExponentialHeightFogComponent : public USceneComponent
 {
     DECLARE_CLASS(UExponentialHeightFogComponent, USceneComponent)
     
+	//Property Reflection
+	REFLECT_START(ClassName)
+		PROPERTY(FogDensity)
+		PROPERTY(FogHeightFalloff)
+		PROPERTY(FogMaxOpacity)
+		PROPERTY(StartDistance)
+		PROPERTY(FogCutoffDistance)
+		PROPERTY_TYPE(FogInscatteringColor, Color)
+	REFLECT_END()
+
     UExponentialHeightFogComponent();
     virtual ~UExponentialHeightFogComponent();
     
