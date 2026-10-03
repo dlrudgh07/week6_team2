@@ -6,11 +6,12 @@
 #include "UObject/WeakObjectPtrTemplates.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/ExponentialHeightFogComponent.h"
 #include "Math/Transform.h"
 #include "Rendering/Renderer.h"
 #include "Engine/PrimitiveBVH.h"
 #include "Camera/CameraActor.h"
-
+#include "FScene.h"
 class AActor;
 class ULevel;
 class UBillboardComponent;
@@ -91,6 +92,10 @@ class UWorld : public UObject
 	void ClearDirtyRenderPrimitiveComponents();
 
 	void AddComponent(UPrimitiveComponent* PrimComp);
+	void AddComponent(UExponentialHeightFogComponent* FogComp);
+
+	const FScene& GetScene() const { return SceneData; }
+	void UpdateSceneData();
 
   private:
 	friend class AActor;
@@ -104,6 +109,10 @@ class UWorld : public UObject
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> WorldPrimitiveComponents;
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> DirtyPrimitiveComponents;
 	TArray<TWeakObjectPtr<UPrimitiveComponent>> DirtyRenderPrimitiveComponents;
+	TArray<TWeakObjectPtr<UExponentialHeightFogComponent>> FogComponents;
+
 	uint64 PrimitiveTopologyRevision = 1;
 	FPrimitiveBVH PrimitiveBVH;
+	FScene SceneData;
+	
 };

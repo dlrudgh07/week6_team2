@@ -5,6 +5,7 @@
 
 #include "Rendering/RenderCommand.h"
 #include "Math/Color.h"
+struct FFogSceneData;
 
 struct FFogConstants
 {
@@ -43,7 +44,7 @@ class FFogRenderer
 	bool Init();
 
 	bool IsValid() const{ return Shader != nullptr;}
-	void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation);
+	void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation, const FFogSceneData& FogData);
 
 private:
 	FShaderProgram* Shader = nullptr;

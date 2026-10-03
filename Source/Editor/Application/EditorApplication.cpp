@@ -45,6 +45,7 @@
 #include "Serialization/JsonArchive.h"
 
 #include "Tasks/Tasks.h"
+#include "FScene.h"
 
 // 렌더 자원·월드·에디터와 MultipleViewports 연결을 초기화한다.
 bool FEditorApplication::Init(HINSTANCE hInstance) {
@@ -358,6 +359,7 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime) {
 // 공유 월드 캡처로 활성 View별 렌더 큐를 만들고 렌더한다.
 void FEditorApplication::RenderMultipleViewports() {
   EMultipleViewportsCameraPreset CameraPresets[4]{};
+  FScene SceneData = World->GetScene();
   for (int32 ViewIndex = 0; ViewIndex < 4; ++ViewIndex) {
     const bool bActive = MultipleViewportsAdapter.IsViewActive(ViewIndex);
     ViewportsPanel->SetView(
@@ -368,12 +370,13 @@ void FEditorApplication::RenderMultipleViewports() {
     if (!bActive)
       continue;
 
+
     MultipleViewportsAdapter.BuildRenderPackets(ViewIndex, SceneRenderPackets);
     RenderFrame(ViewIndex, ViewportsPanel->GetRenderingInfo(ViewIndex),
                 MultipleViewportsAdapter.GetEngineViewProjection(ViewIndex),
                 MultipleViewportsAdapter.GetEngineCameraLocation(ViewIndex),
                 MultipleViewportsAdapter.GetEngineCameraForward(ViewIndex),
-                SceneRenderPackets);
+                SceneRenderPackets,SceneData);
   }
 
   ViewportsPanel->SetControlState(MultipleViewportsAdapter.GetLayoutMode(),
@@ -446,7 +449,8 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
                                      const FMatrix &ViewProjection,
                                      const FVector &ViewCameraLocation,
                                      const FVector &ViewCameraForward,
-                                     TArray<FRenderPacket> &RenderPackets) 
+                                     TArray<FRenderPacket> &RenderPackets,
+                                     const FScene &SceneData)
 {
   //Render 초기화
   FRenderCommand::BeginRenderPass(ViewRenderingInfo);
@@ -480,7 +484,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
   // Multi pass 렌더링
   {
 	  // fog 렌더링 
-	  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation);
+	  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
   }
 
   // Text 렌더링
@@ -523,7 +527,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
   // Anti Aliasing 처리
   {
-
+	  
   }
 
   FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);

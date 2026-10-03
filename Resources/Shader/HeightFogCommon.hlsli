@@ -40,7 +40,7 @@ float3 ReconstructWorldPosition(float2 UV, float Depth, matrix InvViewProj)
 }
 
 // Fog Factor 계산 (FogColor와 곱해지는 값)
-float CalculateFogFactor(float WorldPos, float3 CameraPos, FogParams Fog)
+float CalculateFogFactor(float3 WorldPos, float3 CameraPos, FogParams Fog)
 {
     float3 Ray = WorldPos - CameraPos;
     float Distance = length(Ray);
@@ -54,11 +54,11 @@ float CalculateFogFactor(float WorldPos, float3 CameraPos, FogParams Fog)
     // 2. 높이 안개 농도 적분
     // d(z) = Density * exp(-Falloff * (z - Height))
     float Falloff = max(Fog.FogHeightFalloff, FLT_EPSILON);
-    float StartHeight = CameraPosition.z + Dir.z * min(Distance, Fog.StartDistance);
+    float StartHeight = CameraPos.z + Dir.z * min(Distance, Fog.StartDistance);
     float RelativeHeight = StartHeight - Fog.FogHeight;
 
     // Ratio = (1 - exp(-x)) / x
-    float x = Fog.Falloff * Dir.z * EffectiveDistance;
+    float x = Falloff * Dir.z * EffectiveDistance;
     float Ratio = abs(x) > 0.01 ? (1 - exp(-x)) / x : 1.0 - x * 0.5;
 
     float FogInt =  Fog.FogDensity * exp(-Fog.Falloff * RelativeHeight) * EffectiveDistance * Ratio;

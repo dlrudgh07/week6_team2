@@ -46,7 +46,6 @@ struct FRenderingDesc
 struct FRenderingInfo
 {
 	FViewportSettings ViewportSetting;
-
 	TArray<FRenderingDesc> ColorRenderTargets;
 	FRenderingDesc DepthSteincil;
 };

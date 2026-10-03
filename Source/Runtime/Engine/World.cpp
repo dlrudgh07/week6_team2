@@ -67,6 +67,8 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 		NewActor->GetRootComponent()->SetRelativeTransform(SpawnTransform);
 
 		AddComponent(Cast<UPrimitiveComponent>(NewActor->GetRootComponent()));
+		AddComponent(Cast<UExponentialHeightFogComponent>(NewActor->GetRootComponent()));
+
 	}
 
 	// 4. Level->Actors에 등록
@@ -101,6 +103,8 @@ void UWorld::Tick(float DeltaTime)
 	// 모든 Actor와 Component의 Transform 갱신이 끝난 뒤 피킹 공간 인덱스를 갱신한다.
 	PrimitiveBVH.Update(WorldPrimitiveComponents, PrimitiveTopologyRevision, DirtyPrimitiveComponents);
 	DirtyPrimitiveComponents.Reset();
+
+	UpdateSceneData();
 }
 
 void UWorld::ClearWorld()
@@ -112,10 +116,11 @@ void UWorld::ClearWorld()
 	}
 
 	Level->ClearActors();
-
 	WorldPrimitiveComponents.Reset();
 	DirtyPrimitiveComponents.Reset();
 	DirtyRenderPrimitiveComponents.Reset();
+	FogComponents.Reset();
+	SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
 	TickActors.Reset();
 	++PrimitiveTopologyRevision;
 	PrimitiveBVH.Reset();
@@ -232,6 +237,17 @@ bool UWorld::DestroyActor(AActor* Actor)
 		}
 	}
 
+	if (UExponentialHeightFogComponent* Fog = Cast<UExponentialHeightFogComponent>(Actor->GetRootComponent()))
+	{
+		for (int32 Index = FogComponents.Num() - 1; Index >= 0; --Index)
+		{
+			if (FogComponents[Index].Get() == Fog)
+			{
+				FogComponents.RemoveAt(Index, 1);
+				break;
+			}
+		}
+	}
 	// 6. Actor 삭제
 	delete Actor;
 
@@ -343,4 +359,37 @@ void UWorld::AddComponent(UPrimitiveComponent* PrimComp)
 		WorldPrimitiveComponents.Add(PrimComp);
 		++PrimitiveTopologyRevision;
 	}
+}
+void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
+{
+	if (FogComp)
+	{
+		FogComponents.Add(FogComp);
+	}
+}
+void UWorld::UpdateSceneData()
+{
+	for (const auto& FogComp : FogComponents)
+	{
+		if (FogComp.IsValid())
+		{
+			SceneData.FogSceneData.FogDensity = FogComp->GetFogDensity();
+			SceneData.FogSceneData.FogHeightFalloff = FogComp->GetFogHeightFalloff();
+			SceneData.FogSceneData.FogMaxOpacity = FogComp->GetFogMaxOpacity();
+			SceneData.FogSceneData.StartDistance = FogComp->GetStartDistance();
+			SceneData.FogSceneData.EndDistance = FogComp->GetEndDistance();
+			SceneData.FogSceneData.FogCutoffDistance = FogComp->GetFogCutoffDistance();
+			SceneData.FogSceneData.FogHeight = FogComp->GetComponentLocation().Z;
+			SceneData.FogSceneData.FogInscatteringColor[0] = FogComp->GetFogInscatteringColor().R;
+			SceneData.FogSceneData.FogInscatteringColor[1] = FogComp->GetFogInscatteringColor().G;
+			SceneData.FogSceneData.FogInscatteringColor[2] = FogComp->GetFogInscatteringColor().B;
+			SceneData.FogSceneData.FogType = FFogSceneData::EFogType::ExponentialHeightFog;
+			break;
+		}
+		else
+		{
+			SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
+		}	
+	}
+	
 }

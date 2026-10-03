@@ -47,6 +47,8 @@ public:
     float GetFogMaxOpacity() { return FogMaxOpacity; }
     float GetStartDistance() { return StartDistance; }
     float GetEndDistance() { return EndDistance; }
+	float GetFogCutoffDistance(){ return FogCutoffDistance; }
+	
     FLinearColor GetFogInscatteringColor() { return FogInscatteringColor; }
-
+	
 };

@@ -1,4 +1,4 @@
-#include "HeightFogCommon.hslsi"
+#include "HeightFogCommon.hlsli"
 
 // Camera + Fog Constant Buffer
 cbuffer FogConstants : register(b0)
@@ -31,7 +31,7 @@ PS_INPUT mainVS(uint ID : SV_VertexID)
 {
     PS_INPUT Output;
     // (0, 0), (2, 0), (0, 2)
-    Output.UV = float2((ID << 1) & 2, (ID & 2), 0, 1);
+    //Output.UV = float2((ID << 1) & 2, (ID & 2), 0, 1);
 
     // (-1, 1), (3, 1), (-1, -3) -> 화면 전체를 가리는 큰 삼각형 하나
     Output.Position = float4(Output.UV * float2(2, -2) + float2(-1, 1), 1, 0);

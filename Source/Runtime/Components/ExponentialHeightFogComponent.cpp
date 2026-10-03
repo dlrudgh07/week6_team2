@@ -11,7 +11,7 @@ UExponentialHeightFogComponent::UExponentialHeightFogComponent()
     StartDistance = 0.0f;
     EndDistance = 0.0f;
 
-    FogCutoffDistance = 0;
+    FogCutoffDistance = 0.5f;
 
 }
 
