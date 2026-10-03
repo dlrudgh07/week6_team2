@@ -486,6 +486,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
   // Multi pass 렌더링
   {
 	  // fog 렌더링 
+	  if (SceneData.FogSceneData.IsValid())
 	  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
   }
 

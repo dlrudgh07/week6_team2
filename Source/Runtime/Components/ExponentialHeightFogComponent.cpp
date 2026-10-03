@@ -9,9 +9,9 @@ UExponentialHeightFogComponent::UExponentialHeightFogComponent()
     
     FogMaxOpacity = 1.0f;
     StartDistance = 0.0f;
-    EndDistance = 0.0f;
+    EndDistance = 10000.0f;
 
-    FogCutoffDistance = 0.5f;
+    FogCutoffDistance = 10000.0f;
 
 }
 

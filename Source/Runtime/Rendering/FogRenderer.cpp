@@ -63,9 +63,10 @@ void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& Vie
 	Constants.FogMaxOpacity = FogData.FogMaxOpacity;
 	Constants.StartDistance = FogData.StartDistance;
 	Constants.FogCutoffDistance = FogData.FogCutoffDistance;
+	Constants.FogHeight = FogData.FogHeight;
 	Constants.InverseViewProjection = ViewProj.Inverse();
 	Constants.CameraPosition = CameraLocation;
-	
+
 	FRenderCommand::BindPipelineState(&PipelineState);
 	FRenderCommand::UpdateBufferData(ConstantBuffer.get(), &Constants);
 	FRenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Pixel);
@@ -73,7 +74,6 @@ void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& Vie
 	// 정점 버퍼 없이 3개. VS가 SV_VertexID로 삼각형을 만든다.
 	FRenderCommand::Draw(3);
 	
-
 	//원상복구단계
 
 	//SRV 바인드 해제
