@@ -26,7 +26,9 @@ public:
 	void SetActive(bool bInActive){ bActive = bInActive; }
 	static float DeltaX;
 	static float DeltaY;
-private:
+	static bool bFocus;
+
+  private:
 	FRect Rect{};
 	bool bActive = false;
 	uint32 Width = 0;
@@ -41,6 +43,5 @@ private:
 	ImVec2 ContentOrigin{};
 	ImVec2 ContentSize{1.0f, 1.0f};
 	bool bHovered = false;
-	bool bFocus = false;
 
 };

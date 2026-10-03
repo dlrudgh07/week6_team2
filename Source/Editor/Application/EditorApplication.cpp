@@ -317,7 +317,8 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 	const FVector2D ViewportSize = PIEPanel->GetContentSize();
 	const FVector2D LocalMousePosition = PIEPanel->GetLocalMousePosition();
 	float MoveSpeed = 20.0f;
-	PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
+	if (FPIEViewportPanel::bFocus)
+		PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
 
 	// PIE는 단일 View이므로 전체 패널 영역을 하나의 View로 사용한다.
 	const FRect ViewRect{0.0f, 0.0f, std::max(1.0f, ViewportSize.X), std::max(1.0f, ViewportSize.Y)};
