@@ -142,6 +142,7 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   ViewportsPanel = EditorUI->AddEditorPanel<FViewportsPanel>();
   PIEPanel = EditorUI->AddEditorPanel<FPIEViewportPanel>();
   ViewportsPanel->SetPIEViewportPanel(PIEPanel);
+  EditorControlsPanel->SetPIEViewportPanel(PIEPanel);
   EditorUI->AddEditorPanel<FStatsPanel>();
   ContentDrawerPanel = EditorUI->AddEditorPanel<FContentDrawerPanel>();
 
@@ -313,7 +314,7 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 {
 	(void)DeltaTime;
 
-	if (!PIEPanel)
+	if (!PIEPanel || !PIEPanel->IsPlay() || PIEPanel->IsPause())
 		return;
 	const FVector2D ViewportSize = PIEPanel->GetContentSize();
 	const FVector2D LocalMousePosition = PIEPanel->GetLocalMousePosition();
@@ -336,20 +337,21 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 void FEditorApplication::TickWorldAndEditor(const float DeltaTime) {
   // 월드 상태는 프레임마다 정확히 한 번 갱신하고 캡처한다.
   World->Tick(DeltaTime);
-  // PIEWorld->Tick(DeltaTime);
+  //if (PIEPanel->IsPlay() && !PIEPanel->IsPause())
+  //  PIEWorld->Tick(DeltaTime);
   EditorUI->Tick(DeltaTime);
   MultipleViewportsAdapter.CaptureWorld(*World);
 
   if (PIEPanel->IsActive())
   {
-	  if (!bIsPlay)
+	  if (!PIEPanel->IsPlay())
 		  StartPIE();
 	  // PIEWorld로 변경
 	  PIEViewAdapter.CaptureWorld(*World);
   }
   else
   {
-	  if (bIsPlay)
+	  if (PIEPanel->IsPlay())
 		  EndPIE();
   }
   //culling
@@ -387,7 +389,7 @@ void FEditorApplication::RenderMultipleViewports() {
 
 void FEditorApplication::RenderPIEViewport()
 {
-	if (PIEPanel)
+	if (PIEPanel && PIEPanel->IsPlay() && !PIEPanel->IsPause())
 	{
 		const FRect PIEViewRect{0.0f, 0.0f, PIEPanel->GetContentSize().X, PIEPanel->GetContentSize().Y};
 
@@ -635,16 +637,23 @@ void FEditorApplication::HandleMainWindow() {
 
 void FEditorApplication::StartPIE()
 {
+	PIEPanel->SetPlay(true);
+	UpdatePIEViewportState(0);
 	// PIEWorld = DuplicateWorld(*World);
 	// PIEWorld로 변경
 	PIEViewAdapter.InitializeFromWorld(*World);
-	bIsPlay = true;
+}
+
+void FEditorApplication::PausePIE() const
+{
+	if (!PIEPanel->IsPlay())
+		return;
 }
 
 void FEditorApplication::EndPIE()
 {
+	PIEPanel->SetPlay(false);
 	// PIEWorld->Destroy();
-	bIsPlay = false;
 }
 
 // 선택과 Gizmo 참조를 정리한 뒤 Actor를 삭제한다.

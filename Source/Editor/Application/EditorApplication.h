@@ -65,6 +65,7 @@ public:
 	void HandleMainWindow();
 
 	void StartPIE(); // 월드 복제
+	void PausePIE() const; // 월드 정지
 	void EndPIE();   // 월드 삭제
 
 private:
@@ -87,8 +88,6 @@ private:
 
 	bool bIsRunning = false;
 	bool bIsResized = false;
-
-	bool bIsPlay = false;
 
 	TUniquePtr<FDynamicRHI> RenderDevice;
 

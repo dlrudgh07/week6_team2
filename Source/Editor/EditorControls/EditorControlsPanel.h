@@ -9,6 +9,7 @@
 #include "Engine/TextRenderActor.h"
 #include "Components/ExponentialHeightFog.h"
 class FMultipleViewportsAdapter;
+class FPIEViewportPanel;
 
 // 액터 생성과 카메라·기즈모 편집에 필요한 패널 상태를 보관한다.
 class FEditorControlsPanel : public IEditorPanel
@@ -48,8 +49,10 @@ public:
 	};
 
     void SetViewportAdapter(FMultipleViewportsAdapter* InAdapter) { ViewportAdapter = InAdapter; }
+	void SetPIEViewportPanel(FPIEViewportPanel* PIE);
 
-private:
+
+  private:
 	static constexpr float SectionGap = 10.0f;
 	static constexpr float SubsectionGap = 4.0f;
 
@@ -60,5 +63,9 @@ private:
 
     void DrawCameraProperties();
     FMultipleViewportsAdapter* ViewportAdapter = nullptr;
+	FPIEViewportPanel* PIEPanel = nullptr;
 
+	bool DrawStartButton(const char* str_id, float size);
+	bool DrawPauseButton(const char* str_id, float size);
+	bool DrawStopButton(const char* str_id, float size);
 };

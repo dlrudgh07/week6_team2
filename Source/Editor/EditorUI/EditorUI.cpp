@@ -131,11 +131,6 @@ void FEditorUI::DrawMainMenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::Button("Play In Editor"))
-		{
-			// PIE 실행
-		}
-
 		ImGui::EndMainMenuBar();
 	}
 	ImGui::PopStyleVar(2);

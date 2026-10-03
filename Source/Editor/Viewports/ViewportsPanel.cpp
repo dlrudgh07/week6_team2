@@ -253,21 +253,6 @@ void FViewportsPanel::OnRender()
 			bHasLayoutRequest = true;
 		}
 
-		ImGui::SameLine();
-		if (!PIEPanel->IsActive())
-		{
-			if (ImGui::SmallButton("Play In Editor"))
-			{
-				PIEPanel->SetActive(true);
-			}
-		}
-		else
-		{
-			if (ImGui::SmallButton("Stop"))
-			{
-				PIEPanel->SetActive(false);
-			}
-		}
 		ImGui::PopID();
 	}
 
