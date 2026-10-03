@@ -11,6 +11,7 @@
 // 네 View의 렌더 타깃을 최소 크기로 초기화한다.
 float FPIEViewportPanel::DeltaX = 0.0f;
 float FPIEViewportPanel::DeltaY = 0.0f;
+bool FPIEViewportPanel::bFocus = false;
 bool FPIEViewportPanel::Init()
 {
 	Resize(1, 1);
@@ -42,33 +43,33 @@ void FPIEViewportPanel::OnRender()
 	bHovered = ImGui::IsWindowHovered();
 	ImGuiIO& io = ImGui::GetIO();
 	// 창이 활성화되어 있고, 사용자가 이 창을 클릭했을 때 가두기
-	if (ImGui::IsMouseClicked(0) && ImGui::IsWindowFocused())
+
+	int centerX = ContentOrigin.x + Width / 2.0f;
+	int centerY = ContentOrigin.y + Height / 2.0f;
+
+	if (ImGui::IsMouseClicked(0) && bHovered)
 	{
 		RECT rect = {ContentOrigin.x + Rect.X, ContentOrigin.y + Rect.Y, ContentOrigin.x + Rect.X + Rect.Width, ContentOrigin.y + Rect.Y + Rect.Height};
 		
 		ShowCursor(FALSE);
 		bFocus = true;
+
+		SetCursorPos(centerX, centerY);
+
 	}
 
 	if (bFocus)
 	{
-		// 1. 현재 마우스 위치 가져오기
 		POINT currentPos;
 		GetCursorPos(&currentPos);
 
-		// 2. 화면 중앙(또는 기준점) 좌표 설정 (예: 500, 500)
-		int centerX = ContentOrigin.x + Width / 2.0f;
-		int centerY = ContentOrigin.y + Height / 2.0f;
-
-		// 3. 델타 계산
 		DeltaX = currentPos.x - centerX;
 		DeltaY = currentPos.y - centerY;
 
-		// 4. 마우스를 다시 기준점으로 강제 고정 (매 프레임 반복)
 		SetCursorPos(centerX, centerY);
 	}
 
-	// 특정 조건(예: ESC 키)이나 창이 포커스를 잃으면 해제
+	// 특정 조건(예: F8 키)이나 창이 포커스를 잃으면 해제
 	if (ImGui::IsKeyPressed(ImGuiKey_F8))
 	{
 		ClipCursor(NULL); // 제한 해제

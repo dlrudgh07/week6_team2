@@ -45,6 +45,7 @@
 #include "Serialization/JsonArchive.h"
 
 #include "Tasks/Tasks.h"
+#include "FScene.h"
 
 // 렌더 자원·월드·에디터와 MultipleViewports 연결을 초기화한다.
 bool FEditorApplication::Init(HINSTANCE hInstance) {
@@ -141,6 +142,7 @@ bool FEditorApplication::Init(HINSTANCE hInstance) {
   ViewportsPanel = EditorUI->AddEditorPanel<FViewportsPanel>();
   PIEPanel = EditorUI->AddEditorPanel<FPIEViewportPanel>();
   ViewportsPanel->SetPIEViewportPanel(PIEPanel);
+  EditorControlsPanel->SetPIEViewportPanel(PIEPanel);
   EditorUI->AddEditorPanel<FStatsPanel>();
   ContentDrawerPanel = EditorUI->AddEditorPanel<FContentDrawerPanel>();
 
@@ -312,12 +314,13 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 {
 	(void)DeltaTime;
 
-	if (!PIEPanel)
+	if (!PIEPanel || !PIEPanel->IsPlay() || PIEPanel->IsPause())
 		return;
 	const FVector2D ViewportSize = PIEPanel->GetContentSize();
 	const FVector2D LocalMousePosition = PIEPanel->GetLocalMousePosition();
 	float MoveSpeed = 20.0f;
-	PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
+	if (FPIEViewportPanel::bFocus)
+		PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
 
 	// PIE는 단일 View이므로 전체 패널 영역을 하나의 View로 사용한다.
 	const FRect ViewRect{0.0f, 0.0f, std::max(1.0f, ViewportSize.X), std::max(1.0f, ViewportSize.Y)};
@@ -334,20 +337,21 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 void FEditorApplication::TickWorldAndEditor(const float DeltaTime) {
   // 월드 상태는 프레임마다 정확히 한 번 갱신하고 캡처한다.
   World->Tick(DeltaTime);
-  // PIEWorld->Tick(DeltaTime);
+  //if (PIEPanel->IsPlay() && !PIEPanel->IsPause())
+  //  PIEWorld->Tick(DeltaTime);
   EditorUI->Tick(DeltaTime);
   MultipleViewportsAdapter.CaptureWorld(*World);
 
   if (PIEPanel->IsActive())
   {
-	  if (!bIsPlay)
+	  if (!PIEPanel->IsPlay())
 		  StartPIE();
 	  // PIEWorld로 변경
 	  PIEViewAdapter.CaptureWorld(*World);
   }
   else
   {
-	  if (bIsPlay)
+	  if (PIEPanel->IsPlay())
 		  EndPIE();
   }
   //culling
@@ -357,6 +361,7 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime) {
 // 공유 월드 캡처로 활성 View별 렌더 큐를 만들고 렌더한다.
 void FEditorApplication::RenderMultipleViewports() {
   EMultipleViewportsCameraPreset CameraPresets[4]{};
+  FScene SceneData = World->GetScene();
   for (int32 ViewIndex = 0; ViewIndex < 4; ++ViewIndex) {
     const bool bActive = MultipleViewportsAdapter.IsViewActive(ViewIndex);
     ViewportsPanel->SetView(
@@ -367,12 +372,13 @@ void FEditorApplication::RenderMultipleViewports() {
     if (!bActive)
       continue;
 
+
     MultipleViewportsAdapter.BuildRenderPackets(ViewIndex, SceneRenderPackets);
     RenderFrame(ViewIndex, ViewportsPanel->GetRenderingInfo(ViewIndex),
                 MultipleViewportsAdapter.GetEngineViewProjection(ViewIndex),
                 MultipleViewportsAdapter.GetEngineCameraLocation(ViewIndex),
                 MultipleViewportsAdapter.GetEngineCameraForward(ViewIndex),
-                SceneRenderPackets);
+                SceneRenderPackets,SceneData);
   }
 
   ViewportsPanel->SetControlState(MultipleViewportsAdapter.GetLayoutMode(),
@@ -383,7 +389,7 @@ void FEditorApplication::RenderMultipleViewports() {
 
 void FEditorApplication::RenderPIEViewport()
 {
-	if (PIEPanel)
+	if (PIEPanel && PIEPanel->IsPlay() && !PIEPanel->IsPause())
 	{
 		const FRect PIEViewRect{0.0f, 0.0f, PIEPanel->GetContentSize().X, PIEPanel->GetContentSize().Y};
 
@@ -445,7 +451,8 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
                                      const FMatrix &ViewProjection,
                                      const FVector &ViewCameraLocation,
                                      const FVector &ViewCameraForward,
-                                     TArray<FRenderPacket> &RenderPackets) 
+                                     TArray<FRenderPacket> &RenderPackets,
+                                     const FScene &SceneData)
 {
   //Render 초기화
   FRenderCommand::BeginRenderPass(ViewRenderingInfo);
@@ -479,7 +486,8 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
   // Multi pass 렌더링
   {
 	  // fog 렌더링 
-	  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation);
+	  if (SceneData.FogSceneData.IsValid())
+	  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
   }
 
   // Text 렌더링
@@ -522,7 +530,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
   // Anti Aliasing 처리
   {
-
+	  
   }
 
   FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
@@ -577,57 +585,8 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 
 	PIEViewAdapter.PostRenderOpaque(ViewRenderingInfo.DepthSteincil.Texture);
 
-	// TextRenderComponent 렌더링
-	for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
-	{
-		if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
-		{
-			continue;
-		}
-
-		TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
-	}
-
-	{
-		FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
-		
-
-		if (Outline && Outline->GetTarget() && OutlineRenderer)
-		{
-			OutlineRenderer->OnRender(*Outline, ViewProjection, ViewRenderingInfo.ViewportSetting);
-		}
-
-		if (Gizmo->GetTarget())
-		{
-			auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
-			FBox box = Target->CalcBounds();
-			FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
-			GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation, PIEViewAdapter.IsOrthographic());
-		}
-
-		FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
-
-		if (Gizmo->GetTarget() && SystemFont)
-		{
-			if (UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(Gizmo->GetTarget()))
-			{
-				if (AActor* SelectedActor = Primitive->GetOwner())
-				{
-					FBox Box = Primitive->CalcBounds();
-					FVector UUIDLocation;
-					UUIDLocation.X = (Box.Min.X + Box.Max.X) * 0.5f;
-					UUIDLocation.Y = (Box.Min.Y + Box.Max.Y) * 0.5f;
-					UUIDLocation.Z = Box.Max.Z + 0.5f;
-
-					FString Text = "UUID : " + std::to_string(SelectedActor->GetUUID());
-					TextRenderer->BuildTextMesh(Text, 0.5f, *SystemFont);
-
-					const FMatrix BillboardWorld = PIEViewAdapter.BuildEngineBillboardMatrix(UUIDLocation, 1.0f, 1.0f);
-					TextRenderer->OnRender(Text, BillboardWorld, 0.5f, *SystemFont, ViewProjection);
-				}
-			}
-		}
-	}
+	FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
+	
 	FRenderCommand::EndRenderPass(ViewRenderingInfo);
 }
 
@@ -679,16 +638,23 @@ void FEditorApplication::HandleMainWindow() {
 
 void FEditorApplication::StartPIE()
 {
+	PIEPanel->SetPlay(true);
+	UpdatePIEViewportState(0);
 	// PIEWorld = DuplicateWorld(*World);
 	// PIEWorld로 변경
 	PIEViewAdapter.InitializeFromWorld(*World);
-	bIsPlay = true;
+}
+
+void FEditorApplication::PausePIE() const
+{
+	if (!PIEPanel->IsPlay())
+		return;
 }
 
 void FEditorApplication::EndPIE()
 {
+	PIEPanel->SetPlay(false);
 	// PIEWorld->Destroy();
-	bIsPlay = false;
 }
 
 // 선택과 Gizmo 참조를 정리한 뒤 Actor를 삭제한다.

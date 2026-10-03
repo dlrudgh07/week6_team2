@@ -24,9 +24,16 @@ public:
 	bool IsHovered() const { return bHovered; }
 	bool IsActive() const { return bActive; }
 	void SetActive(bool bInActive){ bActive = bInActive; }
+	
+	bool IsPlay() const { return bIsPlay; }
+	void SetPlay(bool bInPlay){ bIsPlay = bInPlay; }
+	bool IsPause() const { return bIsPause; }
+	void SetPause(bool bInPause){ bIsPause = bInPause; }
 	static float DeltaX;
 	static float DeltaY;
-private:
+	static bool bFocus;
+
+  private:
 	FRect Rect{};
 	bool bActive = false;
 	uint32 Width = 0;
@@ -41,6 +48,6 @@ private:
 	ImVec2 ContentOrigin{};
 	ImVec2 ContentSize{1.0f, 1.0f};
 	bool bHovered = false;
-	bool bFocus = false;
-
+	bool bIsPlay = false;
+	bool bIsPause = false;
 };

@@ -4,12 +4,14 @@
 #include "Editor/Viewports/MultipleViewportsAdapter.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
+#include "../../Editor/Viewports/PIEViewportPanel.h"
 
 #include "Engine/World.h"
 
 #include "Input/InputSystem.h"
 
 #include <cmath>
+#include <imgui_internal.h>
 
 // 패널 초기화 성공을 반환한다.
 bool FEditorControlsPanel::Init()
@@ -96,8 +98,36 @@ void FEditorControlsPanel::OnRender()
 	//ImGui::TextDisabled("%s", FpsText);
 
 	//////////////////////////////////////////////////////
+	float icon_size = 24.0f;
+	ImGui::SameLine();
+	ImGui::BeginDisabled(PIEPanel->IsPlay() && !PIEPanel->IsPause());
+	if (DrawStartButton("##StartBtn", icon_size))
+	{
+		PIEPanel->SetActive(true);
+		PIEPanel->SetPause(false);
+	}
+	ImGui::EndDisabled();
 
-	ImGui::Dummy(ImVec2(0.0f, SectionGap));
+
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!PIEPanel->IsPlay() || PIEPanel->IsPause());
+	if (DrawPauseButton("##PauseBtn", icon_size))
+	{
+		PIEPanel->SetPause(true);
+	}
+	ImGui::EndDisabled();
+
+
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!PIEPanel->IsPlay());
+	if (DrawStopButton("##StopBtn", icon_size))
+	{
+		PIEPanel->SetActive(false);
+		PIEPanel->SetPause(false);
+	}
+	ImGui::EndDisabled();
+
+
 	ImGui::SeparatorText("Actor Spawn");
 
 	if(ImGui::Button("Empty Actor"))
@@ -475,4 +505,120 @@ void FEditorControlsPanel::DrawCameraProperties()
 	{
 		ViewportAdapter->ApplyCameraProperties(CameraViewIndex, Camera, bRotationChanged);
 	}
+}
+
+void FEditorControlsPanel::SetPIEViewportPanel(FPIEViewportPanel* PIE)
+{
+	PIEPanel = PIE;
+}
+
+
+bool FEditorControlsPanel::DrawStartButton(const char* str_id, float size = 20.0f)
+{
+	ImGuiContext& g = *GImGui;
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiID id = window->GetID(str_id);
+	ImVec2 pos = window->DC.CursorPos;
+	ImVec2 total_size = ImVec2(size + g.Style.FramePadding.x * 2, size + g.Style.FramePadding.y * 2);
+	ImRect bb(pos, ImVec2(pos.x + total_size.x, pos.y + total_size.y));
+
+	ImGui::ItemSize(bb, g.Style.FramePadding.y);
+	if (!ImGui::ItemAdd(bb, id))
+		return false;
+
+	bool hovered, held;
+	bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+
+	// 버튼 배경 그리기
+	ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+	ImGui::RenderFrame(bb.Min, bb.Max, col, true, g.Style.FrameRounding);
+
+	// 내부 초록색 삼각형(▶) 그리기
+	ImVec2 center = ImVec2(pos.x + g.Style.FramePadding.x + size * 0.5f, pos.y + g.Style.FramePadding.y + size * 0.5f);
+	float r = size * 0.4f;
+	// 세 꼭지점 계산 (오른쪽을 바라보는 삼각형)
+	ImVec2 p1 = ImVec2(center.x + r, center.y);
+	ImVec2 p2 = ImVec2(center.x - r * 0.5f, center.y - r * 0.866f);
+	ImVec2 p3 = ImVec2(center.x - r * 0.5f, center.y + r * 0.866f);
+
+	// 초록색 (RGBA)
+	window->DrawList->AddTriangleFilled(p1, p2, p3, IM_COL32(50, 205, 50, 255));
+
+	return pressed;
+}
+
+
+bool FEditorControlsPanel::DrawPauseButton(const char* str_id, float size = 20.0f)
+{
+	ImGuiContext& g = *GImGui;
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiID id = window->GetID(str_id);
+	ImVec2 pos = window->DC.CursorPos;
+	ImVec2 total_size = ImVec2(size + g.Style.FramePadding.x * 2, size + g.Style.FramePadding.y * 2);
+	ImRect bb(pos, ImVec2(pos.x + total_size.x, pos.y + total_size.y));
+
+	ImGui::ItemSize(bb, g.Style.FramePadding.y);
+	if (!ImGui::ItemAdd(bb, id))
+		return false;
+
+	bool hovered, held;
+	bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+
+	ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+	ImGui::RenderFrame(bb.Min, bb.Max, col, true, g.Style.FrameRounding);
+
+	// 내부 하얀색 세로 바 2개 그리기
+	float thickness = size * 0.25f;
+	float gap = size * 0.2f;
+	float height = size * 0.7f;
+
+	float start_x = pos.x + g.Style.FramePadding.x + (size - (thickness * 2 + gap)) * 0.5f;
+	float start_y = pos.y + g.Style.FramePadding.y + (size - height) * 0.5f;
+
+	// 하얀색 (RGBA)
+	ImU32 icon_col = IM_COL32(255, 255, 255, 255);
+	window->DrawList->AddRectFilled(ImVec2(start_x, start_y), ImVec2(start_x + thickness, start_y + height), icon_col);
+	window->DrawList->AddRectFilled(ImVec2(start_x + thickness + gap, start_y), ImVec2(start_x + thickness * 2 + gap, start_y + height), icon_col);
+
+	return pressed;
+}
+
+
+bool FEditorControlsPanel::DrawStopButton(const char* str_id, float size = 20.0f)
+{
+	ImGuiContext& g = *GImGui;
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiID id = window->GetID(str_id);
+	ImVec2 pos = window->DC.CursorPos;
+	ImVec2 total_size = ImVec2(size + g.Style.FramePadding.x * 2, size + g.Style.FramePadding.y * 2);
+	ImRect bb(pos, ImVec2(pos.x + total_size.x, pos.y + total_size.y));
+
+	ImGui::ItemSize(bb, g.Style.FramePadding.y);
+	if (!ImGui::ItemAdd(bb, id))
+		return false;
+
+	bool hovered, held;
+	bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+
+	ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+	ImGui::RenderFrame(bb.Min, bb.Max, col, true, g.Style.FrameRounding);
+
+	// 내부 빨간색 네모 그리기
+	float offset = size * 0.2f;
+	ImVec2 p_min = ImVec2(pos.x + g.Style.FramePadding.x + offset, pos.y + g.Style.FramePadding.y + offset);
+	ImVec2 p_max = ImVec2(pos.x + g.Style.FramePadding.x + size - offset, pos.y + g.Style.FramePadding.y + size - offset);
+
+	// 빨간색 (RGBA)
+	window->DrawList->AddRectFilled(p_min, p_max, IM_COL32(230, 40, 40, 255));
+
+	return pressed;
 }

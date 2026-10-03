@@ -1,12 +1,12 @@
 #include "EnginePCH.h"
 #include "FogRenderer.h"
 #include "RenderResourceManager.h"
-#include "RenderCommand.h"
-
+#include "Rendering/RenderCommand.h"
+#include "FogSceneData.h"
 bool FFogRenderer::Init()
 {
 	// 셰이더 가져오기
-	Shader = FRenderResourceManager::GetShaderProgram("Resources/Shader/HeightFogCommon.hlsl");
+	Shader = FRenderResourceManager::GetShaderProgram("Resources/Shader/HeightFogShader.hlsl");
 	if (!Shader)
 	{
 		LOG(Error, "[Fog] shader not found");
@@ -28,7 +28,7 @@ bool FFogRenderer::Init()
 	return true;
 }
 
-void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation) //Fog에 대한 변수 파라미터 추가필요(컴포넌트와 합의)
+void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation, const FFogSceneData& FogData)
 {
 	if (!IsValid()) return;
 
@@ -57,24 +57,23 @@ void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& Vie
 	FRenderCommand::BindShaderResource(0, SceneDepthTexture, EShaderBindFlagBits::Pixel);
 
 	FFogConstants Constants;
-	Constants.FogDensity; //초기화필요
-	Constants.FogHeightFalloff; //초기화필요
-	Constants.FogInscatteringColor; //초기화필요
-	Constants.FogMaxOpacity; //초기화필요
-	Constants.StartDistance;  //초기화필요
-	Constants.FogCutoffDistance; //초기화필요
+	Constants.FogDensity = FogData.FogDensity;
+	Constants.FogHeightFalloff = FogData.FogHeightFalloff;
+	Constants.FogInscatteringColor = FLinearColor(FogData.FogInscatteringColor[0], FogData.FogInscatteringColor[1], FogData.FogInscatteringColor[2], 1.0f);
+	Constants.FogMaxOpacity = FogData.FogMaxOpacity;
+	Constants.StartDistance = FogData.StartDistance;
+	Constants.FogCutoffDistance = FogData.FogCutoffDistance;
+	Constants.FogHeight = FogData.FogHeight;
 	Constants.InverseViewProjection = ViewProj.Inverse();
 	Constants.CameraPosition = CameraLocation;
-	//Constants.FogInscatteringColor[3] = 0.5f; 
-	
+
 	FRenderCommand::BindPipelineState(&PipelineState);
 	FRenderCommand::UpdateBufferData(ConstantBuffer.get(), &Constants);
 	FRenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Pixel);
-	//FRenderCommand::BindSamplerState(0, ESamplerState::LinearWrap, EShaderBindFlagBits::Pixel);
+	FRenderCommand::BindSamplerState(0, ESamplerState::PointClamp, EShaderBindFlagBits::Pixel);
 	// 정점 버퍼 없이 3개. VS가 SV_VertexID로 삼각형을 만든다.
 	FRenderCommand::Draw(3);
 	
-
 	//원상복구단계
 
 	//SRV 바인드 해제
