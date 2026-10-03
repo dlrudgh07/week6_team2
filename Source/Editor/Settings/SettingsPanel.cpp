@@ -126,8 +126,6 @@ void FSettingsPanel::OnRender()
 
 			FSoftwareOcclusionSettings Occlusion = ViewportAdapter->GetSoftwareOcclusionSettings();
 
-			Occlusion.Mode = static_cast<ESoftwareOcclusionMode>(std::clamp(Settings.SoftwareOcclusionMode, 0, 5));
-
 			Occlusion.OccluderGeometry = static_cast<ESoftwareOccluderGeometry>(std::clamp(Settings.SoftwareOccluderGeometry, 0, 2));
 
 			Occlusion.TileSize = Settings.SoftwareOcclusionTileSize;
@@ -389,7 +387,6 @@ void FSettingsPanel::ReadViewportSettings(FEditorSettings& Out) const
 {
     if (!ViewportAdapter) return;
 	const FSoftwareOcclusionSettings& Occlusion = ViewportAdapter->GetSoftwareOcclusionSettings();
-	Out.SoftwareOcclusionMode = static_cast<int32>(Occlusion.Mode);
 	Out.SoftwareOccluderGeometry = static_cast<int32>(Occlusion.OccluderGeometry);
 	Out.SoftwareOcclusionTileSize = Occlusion.TileSize;
 	Out.SoftwareOcclusionMinimumTiles = Occlusion.MinimumOccluderTiles;
@@ -422,7 +419,6 @@ void FSettingsPanel::ApplyViewportSettings()
 {
     if (!ViewportAdapter) return;
 	FSoftwareOcclusionSettings Occlusion = ViewportAdapter->GetSoftwareOcclusionSettings();
-	Occlusion.Mode = static_cast<ESoftwareOcclusionMode>(std::clamp(Settings.SoftwareOcclusionMode, 0, 5));
 	Occlusion.OccluderGeometry = static_cast<ESoftwareOccluderGeometry>(std::clamp(Settings.SoftwareOccluderGeometry, 0, 2));
 	Occlusion.TileSize = Settings.SoftwareOcclusionTileSize;
 	Occlusion.MinimumOccluderTiles = Settings.SoftwareOcclusionMinimumTiles;

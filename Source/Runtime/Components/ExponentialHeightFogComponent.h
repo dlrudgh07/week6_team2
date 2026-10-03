@@ -8,6 +8,16 @@ class UExponentialHeightFogComponent : public USceneComponent
 {
     DECLARE_CLASS(UExponentialHeightFogComponent, USceneComponent)
     
+	//Property Reflection
+	REFLECT_START(ClassName)
+		PROPERTY(FogDensity)
+		PROPERTY(FogHeightFalloff)
+		PROPERTY(FogMaxOpacity)
+		PROPERTY(StartDistance)
+		PROPERTY(FogCutoffDistance)
+		PROPERTY_TYPE(FogInscatteringColor, Color)
+	REFLECT_END()
+
     UExponentialHeightFogComponent();
     virtual ~UExponentialHeightFogComponent();
     
@@ -47,6 +57,8 @@ public:
     float GetFogMaxOpacity() { return FogMaxOpacity; }
     float GetStartDistance() { return StartDistance; }
     float GetEndDistance() { return EndDistance; }
+	float GetFogCutoffDistance(){ return FogCutoffDistance; }
+	
     FLinearColor GetFogInscatteringColor() { return FogInscatteringColor; }
-
+	
 };

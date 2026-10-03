@@ -4,6 +4,7 @@
 #include "Editor/Viewports/MultipleViewportsAdapterTypes.h"
 #include "Rendering/RenderingInfo.h"
 class FMultipleViewportsAdapter;
+class FPIEViewportPanel;
 
 class FViewportsPanel : public IEditorPanel
 {
@@ -34,6 +35,8 @@ public:
 	bool ConsumeLayoutRequest(ELayoutMode& OutMode, int32& OutSingleViewIndex);
 	// UI에서 발생한 View별 Camera Preset 요청을 한 번 소비하도록 반환한다.
 	bool ConsumeCameraPresetRequest(int32& OutViewIndex, EMultipleViewportsCameraPreset& OutPreset);
+
+	void SetPIEViewportPanel(FPIEViewportPanel* PIE);
 
 private:
 	FMultipleViewportsAdapter* ViewportAdapter = nullptr;
@@ -71,4 +74,5 @@ private:
 	int32 RequestedSingleViewIndex = 0;
 	int32 PendingCameraPresetViewIndex = InvalidViewIndex;
 	EMultipleViewportsCameraPreset PendingCameraPreset = EMultipleViewportsCameraPreset::Perspective;
+	FPIEViewportPanel* PIEPanel = nullptr;
 };

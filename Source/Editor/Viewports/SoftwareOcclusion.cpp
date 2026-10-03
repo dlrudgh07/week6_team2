@@ -217,7 +217,7 @@ void FSoftwareOcclusionCuller::SetSettings(const FSoftwareOcclusionSettings& InS
 	if (PreviousTileSize != Settings.TileSize)
 		BufferWidth = 0;
 	// 설정 패널이 매 프레임 호출하므로 값이 실제로 바뀐 경우에만 다음 프레임에 바로 다시 측정한다.
-	if (Previous.Mode != Settings.Mode || Previous.OccluderGeometry != Settings.OccluderGeometry || Previous.TileSize != Settings.TileSize ||
+	if (Previous.OccluderGeometry != Settings.OccluderGeometry || Previous.TileSize != Settings.TileSize ||
 		Previous.MinimumOccluderTiles != Settings.MinimumOccluderTiles || Previous.TriangleBudget != Settings.TriangleBudget || Previous.CpuTimeBudgetMs != Settings.CpuTimeBudgetMs ||
 		Previous.DepthBias != Settings.DepthBias || Previous.BoxOccluderDistanceThreshold != Settings.BoxOccluderDistanceThreshold)
 		std::fill(std::begin(SuspendedFrames), std::end(SuspendedFrames), 0);
@@ -225,12 +225,9 @@ void FSoftwareOcclusionCuller::SetSettings(const FSoftwareOcclusionSettings& InS
 
 void FSoftwareOcclusionCuller::SynchronizeObjects(const TArray<FRenderableObject>& Objects)
 {
-	if (Settings.Mode == ESoftwareOcclusionMode::GPUCompute)
+	if (FGPUOcclusionCuller* Culler = GetGPUCuller())
 	{
-		if (FGPUOcclusionCuller* Culler = GetGPUCuller())
-		{
-			Culler->SynchronizeObjects(Objects);
-		}
+		Culler->SynchronizeObjects(Objects);
 	}
 
 	const bool bShouldSettle = bPendingSettle;
@@ -1359,7 +1356,7 @@ void FSoftwareOcclusionCuller::ProcessObject(const FRenderableObject& Object, co
 
 	const FProjectedBounds Projected = ProjectBounds(Object.WorldBounds);
 	++ActiveStats->OcclusionTested;
-	const bool bUseHierarchy = Settings.Mode != ESoftwareOcclusionMode::LinearSubcells;
+	const bool bUseHierarchy = true;
 	if (Projected.bValid && !Projected.bUncertain && IsOccluded(Projected, bUseHierarchy))
 	{
 		++ActiveStats->OcclusionRejected;
@@ -1464,7 +1461,7 @@ void FSoftwareOcclusionCuller::Cull(const int32 ViewIndex,
 	const int32 SafeView = std::clamp(ViewIndex, 0, MaxViews - 1);
 	VisibleLODs[SafeView].Reset();
 
-	if (Settings.Mode == ESoftwareOcclusionMode::GPUCompute && ViewWidth > 0 && ViewHeight > 0)
+	if (ViewWidth > 0 && ViewHeight > 0)
 	{
 		if (FGPUOcclusionCuller* Culler = GetGPUCuller())
 		{
@@ -1475,72 +1472,14 @@ void FSoftwareOcclusionCuller::Cull(const int32 ViewIndex,
 			return;
 		}
 	}
-
-	if (Settings.Mode == ESoftwareOcclusionMode::Disabled || bWireframe || ViewWidth <= 0 || ViewHeight <= 0)
-	{
-		const int32 TotalObjects = Objects.Num();
-		if (TotalObjects > 0)
-		{
-			const uint32 NumWorkers = (std::max)(1u, Tasks::FTaskScheduler::Get().GetNumWorkers());
-			const int32 ChunkSize = (TotalObjects + NumWorkers - 1) / NumWorkers;
-			const int32 NumJobs = (TotalObjects + ChunkSize - 1) / ChunkSize;
-
-			if (WorkerVisibleBuffers.Num() < NumJobs)
-			{
-				WorkerVisibleBuffers.SetNum(NumJobs);
-			}
-			if (WorkerRejectedBuffers.Num() < NumJobs)
-			{
-				WorkerRejectedBuffers.SetNum(NumJobs);
-			}
-			for (int32 i = 0; i < NumJobs; ++i)
-			{
-				WorkerVisibleBuffers[i].Reset();
-				WorkerRejectedBuffers[i] = 0;
-			}
-
-			// 절두체 검사 병렬 수행
-			Tasks::ParallelFor(TotalObjects,
-				ChunkSize,
-				[&](int32 Start, int32 End)
-				{
-					const int32 JobIndex = Start / ChunkSize;
-					TArray<UPrimitiveComponent*>& LocalVisible = WorkerVisibleBuffers[JobIndex];
-					LocalVisible.Reserve(End - Start);
-					for (int32 Index = Start; Index < End; ++Index)
-					{
-						const FRenderableObject& Object = Objects[Index];
-						if (Object.Primitive && IsAABBInFrustum(Object.WorldBounds, Frustum))
-						{
-							LocalVisible.Add(Object.Primitive);
-						}
-						else if (Object.Primitive)
-						{
-							++WorkerRejectedBuffers[JobIndex];
-						}
-					}
-				});
-
-			for (int32 JobIndex = 0; JobIndex < NumJobs; ++JobIndex)
-			{
-				OutVisible.Append(WorkerVisibleBuffers[JobIndex]);
-				OutStats.FrustumRejected += WorkerRejectedBuffers[JobIndex];
-			}
-		}
-		OutStats.FinalVisible = static_cast<uint32>(OutVisible.Num());
-		OutStats.CullMs = static_cast<float>((NowSeconds() - CullStartSeconds) * 1000.0);
-		ActiveStats = nullptr;
-		return;
-	}
-
 	// 효과가 낮아 쉬는 중이면 BVH 프러스텀 컬링만 하고, 주기가 끝난 프레임에 오클루전을 다시 측정한다.
 	int32& Suspended = SuspendedFrames[std::clamp(ViewIndex, 0, MaxViews - 1)];
-	bool bSuspended = Settings.Mode != ESoftwareOcclusionMode::StaticBVHFrustumOnly && Suspended > 0;
+	bool bSuspended = Suspended > 0;
 
 	if (bSuspended)
 		--Suspended;
 	OutStats.bOcclusionSuspended = bSuspended;
-	const bool bBVHFrustumOnly = Settings.Mode == ESoftwareOcclusionMode::StaticBVHFrustumOnly || bSuspended;
+	const bool bBVHFrustumOnly = false;
 	if (!bBVHFrustumOnly)
 	{
 		PrepareBuffers(ViewWidth, ViewHeight);
@@ -1552,18 +1491,7 @@ void FSoftwareOcclusionCuller::Cull(const int32 ViewIndex,
 	UsedTriangles = 0;
 	bAllowRasterization = true;
 
-	if (Settings.Mode == ESoftwareOcclusionMode::StaticBVHHierarchical || bBVHFrustumOnly)
-	{
-		EnsureBVH(Objects);
-		OutStats.BVHBuildMs = LastBVHBuildMs;
-		if (!BVHNodes.IsEmpty())
-			TraverseBVH(Objects, 0, false, !bBVHFrustumOnly, OutVisible);
-		for (const uint32 Index : DynamicObjectIndices)
-			ProcessObject(Objects[Index], false, false, !bBVHFrustumOnly, OutVisible);
-		for (const uint32 Index : BypassObjectIndices)
-			ProcessObject(Objects[Index], false, false, !bBVHFrustumOnly, OutVisible);
-	}
-	else
+	
 	{
 		const int32 TotalObjects = Objects.Num();
 		const uint32 NumWorkers = (std::max)(1u, Tasks::FTaskScheduler::Get().GetNumWorkers());
@@ -1680,7 +1608,7 @@ void FSoftwareOcclusionCuller::Cull(const int32 ViewIndex,
 			// 가시성 병렬 판정
 			const uint32 TaskWorkers = (std::max)(1u, Tasks::FTaskScheduler::Get().GetNumWorkers());
 			const int32 QueryChunkSize = (TotalCandidates + TaskWorkers - 1) / TaskWorkers;
-			const bool bUseHierarchy = Settings.Mode != ESoftwareOcclusionMode::LinearSubcells;
+			const bool bUseHierarchy = true;
 
 			std::atomic<uint32> TotalOcclusionTested{0};
 			std::atomic<uint32> TotalOcclusionRejected{0};
@@ -1812,11 +1740,8 @@ void FSoftwareOcclusionCuller::Cull(const int32 ViewIndex,
 
 void FSoftwareOcclusionCuller::PostRenderOpaque(int32 ViewIndex, FRHITexture2D* SceneDepthTexture)
 {
-	if (Settings.Mode == ESoftwareOcclusionMode::GPUCompute)
+	if (FGPUOcclusionCuller* Culler = GetGPUCuller())
 	{
-		if (FGPUOcclusionCuller* Culler = GetGPUCuller())
-		{
-			Culler->BuildHZB(ViewIndex, SceneDepthTexture);
-		}
+		Culler->BuildHZB(ViewIndex, SceneDepthTexture);
 	}
 }
