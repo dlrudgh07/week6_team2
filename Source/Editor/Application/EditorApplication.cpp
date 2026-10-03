@@ -578,57 +578,8 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 
 	PIEViewAdapter.PostRenderOpaque(ViewRenderingInfo.DepthSteincil.Texture);
 
-	// TextRenderComponent 렌더링
-	for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
-	{
-		if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
-		{
-			continue;
-		}
-
-		TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
-	}
-
-	{
-		FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
-		
-
-		if (Outline && Outline->GetTarget() && OutlineRenderer)
-		{
-			OutlineRenderer->OnRender(*Outline, ViewProjection, ViewRenderingInfo.ViewportSetting);
-		}
-
-		if (Gizmo->GetTarget())
-		{
-			auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
-			FBox box = Target->CalcBounds();
-			FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
-			GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation, PIEViewAdapter.IsOrthographic());
-		}
-
-		FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
-
-		if (Gizmo->GetTarget() && SystemFont)
-		{
-			if (UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(Gizmo->GetTarget()))
-			{
-				if (AActor* SelectedActor = Primitive->GetOwner())
-				{
-					FBox Box = Primitive->CalcBounds();
-					FVector UUIDLocation;
-					UUIDLocation.X = (Box.Min.X + Box.Max.X) * 0.5f;
-					UUIDLocation.Y = (Box.Min.Y + Box.Max.Y) * 0.5f;
-					UUIDLocation.Z = Box.Max.Z + 0.5f;
-
-					FString Text = "UUID : " + std::to_string(SelectedActor->GetUUID());
-					TextRenderer->BuildTextMesh(Text, 0.5f, *SystemFont);
-
-					const FMatrix BillboardWorld = PIEViewAdapter.BuildEngineBillboardMatrix(UUIDLocation, 1.0f, 1.0f);
-					TextRenderer->OnRender(Text, BillboardWorld, 0.5f, *SystemFont, ViewProjection);
-				}
-			}
-		}
-	}
+	FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
+	
 	FRenderCommand::EndRenderPass(ViewRenderingInfo);
 }
 
