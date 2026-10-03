@@ -11,3 +11,8 @@ ABillboardActor::~ABillboardActor()
 {
 }
 
+void ABillboardActor::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	BillboardComponent = FindComponentByClass<UBillboardComponent>();
+}

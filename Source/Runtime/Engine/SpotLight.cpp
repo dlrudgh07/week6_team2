@@ -12,3 +12,10 @@ ASpotLight::ASpotLight()
 	SpotLightComponent = CreateDefaultSubobject<USpotLightComponent>("USpotLightComponent");
 	SpotLightComponent->SetupAttachment(BillboardComponent);
 }
+
+void ASpotLight::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	SpotLightComponent = FindComponentByClass<USpotLightComponent>();
+	BillboardComponent = FindComponentByClass<UBillboardComponent>();
+}

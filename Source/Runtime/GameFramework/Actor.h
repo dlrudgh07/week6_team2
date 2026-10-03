@@ -33,7 +33,9 @@ class AActor : public UObject
 	void SetActorTickEnabled(bool bEnabled);
 
 	UWorld* GetWorld() const;
+	void SetWorld(UWorld* InWorld);
 	ULevel* GetLevel() const;
+	void SetLevel(ULevel* InLevel);
 
 	const TArray<UActorComponent*>& GetComponents() const;
 	USceneComponent* GetRootComponent() const;
@@ -60,6 +62,21 @@ class AActor : public UObject
 	}
 
 	UActorComponent* AddComponentByClass(UClass* Class, FName Name = NAME_None);
+
+	virtual void DuplicateSubObjects() override;
+
+	template <typename T> T* FindComponentByClass() const
+	{
+		for (UActorComponent* Comp : Components)
+		{
+			if (T* Found = Cast<T>(Comp))
+			{
+				return Found;
+			}
+		}
+
+		return nullptr;
+	}
 
   protected:
 	void SetCanEverTick(bool bEnabled);

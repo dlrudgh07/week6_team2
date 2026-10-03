@@ -29,6 +29,13 @@ UObject::UObject(bool bRegister)
 	bIsRegistered = bRegister;
 }
 
+UObject::UObject(const UObject& Other) : UObject()
+{
+	Outer = Other.Outer;
+	ClassPrivate = Other.ClassPrivate;
+	Flags = Other.Flags;
+}
+
 UObject::~UObject()
 {
 	if (bIsRegistered)
@@ -57,9 +64,13 @@ UClass* UObject::StaticClass()
 		c.Name = "Object";
 		c.Super = nullptr;
 		c.Constructor = []() -> UObject*
-			{
-				return new UObject();
-			};
+		{
+			return new UObject();
+		};
+		c.CopyConstructor = [](const UObject* Src) -> UObject*
+		{
+			return new UObject(*Src);
+		};
 		bIsInit = true;
 	}
 	return &c;
@@ -87,57 +98,73 @@ void UObject::Serialize(json& Handle, bool bIsLoading)
 			case EPropertyType::Float:
 			{
 				float& Value = *static_cast<float*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<float>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<float>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::Int:
 			{
 				int32& Value = *static_cast<int32*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<int32>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<int32>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::String:
 			{
 				FString& Value = *static_cast<FString*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<FString>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<FString>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::Bool:
 			{
 				bool& Value = *static_cast<bool*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<bool>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<bool>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::Vector:
 			{
 				FVector& Value = *static_cast<FVector*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<FVector>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<FVector>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::Vector4:
 			{
 				FVector4& Value = *static_cast<FVector4*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<FVector4>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<FVector4>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::Color:
 			{
 				FVector4& Value = *static_cast<FVector4*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<FVector4>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<FVector4>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::Transform:
 			{
 				FTransform& Value = *static_cast<FTransform*>(Ptr);
-				if (bIsLoading) Value = Handle[Property.Name].get<FTransform>();
-				else Handle[Property.Name] = Value;
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<FTransform>();
+				else
+					Handle[Property.Name] = Value;
 				break;
 			}
 			case EPropertyType::Object:
@@ -200,9 +227,11 @@ void UObject::DuplicateSubObjects()
 UObject* UObject::Duplicate()
 {
 	// 복사 생성자 호출
-	FObjectFactory::ConstructObject<UObject>();
-	return nullptr;
+	UObject* NewObject = FObjectFactory::DuplicateObject(this); // 얕은 복사
+	if (NewObject)
+	{
+		NewObject->DuplicateSubObjects(); // 깊은 복사
+	}
+
+	return NewObject;
 }
-
-
-

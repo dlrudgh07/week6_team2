@@ -34,8 +34,9 @@ public:
 
 	float GetTextSize() const { return TextSize < 0 ? 0.1f : TextSize; }
 	void SetTextSize(float InTextSize) { TextSize = InTextSize; }
+	virtual void DuplicateSubObjects() override;
 
-private:
+  private:
 	bool RebuildPickingMesh() const;
 
 	FString Text = "Text";

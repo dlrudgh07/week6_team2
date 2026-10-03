@@ -14,8 +14,9 @@ public:
 
 	UStaticMeshComponent* GetStaticMeshComponent() const { return StaticMeshComponent; }
 	void SetPrimitiveType(EPrimitiveType Type);
+	virtual void DuplicateSubObjects() override;
 
-private:
+  private:
 	UStaticMeshComponent* StaticMeshComponent;
 };
 

@@ -96,6 +96,7 @@ private:
 	FWindowsWindow* MainWindow;
 	FSwapchain* MainWindowSC;
 
+	TArray<FWorldContext> WorldContexts;
 	UWorld* World;
 	UWorld* PIEWorld;
 

@@ -67,3 +67,11 @@ bool UTextRenderComponent::RebuildPickingMesh() const
 
 	return true;
 }
+
+void UTextRenderComponent::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	bHasPickingMesh = false;
+	CachedFont = nullptr;
+	CachedTextSize = -1.0f;
+}

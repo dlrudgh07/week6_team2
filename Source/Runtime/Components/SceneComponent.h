@@ -117,6 +117,8 @@ class USceneComponent : public UActorComponent
 		return CachedWorldBounds;
 	}
 
+	virtual void DuplicateSubObjects() override;
+
 protected:
 	virtual void OnBoundsMarkedDirty() {}
 

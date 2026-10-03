@@ -141,3 +141,10 @@ FMatrix USceneComponent::GetWorldMatrix() const
 	}
 	return CachedWorldMatrix;
 }
+
+void USceneComponent::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	AttachParent = nullptr;
+	AttachChildren.Reset();
+}

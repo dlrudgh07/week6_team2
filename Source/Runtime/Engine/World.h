@@ -92,6 +92,8 @@ class UWorld : public UObject
 
 	void AddComponent(UPrimitiveComponent* PrimComp);
 
+	virtual void DuplicateSubObjects() override;
+
   private:
 	friend class AActor;
 	void RefreshActorTickRegistration(AActor* Actor);

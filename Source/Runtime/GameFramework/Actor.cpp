@@ -76,9 +76,19 @@ UWorld* AActor::GetWorld() const
 	return World;
 }
 
+void AActor::SetWorld(UWorld* InWorld)
+{
+	World = InWorld;
+}
+
 ULevel* AActor::GetLevel() const
 {
 	return Level;
+}
+
+void AActor::SetLevel(ULevel* InLevel)
+{
+	Level = InLevel;
 }
 
 const TArray<UActorComponent*>& AActor::GetComponents() const
@@ -218,4 +228,54 @@ bool AActor::Destroy()
 		return false;
 
 	return World->DestroyActor(this);
+}
+
+void AActor::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+
+	TMap<UActorComponent*, UActorComponent*> DuplicateMap;
+	TMap<USceneComponent*, USceneComponent*> OldParents;
+	TArray<UActorComponent*> Temp;
+	Temp.Reserve(Components.Num());
+
+	for (UActorComponent* Comp : Components)
+	{
+		UActorComponent* NewComp = FObjectFactory::DuplicateObject(Comp, this);
+
+		if (!NewComp)
+		{
+			continue;
+		}
+
+		NewComp->SetOwner(this);
+
+		if (USceneComponent* SceneComp = Cast<USceneComponent>(NewComp))
+		{
+			OldParents.Add(SceneComp, SceneComp->GetAttachParent());
+		}
+
+		NewComp->DuplicateSubObjects();
+		DuplicateMap.Add(Comp, NewComp);
+		Temp.Add(NewComp);
+	}
+	UActorComponent** NewRoot = DuplicateMap.FindOrNull(RootComponent);
+	RootComponent = NewRoot ? Cast<USceneComponent>(*NewRoot) : nullptr;
+
+	for (UActorComponent* Comp : Temp)
+	{
+		if (USceneComponent* SceneComp = Cast<USceneComponent>(Comp))
+		{
+			USceneComponent** OldParent = OldParents.FindOrNull(SceneComp);
+			UActorComponent** DuplicatedOldParent = (OldParent ? DuplicateMap.FindOrNull(*OldParent) : nullptr);
+			USceneComponent* NewParent = DuplicatedOldParent ? Cast<USceneComponent>(*DuplicatedOldParent) : nullptr;
+
+			if (NewParent)
+			{
+				SceneComp->SetupAttachment(NewParent);
+			}
+		}
+	}
+
+	Components = std::move(Temp);
 }

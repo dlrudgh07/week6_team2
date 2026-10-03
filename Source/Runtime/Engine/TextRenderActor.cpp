@@ -10,3 +10,9 @@ ATextRenderActor::ATextRenderActor()
 ATextRenderActor::~ATextRenderActor()
 {
 }
+
+void ATextRenderActor::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	TextRenderComponent = FindComponentByClass<UTextRenderComponent>();
+}

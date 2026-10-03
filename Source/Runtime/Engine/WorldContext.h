@@ -4,6 +4,6 @@
 
 struct FWorldContext
 {
-	UWorld* World;
-	EWorldType WorldType;
+	UWorld* World = nullptr;
+	EWorldType WorldType = EWorldType::Editor;
 };

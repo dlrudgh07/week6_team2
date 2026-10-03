@@ -48,3 +48,9 @@ void AStaticMeshActor::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+void AStaticMeshActor::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+	StaticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+}
