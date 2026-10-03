@@ -38,17 +38,23 @@ void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& Vie
 	{
 		return;
 	}
+
+	// 현재 RTV
 	ID3D11RenderTargetView* CurrentRTV[1] = { nullptr };
+	
+	// 현재 DSV
 	ID3D11DepthStencilView* CurrentDSV = nullptr;
+	
+	// OM에 연결되어 있는 RTV, DSV 가져오기
 	Context->OMGetRenderTargets(1, CurrentRTV, &CurrentDSV);
+
 	if (CurrentDSV) //Depthstencil 해제
 	{
 		Context->OMSetRenderTargets(1, CurrentRTV, nullptr);
 	}
+
 	//SRV 바인딩
 	FRenderCommand::BindShaderResource(0, SceneDepthTexture, EShaderBindFlagBits::Pixel);
-
-	
 
 	FFogConstants Constants;
 	Constants.FogDensity; //초기화필요

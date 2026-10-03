@@ -4,17 +4,23 @@ static const float FLT_EPSILON = 1e-4f;
 
 struct FogParams
 {
-    float4 FogInscatteringColor;
-	float FogDensity;
-    float FogHeightFalloff;
+    // 16-bytes
+    float4 FogInscatteringColor;    
+	
+    // 16-bytes
+    float FogDensity;               
+    float FogHeightFalloff;         
+    float FogHeight;
     float FogMaxOpacity;
-    float StartDistance;
-    float EndDistance;
-    float FogCutoffDistance;
 
+    // 16-bytes
+    float StartDistance;            
+    float FogCutoffDistance;
+    float Padding1;
+    float Padding2;
 };
 
-float3 ReconstructWorldPosition(float2 UV, float Depth, matrix InvProj, matrix InvView)
+float3 ReconstructWorldPosition(float2 UV, float Depth, matrix InvViewProj)
 {
     // NDC
     float4 ndc;
@@ -24,13 +30,13 @@ float3 ReconstructWorldPosition(float2 UV, float Depth, matrix InvProj, matrix I
     ndc.z = Depth;
     ndc.w = 1.0;
 
-    float4 ViewPos = mul(ndc, InvProj);
-    ViewPos /= ViewPos.w;
+    // float4 ViewPos = mul(ndc, InvProj);
+    // ViewPos /= ViewPos.w;
 
-    float4 WorldPos = mul(ViewPos, InvView);
+    float4 WorldPos = mul(ndc, InvViewProj);
     WorldPos /= WorldPos.w;
 
-	return WorldPos.xyz;    // return float
+	return WorldPos.xyz;    // return float3
 }
 
 // Fog Factor 계산 (FogColor와 곱해지는 값)
@@ -49,7 +55,7 @@ float CalculateFogFactor(float WorldPos, float3 CameraPos, FogParams Fog)
     // d(z) = Density * exp(-Falloff * (z - Height))
     float Falloff = max(Fog.FogHeightFalloff, FLT_EPSILON);
     float StartHeight = CameraPosition.z + Dir.z * min(Distance, Fog.StartDistance);
-    float RelativeHeight = StartHeight - FogHeight;
+    float RelativeHeight = StartHeight - Fog.FogHeight;
 
     // Ratio = (1 - exp(-x)) / x
     float x = Fog.Falloff * Dir.z * EffectiveDistance;
