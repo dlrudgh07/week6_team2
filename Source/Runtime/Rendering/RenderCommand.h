@@ -60,6 +60,7 @@ public:
 	static void CSSetConstantBuffer(uint32 Slot, FRHIUniformBuffer* ConstantBuffer, ID3D11DeviceContext* Context = nullptr);
 	static void CSSetSampler(uint32 Slot, ESamplerState SamplerState, ID3D11DeviceContext* Context = nullptr);
 	static void CopyResource(ID3D11Resource* Dst, ID3D11Resource* Src, ID3D11DeviceContext* Context = nullptr);
+	static void PSSetShaderResource(uint32 Slot, ID3D11ShaderResourceView* SRV, ID3D11DeviceContext* Context = nullptr);
 
 	static void BindPipelineState(const FPipelineState* PipelineState, ID3D11DeviceContext* Context = nullptr);
 
@@ -98,6 +99,7 @@ public:
 	static void SetBlendState(EBlendState State, ID3D11DeviceContext* Context = nullptr);
 	static void SetDepthStencilState(EDepthStencilState State, ID3D11DeviceContext* Context = nullptr);
 	static void BindSamplerState(uint32 Slot, ESamplerState SamplerState, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context = nullptr);
+
 
 	inline static void SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY Topology, ID3D11DeviceContext* Context = nullptr)
 	{

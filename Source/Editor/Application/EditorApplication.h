@@ -21,7 +21,7 @@
 #include "Editor/Rendering/OutlineRenderer.h"
 
 #include "Rendering/SkyboxRenderer.h"
-
+#include "Rendering/FogRenderer.h"
 //Temp
 #include "Engine/Font.h"
 #include "Rendering/TextRenderer.h"
@@ -95,7 +95,7 @@ private:
 	TUniquePtr<FOutline> Outline;
 	TUniquePtr<FOutlineRenderer> OutlineRenderer;
 	TUniquePtr<FLoadingScreen> LoadingScreen;
-
+	TUniquePtr<FFogRenderer> FogRenderer;
 
 	
 
