@@ -333,7 +333,7 @@ const TArray<TWeakObjectPtr<UPrimitiveComponent>>& UWorld::GetDirtyRenderPrimiti
 
 void UWorld::ClearDirtyRenderPrimitiveComponents()
 {
-	DirtyRenderPrimitiveComponents.Reset();
+	//DirtyRenderPrimitiveComponents.Reset();
 }
 
 void UWorld::AddComponent(UPrimitiveComponent* PrimComp)
