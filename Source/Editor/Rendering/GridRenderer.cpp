@@ -152,7 +152,7 @@ bool FGridRenderer::Init(FRenderer* InRenderer)
     PSGridPipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
     PSGridPipelineState.RasterizerState = ERasterizerState::SolidNone;
     PSGridPipelineState.BlendState = EBlendState::AlphaBlend;
-    PSGridPipelineState.DepthStencilState = EDepthStencilState::ReadOnly;
+	PSGridPipelineState.DepthStencilState = EDepthStencilState::Default;
     return true;
 }
 
