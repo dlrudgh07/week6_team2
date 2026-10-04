@@ -768,7 +768,7 @@ bool FDetailsPanel::Init()
 
 	io.Fonts->AddFontDefault();
 
-	const char* fontPath = "HMKMRHD.ttf";
+	const char* fontPath = "Assets/Fonts/HMKMRHD.TTF";
 	float fontSize = 15.0f;
 	const ImWchar* koreanRanges = io.Fonts->GetGlyphRangesKorean();
 
