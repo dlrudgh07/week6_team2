@@ -21,11 +21,19 @@ UParticleSubUVComponent::UParticleSubUVComponent()
 	FrameRate = 12.0f;
 }
 
-// 파티클 에셋과 배열을 준비하고 초기 상태를 채운다.
+// 게임(PIE) 시작 시 에디터 미리보기에서 복제된 파티클을 버리고 처음부터 다시 재생한다.
 void UParticleSubUVComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	InitializeParticles();
+}
+
+// 파티클 배열을 비우고 수명 중간 상태로 흩뿌려 초기 상태를 채운다.
+// 에디터 월드는 BeginPlay를 받지 않으므로 TickComponent에서도 비어 있으면 호출한다.
+void UParticleSubUVComponent::InitializeParticles()
+{
+	Particles.Reset();
 	Particles.Reserve(ParticleCount);
 	for (int32 i = 0; i < ParticleCount; ++i)
 	{
@@ -64,6 +72,13 @@ void UParticleSubUVComponent::SetFrameRate(float InFrameRate)
 void UParticleSubUVComponent::TickComponent(float DeltaTime)
 {
 	Super::TickComponent(DeltaTime);
+
+	// 에디터 미리보기: BeginPlay 없이도 재생되도록 처음 Tick에서 파티클을 만든다.
+	if (Particles.IsEmpty())
+	{
+		InitializeParticles();
+	}
+
 	const uint32 TotalFrames = ColSize * RowSize;
 
 	for (FParticle& Particle : Particles)
