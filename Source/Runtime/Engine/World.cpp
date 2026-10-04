@@ -426,7 +426,7 @@ void UWorld::UpdateSceneData()
 			SceneData.FogSceneData.StartDistance = FogComp->GetStartDistance();
 			SceneData.FogSceneData.EndDistance = FogComp->GetEndDistance();
 			SceneData.FogSceneData.FogCutoffDistance = FogComp->GetFogCutoffDistance();
-			SceneData.FogSceneData.FogHeight = FogComp->GetComponentLocation().Z;
+			SceneData.FogSceneData.FogHeight = FogComp->GetComponentLocation().Z;		
 			SceneData.FogSceneData.FogInscatteringColor[0] = FogComp->GetFogInscatteringColor().R;
 			SceneData.FogSceneData.FogInscatteringColor[1] = FogComp->GetFogInscatteringColor().G;
 			SceneData.FogSceneData.FogInscatteringColor[2] = FogComp->GetFogInscatteringColor().B;

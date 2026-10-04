@@ -10,13 +10,13 @@ class UExponentialHeightFogComponent : public USceneComponent
     
 	//Property Reflection
 	REFLECT_START(ClassName)
-		PROPERTY(FogDensity)
-		PROPERTY(FogHeightFalloff)
-		PROPERTY(FogMaxOpacity)
-		PROPERTY(StartDistance)
-		PROPERTY(EndDistance)
-		PROPERTY(FogCutoffDistance)
-		PROPERTY_TYPE(FogInscatteringColor, Color)
+	PROPERTY(FogDensity)
+	PROPERTY(FogHeightFalloff)
+	PROPERTY(FogMaxOpacity)
+	PROPERTY(StartDistance)
+
+	PROPERTY(FogCutoffDistance)
+	PROPERTY_TYPE(FogInscatteringColor, Color)
 	REFLECT_END()
 
     UExponentialHeightFogComponent();
