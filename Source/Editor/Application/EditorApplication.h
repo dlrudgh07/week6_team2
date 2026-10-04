@@ -83,6 +83,8 @@ class FEditorApplication : public FApplication
 	UWorld* GetEditorWorld();
 	UWorld* GetPIEWorld();
 
+	void RemovePIEWorld();
+
   private:
 	// 입력과 창 이벤트를 처리하고 이번 프레임 DeltaTime을 계산한다.
 	bool BeginFrame(float& OutDeltaTime);

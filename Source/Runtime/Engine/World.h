@@ -105,6 +105,8 @@ class UWorld : public UObject
 	EWorldType GetWorldType() const;
 	void SetWorldType(EWorldType InWorldType);
 
+	void DestroyWorld();
+
   private:
 	friend class AActor;
 	void RefreshActorTickRegistration(AActor* Actor);

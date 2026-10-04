@@ -362,8 +362,12 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime)
 	// 월드 상태는 프레임마다 정확히 한 번 갱신하고 캡처한다.
 	for (const FWorldContext& WorldContext : WorldContexts)
 	{
-		if (WorldContext.World)
-			WorldContext.World->Tick(DeltaTime);
+		if (!WorldContext.World)
+			continue;
+		// 일시정지 중에는 PIE 월드를 멈춘다.
+		if (WorldContext.WorldType == EWorldType::PIE && PIEPanel->IsPause())
+			continue;
+		WorldContext.World->Tick(DeltaTime);
 	}
 	EditorUI->Tick(DeltaTime);
 	MultipleViewportsAdapter.CaptureWorld(*GetEditorWorld());
@@ -372,8 +376,8 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime)
 	{
 		if (!PIEPanel->IsPlay())
 			StartPIE();
-		// PIEWorld로 변경
-		PIEViewAdapter.CaptureWorld(*GetEditorWorld());
+		if (UWorld* PIEWorld = GetPIEWorld())
+			PIEViewAdapter.CaptureWorld(*PIEWorld);
 	}
 	else
 	{
@@ -502,15 +506,14 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
 	}
 
-
-  // Multi pass 렌더링
-  {
-	  // fog 렌더링
-	  if (SceneData.FogSceneData.IsValid())
-	  {
-		  FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
-	  }
-  }
+	// Multi pass 렌더링
+	{
+		// fog 렌더링
+		if (SceneData.FogSceneData.IsValid())
+		{
+			FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
+		}
+	}
 
 	// Text 렌더링
 	{
@@ -667,9 +670,22 @@ void FEditorApplication::StartPIE()
 {
 	PIEPanel->SetPlay(true);
 	UpdatePIEViewportState(0);
-	// PIEWorld = DuplicateWorld(*World);
-	// PIEWorld로 변경
-	PIEViewAdapter.InitializeFromWorld(*GetEditorWorld());
+
+	UWorld* EditorWorld = GetEditorWorld();
+	UWorld* PIEWorld = EditorWorld ? Cast<UWorld>(EditorWorld->Duplicate()) : nullptr;
+	if (!PIEWorld)
+	{
+		LOG(Error, "StartPIE : Failed to duplicate editor world");
+		// 매 프레임 재시도하지 않도록 PIE 요청도 함께 취소한다.
+		PIEPanel->SetPlay(false);
+		PIEPanel->SetActive(false);
+		return;
+	}
+
+	PIEWorld->SetWorldType(EWorldType::PIE);
+	WorldContexts.Add({PIEWorld, EWorldType::PIE});
+
+	PIEViewAdapter.InitializeFromWorld(*PIEWorld);
 }
 
 void FEditorApplication::PausePIE() const
@@ -681,7 +697,14 @@ void FEditorApplication::PausePIE() const
 void FEditorApplication::EndPIE()
 {
 	PIEPanel->SetPlay(false);
-	// PIEWorld->Destroy();
+	ResetSceneSelection();
+	UWorld* PIEWorld = GetPIEWorld();
+	RemovePIEWorld();
+	if (PIEWorld)
+	{
+		PIEWorld->DestroyWorld();
+		delete PIEWorld;
+	}
 }
 
 FWorldContext FEditorApplication::FindWorldContext(EWorldType WorldType)
@@ -721,6 +744,19 @@ UWorld* FEditorApplication::GetPIEWorld()
 	}
 
 	return nullptr;
+}
+
+void FEditorApplication::RemovePIEWorld()
+{
+	for (int32 I = 0; I < WorldContexts.Num(); I++)
+	{
+		const FWorldContext& WorldContext = WorldContexts[I];
+		if (WorldContext.WorldType == EWorldType::PIE)
+		{
+			WorldContexts.RemoveAtSwap(I);
+			return;
+		}
+	}
 }
 
 // 선택과 Gizmo 참조를 정리한 뒤 Actor를 삭제한다.

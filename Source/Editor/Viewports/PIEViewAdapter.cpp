@@ -193,6 +193,13 @@ struct FPickTraceState
 void FPIEViewAdapter::InitializeFromWorld(UWorld& World)
 {
 	SoftwareOcclusion.ResetScene();
+
+	// 새 월드는 이전 월드와 토폴로지 리비전이 같을 수 있으므로 캡처 캐시를 버리고 전체 캡처를 강제한다.
+	// (리비전은 1부터 시작하므로 0은 어떤 월드와도 일치하지 않는다)
+	CapturedPrimitiveTopologyRevision = 0;
+	RenderObjects.Reset();
+	RenderObjectIndexByObjectIndex.Reset();
+
 	UCameraComponent* MainCamera = World.GetMainCamera() ? World.GetMainCamera()->GetCameraComponent() : nullptr;
 	assert(MainCamera != nullptr);
 
