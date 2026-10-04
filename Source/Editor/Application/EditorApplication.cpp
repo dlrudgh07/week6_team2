@@ -433,6 +433,30 @@ void FEditorApplication::RenderPIEViewport()
 	}
 }
 
+void FEditorApplication::RenderWorldTexts(const UWorld* TargetWorld, const FMatrix& ViewProjection)
+{
+	if (!TargetWorld)
+	{
+		return;
+	}
+
+	for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
+	{
+		if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
+		{
+			continue;
+		}
+
+		AActor* Owner = TextComponent->GetOwner();
+		if (!Owner || Owner->GetWorld() != TargetWorld)
+		{
+			continue;
+		}
+
+		TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
+	}
+}
+
 // 화면을 표시하고 UI 변경 후 View 설정을 보관한다.
 void FEditorApplication::EndFrame()
 {
@@ -521,15 +545,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
 	// Text 렌더링
 	{
-		for (TObjectIterator<UTextRenderComponent> TextComponent; TextComponent; ++TextComponent)
-		{
-			if (!TextComponent || !TextComponent->GetFont() || !TextComponent->IsVisible())
-			{
-				continue;
-			}
-
-			TextRenderer->OnRender(TextComponent->GetText(), TextComponent->GetWorldMatrix(), TextComponent->GetTextSize(), *TextComponent->GetFont(), ViewProjection);
-		}
+		RenderWorldTexts(GetEditorWorld(), ViewProjection);
 	}
 
 	// Line Batch 렌더링
@@ -610,6 +626,8 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 	}
 
 	PIEViewAdapter.PostRenderOpaque(ViewRenderingInfo.DepthSteincil.Texture);
+
+	RenderWorldTexts(GetPIEWorld(), ViewProjection);
 
 	FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
 

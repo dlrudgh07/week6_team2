@@ -100,6 +100,8 @@ class FEditorApplication : public FApplication
 
 	void RenderPIEViewport();
 
+	void RenderWorldTexts(const UWorld* TargetWorld, const FMatrix& ViewProjection);
+
 	// 화면 합성과 View 설정 보관으로 프레임을 마무리한다.
 	void EndFrame();
 
