@@ -214,6 +214,19 @@ void FPIEViewAdapter::InitializeFromWorld(UWorld& World)
 	PreparedView.bValid = false;
 }
 
+// PIE View 카메라를 PIE 월드의 MainCamera에 반영한다.
+// 게임에서는 월드의 카메라가 곧 플레이어 화면이므로, 이 카메라를 기준으로 하는 빌보드·게임 로직이 PIE 화면과 일치한다.
+void FPIEViewAdapter::SyncViewCameraToWorld(UWorld& World) const
+{
+	UCameraComponent* MainCamera = World.GetMainCamera() ? World.GetMainCamera()->GetCameraComponent() : nullptr;
+	if (!MainCamera)
+		return;
+
+	const FQuat Rotation = ViewCamera.Transform.Rotation;
+	MainCamera->SetRelativeLocation(ViewCamera.Transform.Location);
+	MainCamera->SetRelativeRotation(Rotation.ToFRotator());
+}
+
 void FPIEViewAdapter::CaptureWorld(UWorld& World)
 {
 	const auto& Primitives = World.GetWorldPrimitiveComponents();

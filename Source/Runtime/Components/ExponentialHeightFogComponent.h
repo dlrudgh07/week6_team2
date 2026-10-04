@@ -19,9 +19,11 @@ class UExponentialHeightFogComponent : public USceneComponent
 	PROPERTY_TYPE(FogInscatteringColor, Color)
 	REFLECT_END()
 
+public:
     UExponentialHeightFogComponent();
     virtual ~UExponentialHeightFogComponent();
-    
+
+private:
     // 안개 전체 농도 (0 ~ 0.05)
     float FogDensity;
 

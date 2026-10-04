@@ -345,6 +345,10 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 	if (FPIEViewportPanel::bFocus)
 		PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
 
+	// PIE 카메라 = PIE 월드의 MainCamera. 월드 Tick 전에 맞춰 두어 게임 로직·빌보드가 현재 화면 기준으로 동작한다.
+	if (UWorld* PIEWorld = GetPIEWorld())
+		PIEViewAdapter.SyncViewCameraToWorld(*PIEWorld);
+
 	// PIE는 단일 View이므로 전체 패널 영역을 하나의 View로 사용한다.
 	const FRect ViewRect{0.0f, 0.0f, std::max(1.0f, ViewportSize.X), std::max(1.0f, ViewportSize.Y)};
 

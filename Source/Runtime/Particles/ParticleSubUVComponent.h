@@ -59,6 +59,7 @@ public:
 	void SetFrameRate(float InFrameRate);
 
 private:
+	void InitializeParticles();
 	void RespawnParticle(FParticle& Particle);
 
 	// Todo: Move to util class
