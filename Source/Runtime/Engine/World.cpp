@@ -92,7 +92,16 @@ void UWorld::Tick(float DeltaTime)
 	for (AActor* Actor : TickActors)
 	{
 		if (Actor && Actor->IsActorTickEnabled())
-			Actor->Tick(DeltaTime);
+		{
+			if (WorldType == EWorldType::Editor && Actor->GetTickInEditor())
+			{
+				Actor->Tick(DeltaTime);
+			}
+			else if (WorldType == EWorldType::PIE)
+			{
+				Actor->Tick(DeltaTime);
+			}
+		}
 	}
 
 	if (MainCamera)
@@ -406,6 +415,14 @@ void UWorld::DuplicateSubObjects()
 
 		++PrimitiveTopologyRevision;
 	}
+}
+EWorldType UWorld::GetWorldType() const
+{
+	return WorldType;
+}
+void UWorld::SetWorldType(EWorldType InWorldType)
+{
+	WorldType = InWorldType;
 }
 void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 {

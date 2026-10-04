@@ -94,10 +94,16 @@ class UWorld : public UObject
 	void AddComponent(UPrimitiveComponent* PrimComp);
 	void AddComponent(UExponentialHeightFogComponent* FogComp);
 
-	const FScene& GetScene() const { return SceneData; }
+	const FScene& GetScene() const
+	{
+		return SceneData;
+	}
 	void UpdateSceneData();
 
 	virtual void DuplicateSubObjects() override;
+
+	EWorldType GetWorldType() const;
+	void SetWorldType(EWorldType InWorldType);
 
   private:
 	friend class AActor;
@@ -116,5 +122,4 @@ class UWorld : public UObject
 	uint64 PrimitiveTopologyRevision = 1;
 	FPrimitiveBVH PrimitiveBVH;
 	FScene SceneData;
-	
 };

@@ -145,6 +145,11 @@ UActorComponent* AActor::AddComponentByClass(UClass* Class, FName Name)
 	return Component;
 }
 
+bool AActor::GetTickInEditor() const
+{
+	return bTickInEditor;
+}
+
 void AActor::SetCanEverTick(const bool bEnabled)
 {
 	if (bCanEverTick == bEnabled)
