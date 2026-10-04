@@ -146,7 +146,7 @@ bool FGridRenderer::Init(FRenderer* InRenderer)
     BatchGridPipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     BatchGridPipelineState.RasterizerState = ERasterizerState::SolidNone;
     BatchGridPipelineState.BlendState = EBlendState::AlphaBlend;
-    BatchGridPipelineState.DepthStencilState = EDepthStencilState::ReadOnly;
+    BatchGridPipelineState.DepthStencilState = EDepthStencilState::Default;
 
     PSGridPipelineState.Shader = PSGridShader;
     PSGridPipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
