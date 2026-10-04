@@ -4,6 +4,16 @@
 
 class USceneComponent;
 
+struct FHitResult;
+
+// Move Update 처리하는 방법
+enum class ETeleportType : uint8
+{
+    None,               // 일반 이동
+    TeleoportPhysics,   // 순간 이동 (속도 유지)
+    ResetPhysics,       // 순간 이동 (물리 상태 초기화)
+};
+
 class UMovementComponent : public UActorComponent
 {
     DECLARE_CLASS(UMovementComponent, UActorComponent)
@@ -35,6 +45,30 @@ public:
 
     // This needs to be called by derived classes at the end of an update whenever Velocity has changed.
     virtual void UpdateComponentVelocity();
-
+    
+    // 공통 전처리, 파라미터 검증, 이동 가능 여부 확인 (호출 Interface)
     bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport = ETeleportType::None);
+
+protected:
+    // 실제 이동 처리, 충돌 검사, 위치 변경
+    virtual bool MoveUpdatedComponentImpl(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport = ETeleportType::None);
+
+    // Inlines
+    inline float UMovementComponent::GetMaxSpeed() const { return 0.f; }
+    inline void UMovementComponent::StopMovementImmediately() { Velocity = FVector::ZeroVector; UpdateComponentVelocity(); }
+    
+    // Quaternion NewRotation
+    inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
+    {
+        return MoveUpdatedComponentImpl(Delta, NewRotation, bSweep, OutHit, Teleport);
+    }
+
+private:
+    // SRT를 가진 Component
+    USceneComponent* UpdatedComponent;
+
+    // Collision, Physics, Bounds, Hit, Overlap 등을 처리하는 Component
+    UPrimitiveComponent* UpdatedPrimitive;
+
+    FVector Velocity;
 };
