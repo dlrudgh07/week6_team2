@@ -455,6 +455,7 @@ void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 }
 void UWorld::UpdateSceneData()
 {
+	// 지금은 가장 나중 Fog만 적용됨
 	for (const auto& FogComp : FogComponents)
 	{
 		if (FogComp.IsValid())

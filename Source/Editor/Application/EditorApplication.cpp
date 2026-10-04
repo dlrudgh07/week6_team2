@@ -577,6 +577,10 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 	{
 	}
 
+	// SceneDepth Rendering
+	{
+
+	}
 	FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
 
 	if (Gizmo->GetTarget() && SystemFont)
