@@ -47,7 +47,8 @@ void FPIEViewportPanel::OnRender()
 	int centerX = ContentOrigin.x + Width / 2.0f;
 	int centerY = ContentOrigin.y + Height / 2.0f;
 
-	if (ImGui::IsMouseClicked(0) && bHovered)
+	// ShowCursor는 내부 카운터 방식이므로 상태가 바뀔 때만 호출해야 한다
+	if (!bFocus && ImGui::IsMouseClicked(0) && bHovered)
 	{
 		RECT rect = {ContentOrigin.x + Rect.X, ContentOrigin.y + Rect.Y, ContentOrigin.x + Rect.X + Rect.Width, ContentOrigin.y + Rect.Y + Rect.Height};
 		
@@ -70,7 +71,7 @@ void FPIEViewportPanel::OnRender()
 	}
 
 	// 특정 조건(예: F8 키)이나 창이 포커스를 잃으면 해제
-	if (ImGui::IsKeyPressed(ImGuiKey_F8))
+	if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
 	{
 		ClipCursor(NULL); // 제한 해제
 		ShowCursor(TRUE);
