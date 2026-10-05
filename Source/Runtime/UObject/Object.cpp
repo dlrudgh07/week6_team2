@@ -11,7 +11,7 @@
 #include "UObject/UObjectGlobals.h"
 
 TArray<UObject*> GUObjectArray;
-TArray<int32> ObjAvailableList;
+//TArray<int32> ObjAvailableList;
 
 UObject::UObject()
 {
