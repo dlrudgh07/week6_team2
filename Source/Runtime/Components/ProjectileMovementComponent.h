@@ -15,41 +15,21 @@ public:
 	UProjectileMovementComponent() = default;
 	virtual ~UProjectileMovementComponent() override;
 
-    bool bSimulationUseScopedMovement = 1;
-    bool bInterpolationUseScopedMovement = 1;
-    float PreviousHitTime;
-    FVector PreviousHitNormal;
-    float ProjectileGravityScale;
-    float Buoyancy;
-    float Bounciness;
-    float Friction;
-    float BounceVelocityStopSimulatingThreshold;
-    float MinFrictionFraction;
+    // 중력을 쓰지 않는 것이 default
+    float ProjectileGravityScale = 0.f;
 
-    virtual void SetVelocityInLocalSpace(FVector NewVelocity);
     virtual void TickComponent(float DeltaTime) override;
 
     virtual float GetMaxSpeed() const override { return MaxSpeed; }
     virtual float GetGravityZ() const override;
 
 protected:
-    bool bThrottleInterpolation = 1;
-    bool ThrottleInterpolationFramesSinceInterp = 1;
     FVector LimitVelocity(FVector NewVelocity) const;
 
     virtual FVector ComputeBounceResult(const FHitResult& Hit, float TimeSlice, const FVector& MoveDelta);
     virtual FVector ComputeMoveDelta(const FVector& InVelocity, float DeltaTime) const;
 
 private:
-    float InitialSpeed;
-    float MaxSpeed;
-    bool bRotationFollowsVelocity = false;
-    bool bRotationRemainsVertical = false;
-    bool bInitialVelocityInLocalSpace = false;
-    bool bForceSubStepping = false;
-    bool bSimulationEnabled = false;
-    bool bIsHomingProjectile = false;
-    bool bIsSliding = false;
-    bool bInterpMovement = false;
-
+    float InitialSpeed = 1.f;
+    float MaxSpeed = 0.f;
 };
