@@ -28,6 +28,8 @@ void FPIEViewportPanel::OnRender()
 {
 	if (!bActive)
 		return;
+	if (Mode == ETypePIEMode::Selected)
+		return;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
 
 	ImGui::Begin("PIE", nullptr, ImGuiWindowFlags_NoScrollbar);
@@ -73,13 +75,22 @@ void FPIEViewportPanel::OnRender()
 	// 특정 조건(예: F8 키)이나 창이 포커스를 잃으면 해제
 	if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
 	{
-		ClipCursor(NULL); // 제한 해제
+		ClipCursor(NULL);
 		ShowCursor(TRUE);
 		bFocus = false;
 		DeltaX = 0;
 		DeltaY = 0;
 	}
-
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+	{
+		SetActive(false);
+		SetPause(false);
+		ClipCursor(NULL);
+		ShowCursor(TRUE);
+		bFocus = false;
+		DeltaX = 0;
+		DeltaY = 0;
+	}
 	ImGui::Dummy(ContentSize);
 
 	ImDrawList* DrawList = ImGui::GetWindowDrawList();

@@ -164,7 +164,7 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 	EditorControlsPanel->SetPIEViewportPanel(PIEPanel);
 	EditorUI->AddEditorPanel<FStatsPanel>();
 	ContentDrawerPanel = EditorUI->AddEditorPanel<FContentDrawerPanel>();
-
+	
 	OutlineRenderer = MakeUnique<FOutlineRenderer>();
 	OutlineRenderer->Init(Renderer.get());
 
@@ -330,36 +330,77 @@ void FEditorApplication::UpdateMultipleViewportState(const float DeltaTime)
 
 	float MoveSpeed = EditorControlsPanel ? EditorControlsPanel->CameraSpeed : 20.0f;
 
-	MultipleViewportsAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
+	const bool bCurrentViewportPIE = ViewportsPanel->GetViewportMode() == EViewportMode::PIE;
+
+	const bool bPIEFocused = bCurrentViewportPIE && ViewportsPanel->IsPIEFocused();
+
+	if (!bPIEFocused)
+	{
+		MultipleViewportsAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
+	}
+
 	const int32 ActiveViewIndex = MultipleViewportsAdapter.GetActiveViewIndex();
+
 	if (ActiveViewIndex != InvalidViewIndex && (ViewportsPanel->IsHovered() || MultipleViewportsAdapter.GetCapturedViewIndex() != InvalidViewIndex))
+	{
 		MultipleViewportsAdapter.SetEditorViewIndex(ActiveViewIndex);
+	}
 }
 
 void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 {
-	(void)DeltaTime;
-
 	if (!PIEPanel || !PIEPanel->IsPlay() || PIEPanel->IsPause())
 		return;
-	const FVector2D ViewportSize = PIEPanel->GetContentSize();
-	const FVector2D LocalMousePosition = PIEPanel->GetLocalMousePosition();
-	float MoveSpeed = 20.0f;
-	if (FPIEViewportPanel::bFocus)
+
+	const float MoveSpeed = 20.0f;
+
+	if (PIEPanel->GetMode() == ETypePIEMode::NewEditor)
+	{
+		const FVector2D ViewportSize = PIEPanel->GetContentSize();
+		const FVector2D LocalMousePosition = PIEPanel->GetLocalMousePosition();
+
+		if (FPIEViewportPanel::bFocus)
+		{
+			PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
+		}
+
+		const FRect ViewRect{0.0f, 0.0f, std::max(1.0f, ViewportSize.X), std::max(1.0f, ViewportSize.Y)};
+
+		PIEPanel->SetView(ViewRect);
+		PIEViewAdapter.SetViewRect(0, ViewRect);
+
+		return;
+	}
+
+	const FVector2D ViewportSize = ViewportsPanel->GetContentSize();
+
+	const FVector2D LocalMousePosition = ViewportsPanel->GetLocalMousePosition();
+
+	ViewportsPanel->UpdatePIEInput();
+
+	float MouseDeltaX = 0.0f;
+	float MouseDeltaY = 0.0f;
+
+	ViewportsPanel->GetPIEMouseDelta(MouseDeltaX, MouseDeltaY);
+
+	FPIEViewportPanel::DeltaX = MouseDeltaX;
+	FPIEViewportPanel::DeltaY = MouseDeltaY;
+
+	if (ViewportsPanel->IsPIEFocused())
+	{
 		PIEViewAdapter.UpdateInput(DeltaTime, LocalMousePosition, MoveSpeed, 0.1f);
+	}
 
-	// PIE 카메라 = PIE 월드의 MainCamera. 월드 Tick 전에 맞춰 두어 게임 로직·빌보드가 현재 화면 기준으로 동작한다.
-	if (UWorld* PIEWorld = GetPIEWorld())
-		PIEViewAdapter.SyncViewCameraToWorld(*PIEWorld);
-
-	// PIE는 단일 View이므로 전체 패널 영역을 하나의 View로 사용한다.
 	const FRect ViewRect{0.0f, 0.0f, std::max(1.0f, ViewportSize.X), std::max(1.0f, ViewportSize.Y)};
 
-	// Panel의 RenderTarget 크기와 활성 상태를 갱신한다.
-	PIEPanel->SetView(ViewRect);
+	ViewportsPanel->SetView(0, ViewRect, true);
 
-	// PIE Adapter도 동일한 화면 크기를 기준으로
-	// VP / Frustum / Orthographic 범위를 계산하도록 갱신한다.
+	ViewportsPanel->SetView(1, FRect{}, false);
+
+	ViewportsPanel->SetView(2, FRect{}, false);
+
+	ViewportsPanel->SetView(3, FRect{}, false);
+
 	PIEViewAdapter.SetViewRect(0, ViewRect);
 }
 
@@ -377,7 +418,6 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime)
 		WorldContext.World->Tick(DeltaTime);
 	}
 	EditorUI->Tick(DeltaTime);
-	MultipleViewportsAdapter.CaptureWorld(*GetEditorWorld());
 
 	if (PIEPanel->IsActive())
 	{
@@ -391,6 +431,25 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime)
 		if (PIEPanel->IsPlay())
 			EndPIE();
 	}
+
+	if (ViewportsPanel->IsPIEMode())
+	{
+		MultipleViewportsAdapter.CaptureWorld(*GetPIEWorld());
+		if (!ViewportsPanel->IsPIEFocused())
+		{
+			ViewportsPanel->SetViewportAdapter(&MultipleViewportsAdapter);
+		}
+		else
+		{
+			ViewportsPanel->SetViewportAdapter(&PIEViewAdapter);
+			MultipleViewportsAdapter.SetViewCamera(0, PIEViewAdapter.GetViewCamera(0));
+		}
+	}
+	else
+	{
+		MultipleViewportsAdapter.CaptureWorld(*GetEditorWorld());
+	}
+
 	//culling
 	UpdateGizmoAndPicking();
 }
@@ -409,13 +468,13 @@ void FEditorApplication::RenderMultipleViewports()
 		if (!bActive)
 			continue;
 		
-		MultipleViewportsAdapter.BuildRenderPackets(ViewIndex, SceneRenderPackets);
+		ViewportsPanel->GetViewportAdapter()->BuildRenderPackets(ViewIndex, SceneRenderPackets);
 		RenderFrame(ViewIndex,
 			ViewportsPanel->GetRenderingInfo(ViewIndex),
-			MultipleViewportsAdapter.GetEngineViewProjection(ViewIndex),
-			MultipleViewportsAdapter.GetEnginePerspectiveProjection(),
-			MultipleViewportsAdapter.GetEngineCameraLocation(ViewIndex),
-			MultipleViewportsAdapter.GetEngineCameraForward(ViewIndex),
+			ViewportsPanel->GetViewportAdapter()->GetEngineViewProjection(ViewIndex),
+			ViewportsPanel->GetViewportAdapter()->GetEnginePerspectiveProjection(),
+			ViewportsPanel->GetViewportAdapter()->GetEngineCameraLocation(ViewIndex),
+			ViewportsPanel->GetViewportAdapter()->GetEngineCameraForward(ViewIndex),
 			SceneRenderPackets,
 			SceneData);
 	}
@@ -498,8 +557,18 @@ void FEditorApplication::UpdateGizmoAndPicking()
 
 	if (FInputSystem::IsMousePressed(EMouseButton::Left) && !Gizmo->IsUsing() && Gizmo->GetHoveredAxis() < 0)
 	{
-		MultipleViewportsAdapter.PickActiveView(LocalMousePosition, *GetEditorWorld());
-		MultipleViewportsAdapter.ApplyLastPickToOutliner(*OutlinerPanel);
+		if (ViewportsPanel->IsPIEMode())
+		{
+			MultipleViewportsAdapter.PickActiveView(LocalMousePosition, *GetPIEWorld());
+			MultipleViewportsAdapter.ApplyLastPickToOutliner(*OutlinerPanel);
+			if (!MultipleViewportsAdapter.GetLastPick().bHit)
+				ViewportsPanel->SetPIE();
+		}
+		else
+		{
+			MultipleViewportsAdapter.PickActiveView(LocalMousePosition, *GetEditorWorld());
+			MultipleViewportsAdapter.ApplyLastPickToOutliner(*OutlinerPanel);
+		}
 	}
 }
 
@@ -726,6 +795,13 @@ void FEditorApplication::StartPIE()
 	WorldContexts.Add({PIEWorld, EWorldType::PIE});
 
 	PIEViewAdapter.InitializeFromWorld(*PIEWorld);
+
+	if (PIEPanel->GetMode() == ETypePIEMode::Selected)
+	{
+		ViewportsPanel->SetViewportAdapter(&PIEViewAdapter);
+		ViewportsPanel->SetViewportMode(EViewportMode::PIE);
+		ViewportsPanel->SetPIE();
+	}
 }
 
 void FEditorApplication::PausePIE() const
@@ -745,6 +821,8 @@ void FEditorApplication::EndPIE()
 		PIEWorld->DestroyWorld();
 		delete PIEWorld;
 	}
+	ViewportsPanel->SetViewportAdapter(&MultipleViewportsAdapter);
+	ViewportsPanel->SetViewportMode(EViewportMode::Editor);
 }
 
 FWorldContext FEditorApplication::FindWorldContext(EWorldType WorldType)

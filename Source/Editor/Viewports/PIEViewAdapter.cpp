@@ -392,6 +392,11 @@ FMatrix FPIEViewAdapter::GetEngineViewProjection(int32 ViewIndex) const
 	return PrepareView().EngineViewProjection;
 }
 
+FMatrix FPIEViewAdapter::GetEnginePerspectiveProjection() const
+{
+	return BuildProjectionMatrix(ViewCamera.Projection, ViewRect.Width / ViewRect.Height);
+}
+
 FVector FPIEViewAdapter::GetEngineCameraLocation(int32 ViewIndex) const
 {
 	assert(ViewIndex == 0);

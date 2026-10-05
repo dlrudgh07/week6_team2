@@ -142,6 +142,7 @@ class FEditorApplication : public FApplication
 	FSettingsPanel* SettingsPanel = nullptr;
 	FViewportsPanel* ViewportsPanel = nullptr;
 	FPIEViewportPanel* PIEPanel = nullptr;
+	IViewportAdapter* ViewportAdapter = nullptr;
 	FMultipleViewportsAdapter MultipleViewportsAdapter;
 	FPIEViewAdapter PIEViewAdapter;
 	// 프레임마다 Reset해 기존 capacity를 재사용하는 연속 RenderPacket 버퍼.

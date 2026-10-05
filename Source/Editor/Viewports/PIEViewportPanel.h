@@ -61,5 +61,5 @@ public:
 	bool bIsPlay = false;
 	bool bIsPause = false;
 
-	ETypePIEMode Mode = ETypePIEMode::NewEditor;
+	ETypePIEMode Mode = ETypePIEMode::Selected;
 };

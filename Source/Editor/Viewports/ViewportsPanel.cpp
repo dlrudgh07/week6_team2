@@ -6,6 +6,7 @@
 #include "Stats/Stats.h"
 #include "Stats/StatDefinitions.h"
 #include "Rendering/RenderCommand.h"
+#include "ViewportAdapter.h"
 
 #include <algorithm>
 #include <cassert>
@@ -24,6 +25,11 @@ constexpr float StatOverlayPadding = 6.0f;
 constexpr ImU32 StatOverlayBackgroundColor = IM_COL32(0, 0, 0, 140);
 constexpr ImU32 TitleColor = IM_COL32(255, 210, 60, 255);
 constexpr ImU32 ValueColor = IM_COL32(235, 235, 235, 255);
+}
+
+void FViewportsPanel::SetViewportAdapter(IViewportAdapter* Value)
+{
+	ViewportAdapter = Value;
 }
 
 // 네 View의 렌더 타깃을 최소 크기로 초기화한다.
@@ -122,6 +128,61 @@ void FViewportsPanel::SetPIEViewportPanel(FPIEViewportPanel* PIE)
 	PIEPanel = PIE;
 }
 
+void FViewportsPanel::UpdatePIEInput()
+{
+	PIEMouseDeltaX = 0.0f;
+	PIEMouseDeltaY = 0.0f;
+
+	if (!IsPIEMode())
+		return;
+
+	if (!bHovered)
+		return;
+
+	const int CenterX = static_cast<int>(ContentOrigin.x + ContentSize.x * 0.5f);
+
+	const int CenterY = static_cast<int>(ContentOrigin.y + ContentSize.y * 0.5f);
+
+	if (bPIEFocus)
+	{
+		POINT CurrentPos{};
+		GetCursorPos(&CurrentPos);
+
+		PIEMouseDeltaX = static_cast<float>(CurrentPos.x - CenterX);
+
+		PIEMouseDeltaY = static_cast<float>(CurrentPos.y - CenterY);
+
+		SetCursorPos(CenterX, CenterY);
+	}
+
+	if (bPIEFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
+	{
+		ResetPIEInput();
+	}
+
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+	{
+		ResetPIEInput();
+		PIEPanel->SetActive(false);
+		PIEPanel->SetPause(false);
+	}
+}
+
+void FViewportsPanel::ResetPIEInput()
+{
+	ShowCursor(TRUE);
+	bPIEFocus = false;
+	PIEMouseDeltaX = 0.0f;
+	PIEMouseDeltaY = 0.0f;
+}
+
+void FViewportsPanel::SetPIE()
+{
+	bPIEFocus = true;
+	ShowCursor(FALSE);
+	SetCursorPos(ContentOrigin.x + ContentSize.x * 0.5f, ContentOrigin.y + ContentSize.y * 0.5f);
+}
+
 // View Texture와 Splitter·Layout·Preset UI를 그리고 요청을 기록한다.
 void FViewportsPanel::OnRender()
 {
@@ -144,6 +205,7 @@ void FViewportsPanel::OnRender()
 	ImDrawList* DrawList = ImGui::GetWindowDrawList();
 	DrawList->PushClipRect(ContentOrigin,
 		{ContentOrigin.x + ContentSize.x, ContentOrigin.y + ContentSize.y}, true);
+
 	for (int32 ViewIndex = 0; ViewIndex < 4; ++ViewIndex)
 	{
 		const FViewSlot& Slot = Slots[ViewIndex];

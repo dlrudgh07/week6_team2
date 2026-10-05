@@ -76,7 +76,7 @@ class FMultipleViewportsAdapter : public IViewportAdapter
 	}
 
 	// 입력 영역 밖에서도 마지막 편집 대상을 유지하며 Single에서는 확대 View를 반환한다.
-	int32 GetEditorViewIndex() const
+	int32 GetEditorViewIndex() const override
 	{
 		return Views.Mode == ELayoutMode::Single ? SingleViewIndex : EditorViewIndex;
 	}
@@ -94,23 +94,23 @@ class FMultipleViewportsAdapter : public IViewportAdapter
 	}
 
 
-	void SetViewSceneDepthMode(int32 Index, bool Value)
+	void SetViewSceneDepthMode(int32 Index, bool Value) override
 	{
 		if (Index >= 0 && Index < 4)
 			ViewSceneDepthMode[Index] = Value;
 	}
 
 	// View별 장면 래스터라이저 모드를 저장하고 조회한다.
-	void SetViewWireframe(int32 Index, bool Value)
+	void SetViewWireframe(int32 Index, bool Value) override
 	{
 		if (Index >= 0 && Index < 4)
 			ViewWireframe[Index] = Value;
 	}
-	bool IsViewWireframe(int32 Index) const
+	bool IsViewWireframe(int32 Index) const override
 	{
 		return Index >= 0 && Index < 4 && ViewWireframe[Index];
 	}
-	bool IsViewSceneDepthMode(int32 Index) const
+	bool IsViewSceneDepthMode(int32 Index) const override
 	{
 		return Index >= 0 && Index < 4 && ViewSceneDepthMode[Index];
 	}
@@ -150,7 +150,7 @@ class FMultipleViewportsAdapter : public IViewportAdapter
 	// Native View·Projection을 row-vector 순서로 합성한 엔진 행렬을 반환한다.
 	FMatrix GetEngineViewProjection(int32 ViewIndex) const override;
 	// Native Projection을 row-vector 순서로 합성한 엔진 행렬을 반환한다.
-	FMatrix GetEnginePerspectiveProjection() const;
+	FMatrix GetEnginePerspectiveProjection() const override;
 	// 지정 View 카메라 위치를 엔진 FVector 그대로 반환한다.
 	FVector GetEngineCameraLocation(int32 ViewIndex) const override;
 	// 지정 View의 카메라 Forward를 엔진 FVector로 계산해 반환한다.
