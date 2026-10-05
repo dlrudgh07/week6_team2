@@ -127,6 +127,12 @@ void FEditorControlsPanel::OnRender()
 	}
 	ImGui::EndDisabled();
 
+	ImGui::SameLine();
+	if (ImGui::Combo("##PIEMode", &SelectedPIEModIndex, PIEMode, IM_ARRAYSIZE(PIEMode)))
+	{
+		PIEPanel->SetMode(static_cast<ETypePIEMode>(SelectedPIEModIndex));
+	}
+	
 
 	ImGui::SeparatorText("Actor Spawn");
 

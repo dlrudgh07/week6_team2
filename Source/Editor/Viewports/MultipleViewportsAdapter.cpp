@@ -7,7 +7,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BillboardComponent.h"
-#include "Particles/ParticleSubUVComponent.h"
+#include "Particles/ParticleSubUVComponent.h".
 #include "Stats/ScopeCycleCounter.h"
 
 #include "Stats/Stats.h"

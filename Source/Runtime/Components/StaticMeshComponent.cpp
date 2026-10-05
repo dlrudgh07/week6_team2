@@ -25,6 +25,9 @@ void UStaticMeshComponent::BeginPlay()
 void UStaticMeshComponent::TickComponent(float DeltaTime)
 {
 	Super::TickComponent(DeltaTime);
+	FRotator R = GetRelativeRotation();
+	R.Pitch += 1;
+	SetRelativeRotation(R);
 }
 
 void UStaticMeshComponent::SetStaticMesh(UStaticMesh* InStaticMesh)

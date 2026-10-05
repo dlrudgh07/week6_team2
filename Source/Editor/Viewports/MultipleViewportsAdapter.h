@@ -10,18 +10,20 @@
 #include "Containers/Map.h"
 #include "Containers/Array.h"
 
+#include "ViewportAdapter.h"
+
 class FOutlinerPanel;
 class FLineBatcher;
 class UPrimitiveComponent;
 class UWorld;
 
 // 팀 엔진 데이터와 MultipleViewports Core API 사이의 상태·변환·렌더 연결을 맡는다.
-class FMultipleViewportsAdapter
+class FMultipleViewportsAdapter : public IViewportAdapter
 {
   public:
 	// 엔진 메인 카메라 설정을 읽고 네 View의 초기 상태와 프리셋을 구성한다.
-	void InitializeFromWorld(UWorld& World);
-	void ResetSoftwareOcclusionScene()
+	void InitializeFromWorld(UWorld& World) override;
+	void ResetSoftwareOcclusionScene() override
 	{
 		SoftwareOcclusion.ResetScene();
 	}
@@ -44,11 +46,11 @@ class FMultipleViewportsAdapter
 		return SingleViewIndex;
 	}
 	// 외부 카메라 값을 지정 View에 복사하고 투영 모드에 맞는 프리셋을 설정한다.
-	void SetViewCamera(int32 ViewIndex, const FViewCamera& Camera);
+	void SetViewCamera(int32 ViewIndex, const FViewCamera& Camera) override;
 	// 속성 창의 변경을 반영하되 위치·투영 수치만 바뀌면 기존 축 정렬 프리셋을 유지한다.
 	void ApplyCameraProperties(int32 ViewIndex, const FViewCamera& Camera, bool bRotationChanged);
 	// 지정 View의 Native 카메라 상태를 반환한다.
-	const FViewCamera& GetViewCamera(int32 ViewIndex) const;
+	const FViewCamera& GetViewCamera(int32 ViewIndex) const override;
 	// 선택한 프리셋의 위치·방향·투영 모드를 지정 View에 적용한다.
 	void ApplyCameraPreset(int32 ViewIndex, EMultipleViewportsCameraPreset Preset);
 	// 지정 View에 적용된 카메라 프리셋을 반환한다.
@@ -61,12 +63,12 @@ class FMultipleViewportsAdapter
 	// Splitter Drag 픽셀을 Core 비율 계산에 전달해 레이아웃 상태를 갱신한다.
 	void ApplySplitterDrag(EDragAxis Axis, float DeltaPixels, FVector2D WindowSize);
 	// 우클릭 Capture View에 이동·Euler Yaw/Pitch·줌 입력을 적용한다.
-	void UpdateInput(float DeltaTime, FVector2D LocalMousePosition, float MoveSpeed, float MouseSensitivity);
+	void UpdateInput(float DeltaTime, FVector2D LocalMousePosition, float MoveSpeed, float MouseSensitivity) override;
 	// Tick 뒤 현재 World의 ID·경계만 캡처하며 피킹은 Component에 위임한다.
-	void CaptureWorld(UWorld& World);
+	void CaptureWorld(UWorld& World) override;
 
 	// 레이아웃과 Rect 상태를 기준으로 지정 View의 활성 여부를 반환한다.
-	bool IsViewActive(int32 ViewIndex) const;
+	bool IsViewActive(int32 ViewIndex) const override;
 	// 현재 입력을 소비할 활성 View 인덱스를 반환한다.
 	int32 GetActiveViewIndex() const
 	{
@@ -144,19 +146,19 @@ class FMultipleViewportsAdapter
 		return SoftwareOcclusion.GetLastRayQueryBVHBuildMs();
 	}
 	// 지정 View의 로컬 화면 Rect를 반환한다.
-	const FRect& GetViewRect(int32 ViewIndex) const;
+	const FRect& GetViewRect(int32 ViewIndex) const override;
 	// Native View·Projection을 row-vector 순서로 합성한 엔진 행렬을 반환한다.
-	FMatrix GetEngineViewProjection(int32 ViewIndex) const;
+	FMatrix GetEngineViewProjection(int32 ViewIndex) const override;
 	// Native Projection을 row-vector 순서로 합성한 엔진 행렬을 반환한다.
 	FMatrix GetEnginePerspectiveProjection() const;
 	// 지정 View 카메라 위치를 엔진 FVector 그대로 반환한다.
-	FVector GetEngineCameraLocation(int32 ViewIndex) const;
+	FVector GetEngineCameraLocation(int32 ViewIndex) const override;
 	// 지정 View의 카메라 Forward를 엔진 FVector로 계산해 반환한다.
-	FVector GetEngineCameraForward(int32 ViewIndex) const;
+	FVector GetEngineCameraForward(int32 ViewIndex) const override;
 	// Core Billboard 계산 결과를 엔진 월드 행렬로 변환한다.
-	FMatrix BuildEngineBillboardMatrix(int32 ViewIndex, const FVector& WorldPosition, float Width, float Height) const;
+	FMatrix BuildEngineBillboardMatrix(int32 ViewIndex, const FVector& WorldPosition, float Width, float Height) const override;
 	// 지정 View가 직교 투영인지 반환한다.
-	bool IsOrthographic(int32 ViewIndex) const;
+	bool IsOrthographic(int32 ViewIndex) const override;
 	// 활성 View의 로컬 마우스 좌표를 Core로 역투영해 엔진 Ray로 반환한다.
 	bool TryGetActiveViewRay(FVector2D LocalMousePosition, FRay& OutRay) const;
 	// 지정 View의 절두체를 통과한 오브젝트 수를 반환한다.
@@ -172,11 +174,11 @@ class FMultipleViewportsAdapter
 		return bCapturedParticle;
 	}
 
-	void SetSoftwareOcclusionSettings(const FSoftwareOcclusionSettings& Value)
+	void SetSoftwareOcclusionSettings(const FSoftwareOcclusionSettings& Value) override
 	{
 		SoftwareOcclusion.SetSettings(Value);
 	}
-	const FSoftwareOcclusionSettings& GetSoftwareOcclusionSettings() const
+	const FSoftwareOcclusionSettings& GetSoftwareOcclusionSettings() const override
 	{
 		return SoftwareOcclusion.GetSettings();
 	}
@@ -186,17 +188,17 @@ class FMultipleViewportsAdapter
 		return OcclusionStats[ViewIndex];
 	}
 	void AppendSoftwareOcclusionDebugBounds(FLineBatcher& LineBatcher) const;
-	void PostRenderOpaque(int32 ViewIndex, FRHITexture2D* SceneDepthTexture)
+	void PostRenderOpaque(int32 ViewIndex, FRHITexture2D* SceneDepthTexture) override
 	{
 		SoftwareOcclusion.PostRenderOpaque(ViewIndex, SceneDepthTexture);
 	}
-	void SettleDynamicObjects()
+	void SettleDynamicObjects() override
 	{
 		SoftwareOcclusion.SettleDynamicObjects();
 	}
 
 	// 파이버 잡으로 월드 및 MVP 행렬을 병렬 연산하여 TArray에 수집한다.
-	void BuildRenderPackets(int32 ViewIndex, TArray<FRenderPacket>& OutPackets);
+	void BuildRenderPackets(int32 ViewIndex, TArray<FRenderPacket>& OutPackets) override;
 	// 활성 View Ray를 World·Component 피킹으로 전달하고 마지막 결과를 보관한다.
 	FPickHit PickActiveView(FVector2D LocalMousePosition, UWorld& World);
 	// 마지막 Hit Component의 Owner를 찾아 Outliner 선택에 반영한다.
@@ -209,7 +211,7 @@ class FMultipleViewportsAdapter
 	{
 		return SplitRatio;
 	}
-
+	void SetViewRect(int32 ViewIndex, const FRect& Rect) override {}
   private:
 	// 직교 View의 논리 위치는 유지하고 렌더·컬링·피킹용 깊이 범위만 확장한다.
 	FViewCamera GetRenderCamera(int32 ViewIndex) const;
