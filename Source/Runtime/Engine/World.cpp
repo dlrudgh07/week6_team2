@@ -509,13 +509,16 @@ void UWorld::UpdateSceneData()
 	SceneData.Fireballs.Reset();
 	for (const auto& FireballComp : FireballComponents)
 	{
-		if (FireballComp.IsValid())
-		{
-			FFireballSceneData{ FireballComp->GetComponentLocation(),
-								FireballComp->GetIntensity(),
-								FireballComp->GetRadius(),
-								FireballComp->GetRadiusFallOff(),
-								FireballComp->GetColor() };
-		}
+		if (!FireballComp.IsValid()) continue;
+		AActor* Owner = FireballComp->GetOwner();
+		USceneComponent* Root = Owner ? Owner->GetRootComponent() : nullptr;
+		if (!Root) continue;
+
+		SceneData.Fireballs.Add(FFireballSceneData{ Root->GetComponentLocation(),
+													FireballComp->GetIntensity(),
+													FireballComp->GetRadius(),
+													FireballComp->GetRadiusFallOff(),
+													FireballComp->GetColor() }
+		);
 	} 
 }

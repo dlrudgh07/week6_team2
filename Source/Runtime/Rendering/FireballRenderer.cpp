@@ -23,7 +23,7 @@ bool FFireballRenderer::Init()
     // Pipeline Set
     PipelineState.Shader = Shader;
     PipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    PipelineState.RasterizerState = ERasterizerState::SolidNone;
+    PipelineState.RasterizerState = ERasterizerState::SolidFront;
     PipelineState.BlendState = EBlendState::Additive;
     PipelineState.DepthStencilState = EDepthStencilState::Disabled;
     
@@ -74,7 +74,12 @@ void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
     for (const FFireballSceneData& F : Fireballs)
     {
         // CB b1
-        FMatrix World = FMatrix::Identity.ApplyScale(F.Radius) * FMatrix::MakeTranslation(F.Position);
+        FMatrix World = FMatrix::Identity;
+        World.M[0][0] = F.Radius;
+        World.M[1][1] = F.Radius;
+        World.M[2][2] = F.Radius;
+        World.SetOrigin(F.Position);    // [3][0], [3][1], [3][2]
+
         FRenderCommand::UpdateBufferData(PerObjCB.get(), &World);
         FRenderCommand::BindConstantBuffer(1, PerObjCB.get(),
                                         EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
