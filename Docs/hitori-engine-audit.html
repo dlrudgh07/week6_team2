@@ -412,7 +412,7 @@ const ISSUES = [
 		files: ["Source/Runtime/UObject/Object.cpp:54", "Source/Runtime/UObject/WeakObjectPtrTemplates.h:55"],
 		sym: "삭제 시 swap-remove로 맨 뒤 오브젝트를 빈자리로 옮기고 InternalIndex를 바꿉니다. 그 오브젝트를 가리키던 TWeakObjectPtr는 옛 인덱스를 들고 있어서 null을 반환합니다. WorldPrimitiveComponents가 약참조 배열이라 Actor 하나를 지우면 무관한 Primitive가 BVH와 피킹에서 빠질 수 있습니다.",
 		ue: "FUObjectArray는 인덱스를 옮기지 않습니다. 빈 슬롯은 free-list(ObjAvailableList)에 넣고, 재사용 여부는 SerialNumber로 구분합니다.",
-		fix: "삭제 시 슬롯을 nullptr로 두고 인덱스를 free-list에 넣습니다. 생성자는 free-list에서 먼저 꺼냅니다. Serial 비교는 그대로 둡니다." },
+		fix: "삭제 시 슬롯을 nullptr로 두고 인덱스를 free-list에 넣습니다. 생성자는 free-list에서 먼저 꺼냅니다. Serial 비교는 그대로 둡니다. 이전 시도(8468959)는 종료가 멈춰서 되돌렸는데, 원인은 EditorApplication.cpp:674의 종료 루프입니다. free-list에서는 Num()이 줄지 않아 delete nullptr를 무한 반복합니다. 종료 루프를 역순 인덱스 순회 + nullptr 건너뛰기로 같이 바꿔야 합니다." },
 	{ id: "B2", sev: "bug", cat: "직렬화", verify: true, title: "씬 로드 시 컴포넌트 이름이 맞지 않을 수 있음",
 		files: ["Source/Runtime/UObject/UObjectGlobals.cpp:62", "Source/Runtime/Serialization/JsonArchive.cpp:184"],
 		sym: "모든 이름에 전역 카운터가 붙습니다(UPrimitiveComponent_57). 로드할 때 새로 Spawn한 Actor의 컴포넌트는 다른 번호를 받는데, 매칭은 Number까지 비교합니다. 그러면 \"has no component\" 경고가 나고 Transform과 Mesh가 적용되지 않습니다. 기존 씬 파일은 전부 _0이라 현재 코드와 맞지 않습니다.",
