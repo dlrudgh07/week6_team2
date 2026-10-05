@@ -4,19 +4,12 @@
 inline float UMovementComponent::GetMaxSpeed() const { return 0.f; }
 inline void UMovementComponent::StopMovementImmediately() { Velocity = FVector::ZeroVector; UpdateComponentVelocity(); }
 
-// Quaternion NewRotation
-inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
-{
-    return MoveUpdatedComponentImpl(Delta, NewRotation, bSweep, OutHit, Teleport);
-    
-}
-
 bool UMovementComponent::MoveUpdatedComponentImpl(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
 {
     if (UpdatedComponent)
     {
-        const FVector NewDelta = ConstrainDirectionToPlane(Delta);
-        return UpdatedComponent->MoveComponent(NewDelta, NewRotation, bSweep, OutHit, MoveComponentFlags, Teleport);
+        // const FVector NewDelta = ConstrainDirectionToPlane(Delta);
+        // return UpdatedComponent->MoveComponent(NewDelta, NewRotation, bSweep, OutHit, MoveComponentFlags, Teleport);
     }        
     return false;
 }

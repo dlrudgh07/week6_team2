@@ -55,6 +55,13 @@ protected:
     // 실제 이동 처리, 충돌 검사, 위치 변경
     virtual bool MoveUpdatedComponentImpl(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport = ETeleportType::None);
 
+    // Quaternion NewRotation
+    inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
+    {
+        return MoveUpdatedComponentImpl(Delta, NewRotation, bSweep, OutHit, Teleport);
+        
+    }
+
 private:
     // SRT를 가진 Component
     USceneComponent* UpdatedComponent;
