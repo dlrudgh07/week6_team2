@@ -393,6 +393,8 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 
 	const FRect ViewRect{0.0f, 0.0f, std::max(1.0f, ViewportSize.X), std::max(1.0f, ViewportSize.Y)};
 
+	PIEPanel->SetView(ViewRect);
+
 	ViewportsPanel->SetView(0, ViewRect, true);
 
 	ViewportsPanel->SetView(1, FRect{}, false);
