@@ -35,12 +35,9 @@ public:
     ~FFireballRenderer() = default;
 
     bool Init();
-    bool IsValid() const { return (Shader != nullptr) && (SphereMesh != nullptr); }
+    bool IsValid();
 
-    void OnRender(FRHITexture2D* SceneDepthTexture,
-                                 const FMatrix& ViewProj,
-                                 const TArray<FFireballSceneData>& Fireballs,
-                                 const FViewportSettings& Viewport);
+    void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const TArray<FFireballSceneData>& Fireballs, const FViewportSettings& Viewport);
 
 private:
     FShaderProgram* Shader = nullptr;

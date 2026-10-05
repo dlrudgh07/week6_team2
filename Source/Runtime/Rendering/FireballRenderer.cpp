@@ -5,6 +5,11 @@
 #include "FireballSceneData.h"
 #include "Engine/AssetManager.h"
 
+bool FFireballRenderer::IsValid()
+{
+	return Shader != nullptr && PerFrameCB && PerObjCB && FireBallCB && SphereMesh;
+}
+
 bool FFireballRenderer::Init()
 {
     // Firball Shader Load
@@ -65,9 +70,8 @@ void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
     Frame.ScreenSize[0] = Viewport.Width;
     Frame.ScreenSize[1] = Viewport.Height;
 
-    FRenderCommand::UpdateBufferData(PerFrameCB.get(), &Frame);
-    FRenderCommand::BindConstantBuffer(0, PerFrameCB.get(),
-        EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
+    FRenderCommand::UpdateBufferData(PerFrameCB.get(), &Frame, nullptr);
+    FRenderCommand::BindConstantBuffer(0, PerFrameCB.get(), EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
         
     FRenderCommand::BindMesh(SphereMesh);
 

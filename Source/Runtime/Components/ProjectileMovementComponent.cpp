@@ -1,6 +1,8 @@
 #include "EnginePCH.h"
 #include "ProjectileMovementComponent.h"
 
+UProjectileMovementComponent::~UProjectileMovementComponent() = default;
+
 
 void UProjectileMovementComponent::TickComponent(float DeltaTime)
 {

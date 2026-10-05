@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MovementComponent.h"
+#include "SceneComponent.h"
 
 struct FHitResult;
 
@@ -26,10 +27,8 @@ public:
 protected:
     FVector LimitVelocity(FVector NewVelocity) const;
 
-    virtual FVector ComputeBounceResult(const FHitResult& Hit, float TimeSlice, const FVector& MoveDelta);
     virtual FVector ComputeMoveDelta(const FVector& InVelocity, float DeltaTime) const;
 
 private:
-    float InitialSpeed = 1.f;
     float MaxSpeed = 0.f;
 };
