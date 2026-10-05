@@ -60,7 +60,7 @@ UObject::~UObject()
 			UnhashObject(this, ClassPrivate);
 		}
 		GUObjectArray[InternalIndex] = nullptr;
-		ObjAvailableList.Add(InternalIndex);
+		/*ObjAvailableList.Add(InternalIndex);*/
 		int32 LastIndex = GUObjectArray.Num() - 1;
 		if (InternalIndex != LastIndex)
 		{
