@@ -8,18 +8,24 @@
 #include "Rendering/Vertex.h"
 #include "Math/Color.h"
 
-struct FFireballSceneData;
+struct FFireballFrameConstants
+{
+    FMatrix ViewProj;           // 64 bytes
+    FMatrix InvViewProj;        // 64 bytes
+    FVector2D ScreenSize;       // 8  bytes
+    FVector2D Padding;          // 8  bytes
+};
 
 struct FFireballConstants
 {
-    FLinearColor Color;           // 16
-
     FVector FireballPosition;     // 12
-    float Intensity;              // 4
-
     float Radius;                 // 4
+
+    FLinearColor Color;           // 16
+    
+    float Intensity;              // 4
     float RadiusFallOff;          // 4
-    FVector2D Padding;            // 4
+    FVector2D Padding;            // 8
 };
 
 class FFireballRenderer
@@ -30,14 +36,18 @@ public:
 
     bool Init();
     bool IsValid() const { return Shader != nullptr; }
-    void OnRender(FRHITexture2D* SceneDepthTexture, 
-                  const FMatrix& ViewProj,
-                  const FVector& CameraLocation,
-                  const FFireballSceneData& FireBallData);
+
+    void OnRender(FRHITexture2D* SceneDepthTexture,
+                                 const FMatrix& ViewProj,
+                                 const TArray<FFireballSceneData>& Fireballs);
 
 private:
     FShaderProgram* Shader = nullptr;
-    TUniquePtr<FRHIUniformBuffer> ConstantBuffer;
+    
+    TUniquePtr<FRHIUniformBuffer> PerFrameCB;
+    TUniquePtr<FRHIUniformBuffer> PerObjCB;
+    TUniquePtr<FRHIUniformBuffer> FireBallCB;
+
     FPipelineState PipelineState;
 
     TUniquePtr<FRHIVertexBuffer> VertexBuffer;
@@ -51,5 +61,5 @@ private:
 
     uint32 MaxVertices = 0;
 	uint32 MaxIndices = 0;
-
 };
+

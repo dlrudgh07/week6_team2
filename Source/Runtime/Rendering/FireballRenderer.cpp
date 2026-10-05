@@ -1,39 +1,39 @@
 #include "EnginePCH.h"
 #include "FireballRenderer.h"
 #include "RenderResourceManager.h"
+#include "RenderPacket.h"
+#include "FireballSceneData.h"
 
 bool FFireballRenderer::Init()
 {
-    VertexBuffer = FRenderCommand::CreateDynamicVertexBuffer(sizeof(FTextVertex) * MaxVertices, sizeof(FTextVertex));
-	IndexBuffer = FRenderCommand::CreateDynamicIndexBuffer(sizeof(uint32) * MaxIndices);
-
     // Firball Shader Load
     Shader = FRenderResourceManager::GetShaderProgram("Resources/Shader/FireballShader.hlsl");
     if (!Shader)
     {
-        LOG(Error, "[Fog] Shader not found");
+        LOG(Error, "[Fireball] Shader not found");
         return false;
     }
 
-    // FFireballContants size 만큼 Cbuffer 생성
-    ConstantBuffer = FRenderCommand::CreateConstantBuffer(sizeof(FFireballConstants));
-
+    // Constants Buffer
+    PerFrameCB = FRenderCommand::CreateConstantBuffer(sizeof(FFireballConstants));
+    PerObjCB = FRenderCommand::CreateConstantBuffer(sizeof(FMatrix));
+    FireBallCB = FRenderCommand::CreateConstantBuffer(sizeof(FFireballConstants));
+    
     // Pipeline Set
     PipelineState.Shader = Shader;
     PipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     PipelineState.RasterizerState = ERasterizerState::SolidNone;
-    PipelineState.BlendState = EBlendState::AlphaBlend;
+    PipelineState.BlendState = EBlendState::Additive;
     PipelineState.DepthStencilState = EDepthStencilState::Disabled;
 
     return true;
 }
 
-void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture, 
-                  const FMatrix& ViewProj,
-                  const FVector& CameraLocation,
-                  const FFireballSceneData& FireBallData)
+void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
+                                 const FMatrix& ViewProj,
+                                 const TArray<FFireballSceneData>& Fireballs)
 {
-    if (!IsValid()) return;
+    if (!IsValid() || Fireballs.Num() == 0) return;
 
     ID3D11DeviceContext* Context = FRenderCommand::GetContext();
     if (!Context) return;
@@ -50,27 +50,52 @@ void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
     // DSV 해제
     if (CurrentDSV) Context->OMSetRenderTargets(1, CurrentRTV, nullptr);
 
-    // SRV 바인딩
-    FRenderCommand::BindShaderResource(0, SceneDepthTexture, EShaderBindFlagBits::Pixel);
-
-    FRenderCommand::UpdateBufferData(VertexBuffer.get(), Vertices.GetData(), sizeof(FTextVertex) * Vertices.Num());
-	FRenderCommand::UpdateBufferData(IndexBuffer.get(), Indices.GetData(), sizeof(uint32) * Indices.Num());
-
-    FFireballConstants Constants;
-    Constants.Color = FireBallData.FogDensity;
-    Constants.Intensity = FireBallData.Intensity;
-    Constants.Radius = FireBallData.Radius;
-    Constants.RadiusFallOff = FireBallData.RdiusFallOff;
-
     FRenderCommand::BindPipelineState(&PipelineState);
-    FRenderCommand::UpdateBufferData(ConstantBuffer.get(), &Constants);
-    FRenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Pixel);
+    FRenderCommand::BindShaderResource(0, SceneDepthTexture, EShaderBindFlagBits::Pixel);
     FRenderCommand::BindSamplerState(0, ESamplerState::PointClamp, EShaderBindFlagBits::Pixel);
-    FRenderCommand::BindVertexBuffer(VertexBuffer.get());
-    FRenderCommand::BindIndexBuffer(IndexBuffer.get());
-    FRenderCommand::DrawIndexed(Indices.Num());
 
-    Vertices.Reset();
-    Indices.Reset();
+    // CB b0
+    FFireballFrameConstants Frame;
+    Frame.ViewProj = ViewProj;
+    Frame.InvViewProj = ViewProj.Inverse();      
+    Frame.ScreenSize[0] = ;
+    Frame.ScreenSize[1] = ;
+
+    FRenderCommand::UpdateBufferData(PerFrameCB.get(), &Frame);
+    FRenderCommand::BindConstantBuffer(0, PerFrameCB.get(),
+        EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
+    
+    FRenderCommand::BindVertexBuffer(SphereVB.get());
+    FRenderCommand::BindIndexBuffer(SphereIB.get());
+
+    for (const FFireballSceneData& F : Fireballs)
+    {
+        // CB b1
+        FMatrix World = /* Scale(Radius) * Translation(F.Position) */;
+        FRenderCommand::UpdateBufferData(PerObjectCB.get(), &World);
+        FRenderCommand::BindConstantBuffer(1, PerObjectCB.get(),
+            EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
+
+        // CB b2
+        FFireballConstants C;
+        C.FireballPosition = F.Position;
+        C.Radius = F.Radius;
+        C.Color = F.Color;
+        C.Intensity = F.Intensity;
+        C.RadiusFallOff = F.RadiusFallOff;
+        FRenderCommand::UpdateBufferData(FireballCB.get(), &C);
+        FRenderCommand::BindConstantBuffer(2, FireballCB.get(), EShaderBindFlagBits::Pixel);
+
+        FRenderCommand::DrawIndexed(SphereIndexCount);
+    }
+
+    // SRV 해제, RTV/DSV 복원, 참조 해제
+    FRenderCommand::BindShaderResource(0, nullptr, EShaderBindFlagBits::Pixel);
+    Context->OMSetRenderTargets(1, &CurrentRTV, CurrentDSV);
+    if (CurrentRTV) CurrentRTV->Release();
+    if (CurrentDSV) CurrentDSV->Release();
+
+
 }
+
 
