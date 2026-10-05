@@ -27,7 +27,7 @@
 //Temp
 #include "Engine/Font.h"
 #include "Rendering/TextRenderer.h"
-
+#include "Editor/Rendering/DepthSceneRenderer.h"
 class FOutputLogPanel;
 class FDetailsPanel;
 class FEditorControlsPanel;
@@ -58,6 +58,7 @@ class FEditorApplication : public FApplication
 	void RenderFrame(int32 ViewIndex,
 		const FRenderingInfo& ViewRenderingInfo,
 		const FMatrix& ViewProjection,
+		const FMatrix& Projection,
 		const FVector& ViewCameraLocation,
 		const FVector& ViewCameraForward,
 		TArray<FRenderPacket>& RenderPackets,
@@ -129,6 +130,7 @@ class FEditorApplication : public FApplication
 	TUniquePtr<FOutlineRenderer> OutlineRenderer;
 	TUniquePtr<FLoadingScreen> LoadingScreen;
 	TUniquePtr<FFogRenderer> FogRenderer;
+	TUniquePtr<FDepthSceneRenderer> DepthSceneRenderer;
 
 	UFont* SystemFont;
 

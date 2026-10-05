@@ -15,6 +15,7 @@ struct FEditorSettings
 	bool bDrawPrimitives = true;
 	bool bDrawGrid = true;
 	bool bDrawAxis = true;
+	bool bSceneDepthMode = false;
 
 	int32 SoftwareOcclusionMode = 0;
 	int32 SoftwareOccluderGeometry = 0;

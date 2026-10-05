@@ -229,12 +229,37 @@ void FViewportsPanel::OnRender()
 		// 레이아웃과 독립적으로 각 View의 장면 Fill Mode를 편집한다.
         if (ViewportAdapter)
         {
-            int Mode = ViewportAdapter->IsViewWireframe(ViewIndex) ? 1 : 0;
-            const char* Labels[] = {"Solid", "Wireframe"};
-            ImGui::SetNextItemWidth(100.0f);
-            if (ImGui::Combo("##FillMode", &Mode, Labels, 2))
-                ViewportAdapter->SetViewWireframe(ViewIndex, Mode == 1);
-            ImGui::SameLine();
+			if (ViewportAdapter)
+			{
+				int Mode = ViewportAdapter->IsViewWireframe(ViewIndex) ? 1 : 0;
+				bool SceneDepthMode = ViewportAdapter->IsViewSceneDepthMode(ViewIndex);
+
+				const char* Labels[] = {"Solid", "Wireframe", "Buffer Visualization"};
+				ImGui::SetNextItemWidth(170.0f);
+
+				if (ImGui::BeginCombo("##FillMode", Labels[Mode]))
+				{
+					if (ImGui::Selectable(Labels[0], Mode == 0))
+						ViewportAdapter->SetViewWireframe(ViewIndex, false);
+
+					if (ImGui::Selectable(Labels[1], Mode == 1))
+						ViewportAdapter->SetViewWireframe(ViewIndex, true);
+
+					ImGui::Separator();
+
+					if (ImGui::BeginMenu(Labels[2]))
+					{
+						if (ImGui::Checkbox("SceneDepth", &SceneDepthMode))
+							ViewportAdapter->SetViewSceneDepthMode(ViewIndex, SceneDepthMode);
+
+						ImGui::EndMenu();
+					}
+
+					ImGui::EndCombo();
+				}
+
+				ImGui::SameLine();
+			}
         }
 
         if (CurrentLayoutMode == ELayoutMode::QuadSplit)

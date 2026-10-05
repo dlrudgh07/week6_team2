@@ -171,12 +171,15 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 	Outline = MakeUnique<FOutline>();
 
 	SystemFont = UAssetManager::GetAssetByKey<UFont>("Assets/Fonts/Pretendard.json");
-
+	
 	TextRenderer = MakeUnique<FTextRenderer>();
 	TextRenderer->Init();
 
 	FogRenderer = MakeUnique<FFogRenderer>();
 	FogRenderer->Init();
+
+	DepthSceneRenderer = MakeUnique<FDepthSceneRenderer>();
+	DepthSceneRenderer->Init();
 
 	// Scene
 	UWorld* World = FObjectFactory::ConstructObject<UWorld>();
@@ -405,11 +408,12 @@ void FEditorApplication::RenderMultipleViewports()
 
 		if (!bActive)
 			continue;
-
+		
 		MultipleViewportsAdapter.BuildRenderPackets(ViewIndex, SceneRenderPackets);
 		RenderFrame(ViewIndex,
 			ViewportsPanel->GetRenderingInfo(ViewIndex),
 			MultipleViewportsAdapter.GetEngineViewProjection(ViewIndex),
+			MultipleViewportsAdapter.GetEnginePerspectiveProjection(),
 			MultipleViewportsAdapter.GetEngineCameraLocation(ViewIndex),
 			MultipleViewportsAdapter.GetEngineCameraForward(ViewIndex),
 			SceneRenderPackets,
@@ -503,6 +507,7 @@ void FEditorApplication::UpdateGizmoAndPicking()
 void FEditorApplication::RenderFrame(const int32 ViewIndex,
 	const FRenderingInfo& ViewRenderingInfo,
 	const FMatrix& ViewProjection,
+	const FMatrix& Projection,
 	const FVector& ViewCameraLocation,
 	const FVector& ViewCameraForward,
 	TArray<FRenderPacket>& RenderPackets,
@@ -534,12 +539,26 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
 	}
 
+	// SceneDepth Rendering
+	{
+		if (MultipleViewportsAdapter.IsViewSceneDepthMode(ViewIndex))
+		{
+			DepthSceneRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, Projection);
+		}
+	}
+
 	// Multi pass 렌더링
 	{
 		// fog 렌더링
 		if (SceneData.FogSceneData.IsValid())
 		{
 			FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
+
+		}
+
+		// Anti Aliasing 처리
+		{
+
 		}
 	}
 
@@ -573,14 +592,9 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		}
 	}
 
-	// Anti Aliasing 처리
-	{
-	}
 
-	// SceneDepth Rendering
-	{
 
-	}
+
 	FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
 
 	if (Gizmo->GetTarget() && SystemFont)

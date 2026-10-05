@@ -455,9 +455,10 @@ void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 }
 void UWorld::UpdateSceneData()
 {
-	// 지금은 가장 나중 Fog만 적용됨
+
+	SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
 	for (const auto& FogComp : FogComponents)
-	{
+	{ // 지금은 임시로 첫번째 안개만 적용됨
 		if (FogComp.IsValid())
 		{
 			SceneData.FogSceneData.FogDensity = FogComp->GetFogDensity();
@@ -473,10 +474,7 @@ void UWorld::UpdateSceneData()
 			SceneData.FogSceneData.FogType = FFogSceneData::EFogType::ExponentialHeightFog;
 			break;
 		}
-		else
-		{
-			SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
-		}	
+
 	}
 	
 }
