@@ -155,7 +155,7 @@ void FViewportsPanel::UpdatePIEInput()
 		SetCursorPos(CenterX, CenterY);
 	}
 
-	if (bPIEFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
+	if (ImGui::IsKeyPressed(ImGuiKey_F8, false))
 	{
 		ResetPIEInput();
 	}
@@ -170,7 +170,7 @@ void FViewportsPanel::UpdatePIEInput()
 
 void FViewportsPanel::ResetPIEInput()
 {
-	ShowCursor(TRUE);
+	while(ShowCursor(TRUE) < 0);
 	bPIEFocus = false;
 	PIEMouseDeltaX = 0.0f;
 	PIEMouseDeltaY = 0.0f;
@@ -179,7 +179,7 @@ void FViewportsPanel::ResetPIEInput()
 void FViewportsPanel::SetPIE()
 {
 	bPIEFocus = true;
-	ShowCursor(FALSE);
+	while(ShowCursor(FALSE) >= 0)
 	SetCursorPos(ContentOrigin.x + ContentSize.x * 0.5f, ContentOrigin.y + ContentSize.y * 0.5f);
 }
 
