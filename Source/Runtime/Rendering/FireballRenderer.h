@@ -50,16 +50,11 @@ private:
 
     FPipelineState PipelineState;
 
+    UStaticMesh* SphereMesh;
+
     TUniquePtr<FRHIVertexBuffer> VertexBuffer;
 	TUniquePtr<FRHIIndexBuffer> IndexBuffer;
 
-    TArray<FVertex> Vertices;
-	TArray<uint32> Indices;
-
-    TUniquePtr<FRHIUniformBuffer> MVP;
-	TUniquePtr<FRHIUniformBuffer> ScreenPx;
-
-    uint32 MaxVertices = 0;
 	uint32 MaxIndices = 0;
 };
 

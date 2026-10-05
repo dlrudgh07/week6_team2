@@ -4,6 +4,7 @@
 #include "Engine/Level.h"
 #include "UObject/UObjectGlobals.h"
 #include "Components/SceneComponent.h"
+#include "Components/FireballComponent.h"
 
 AActor::AActor()
 {
@@ -136,6 +137,7 @@ UActorComponent* AActor::AddComponentByClass(UClass* Class, FName Name)
 	}
 
 	GetWorld()->AddComponent(Cast<UPrimitiveComponent>(Component));
+	GetWorld()->AddComponent(Cast<UFireballComponent>(Component));
 
 	if (BeginPlayState == EActorBeginPlayState::BeginningPlay)
 	{

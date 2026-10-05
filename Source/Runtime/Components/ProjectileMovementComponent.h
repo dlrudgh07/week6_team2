@@ -6,12 +6,15 @@ struct FHitResult;
 
 class UProjectileMovementComponent : public UMovementComponent
 {
-        DECLARE_CLASS(UProjectileMovementComponent, UMovementComponent)
+    DECLARE_CLASS(UProjectileMovementComponent, UMovementComponent)
 
-        REFLECT_START(ClassName)
-        REFLECT_END()
+    REFLECT_START(ClassName)
+    REFLECT_END()
 
 public:
+	UProjectileMovementComponent() = default;
+	virtual ~UProjectileMovementComponent() override;
+
     bool bSimulationUseScopedMovement = 1;
     bool bInterpolationUseScopedMovement = 1;
     float PreviousHitTime;

@@ -7,5 +7,6 @@ struct FFireballSceneData
     float Radius;               // 불빛이 영향을 끼치는 범위
     float RadiusFallOff;        // 밝기가 감소하는 정도
     FLinearColor Color;         // 불빛 색상
+    FVector Position            // 구 위치
 
 };

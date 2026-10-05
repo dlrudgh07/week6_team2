@@ -3,10 +3,10 @@
 
 UFireballComponent::UFireballComponent()
 {
-    float Intensity = 5.0f;
-    float Radius = 300.0f;
-    float RadiusFallOff = 2.0f;
-    FLinearColor Color = FLinearColor::Red;
+    Intensity = 5.0f;
+    Radius = 300.0f;
+    RadiusFallOff = 2.0f;
+    Color = FLinearColor::Red;
 }
 
 UFireballComponent::~UFireballComponent()

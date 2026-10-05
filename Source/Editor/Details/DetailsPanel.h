@@ -4,6 +4,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
 #include "Components/RotatingMovementComponent.h"
+#include "Components/FireballComponent.h"
 #include "Logging/LogMacros.h"
 
 class UWorld;
@@ -44,15 +45,17 @@ class FDetailsPanel : public IEditorPanel
 	ImFont* CustomFont = nullptr;
 
 	int32 SelectedIndex = 0;
-	const char* ComponentList[3] = {
+	const char* ComponentList[4] = {
 		"StaticMesh",
 		"Text",
 		"Rotating",
+		"Fireball",
 	};
 
 	TArray<UClass*> Classes{
 		UStaticMeshComponent::StaticClass(),
 		UTextRenderComponent::StaticClass(),
 		URotatingMovementComponent::StaticClass(),
+		UFireballComponent::StaticClass(),
 	};
 };

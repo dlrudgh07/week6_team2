@@ -3,11 +3,15 @@
 #include "ProjectileMovementComponent.h"
 #include "Math/Color.h"
 
-class UFireballComponent : UProjectileMovementComponent
+class UFireballComponent : public UProjectileMovementComponent
 {
     DECLARE_CLASS(UFireballComponent, UProjectileMovementComponent)
 
     REFLECT_START(ClassName)
+    PROPERTY(Intensity)
+    PROPERTY(Radius)
+    PROPERTY(RadiusFallOff)
+    PROPERTY_TYPE(Color, Color)
     REFLECT_END()
 
 public:

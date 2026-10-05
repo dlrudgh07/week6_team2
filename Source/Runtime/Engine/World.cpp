@@ -68,6 +68,7 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 
 		AddComponent(Cast<UPrimitiveComponent>(NewActor->GetRootComponent()));
 		AddComponent(Cast<UExponentialHeightFogComponent>(NewActor->GetRootComponent()));
+		AddComponent(Cast<UFireballComponent>(NewActor->GetRootComponent()));
 
 	}
 
@@ -390,6 +391,7 @@ void UWorld::DuplicateSubObjects()
 	FogComponents.Reset();
 	// 포그가 없는 월드면 UpdateSceneData가 갱신하지 않으므로 원본 값을 끈다.
 	SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
+	FireballComponents.Reset();
 
 	if (MainCamera)
 	{
@@ -476,5 +478,17 @@ void UWorld::UpdateSceneData()
 		}
 
 	}
-	
+
+	SceneData.Fireballs.Reset();
+	for (const auto& FireballComp : FireballComponents)
+	{
+		if (FireballComp.IsValid())
+		{
+			FFireballSceneData{ FireballComp->GetComponentLocation(),
+								FireballComp->GetIntensity(),
+								FireballComp->GetRadius(),
+								FireballComp->GetRadiusFallOff(),
+								FireballComp->GetColor() };
+		}
+	} 
 }
