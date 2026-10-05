@@ -22,7 +22,7 @@ void URotatingMovementComponent::TickComponent(float DeltaTime)
 	const FQuat OldRotation = Target->GetComponentRotation().Quaternion();
 	const FQuat DeltaRotation = (RotationRate * DeltaTime).Quaternion();
 	const FQuat NewRotation = (bRotationInLocalSpace ? (OldRotation * DeltaRotation) : (DeltaRotation * OldRotation)).Normalized();
-	
+
 	FVector DeltaLocation = FVector::ZeroVector;
 	if (PivotTranslation != FVector::ZeroVector)
 	{
@@ -31,5 +31,6 @@ void URotatingMovementComponent::TickComponent(float DeltaTime)
 		DeltaLocation = OldPivot - NewPivot;
 	}
 
-	// MoveUpdatedComponent(DeltaLocation, NewRotation, );
+	const bool bSweep = false;
+	MoveUpdatedComponent(DeltaLocation, NewRotation, bSweep);
 }

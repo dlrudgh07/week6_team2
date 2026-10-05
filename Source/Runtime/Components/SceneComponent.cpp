@@ -1,6 +1,7 @@
 #include "EnginePCH.h"
 #include "Components/SceneComponent.h"
 
+#include "Engine/HitResult.h"
 #include "GameFramework/Actor.h"
 
 USceneComponent::~USceneComponent()
@@ -147,4 +148,27 @@ void USceneComponent::DuplicateSubObjects()
 	Super::DuplicateSubObjects();
 	AttachParent = nullptr;
 	AttachChildren.Reset();
+}
+
+bool USceneComponent::MoveComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
+{
+	if (OutHit)
+		*OutHit = FHitResult();
+
+	// Delta와 NewRotation은 월드 공간 값이므로 부모 기준 Relative 값으로 바꿔서 저장한다.
+	const FVector NewWorldLocation = GetComponentLocation() + Delta;
+	FVector NewRelativeLocation = NewWorldLocation;
+	FQuat NewRelativeRotation = NewRotation;
+
+	if (AttachParent)
+	{
+		// World = Parent * Local 이므로 Local = Parent^-1 * World
+		NewRelativeLocation = AttachParent->GetWorldMatrix().Inverse().TransformPosition(NewWorldLocation);
+		NewRelativeRotation = AttachParent->GetComponentRotation().Quaternion().Inverse() * NewRotation;
+	}
+
+	Transform.Location = NewRelativeLocation;
+	Transform.Rotation = NewRelativeRotation.ToFRotator();
+	MarkTransformDirtyRecursive();
+	return true;
 }

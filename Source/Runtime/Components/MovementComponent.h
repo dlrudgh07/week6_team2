@@ -1,18 +1,11 @@
 #pragma once
 
 #include "ActorComponent.h"
+#include "Engine/EngineTypes.h"
 
 class USceneComponent;
 
 struct FHitResult;
-
-// Move Update 처리하는 방법
-enum class ETeleportType : uint8
-{
-	None,             // 일반 이동
-	TeleoportPhysics, // 순간 이동 (속도 유지)
-	ResetPhysics,     // 순간 이동 (물리 상태 초기화)
-};
 
 class UMovementComponent : public UActorComponent
 {
@@ -48,6 +41,7 @@ class UMovementComponent : public UActorComponent
 
 	// bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport = ETeleportType::None);
 
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime) override;
 
 	USceneComponent* GetUpdatedComponent() const;
@@ -64,17 +58,20 @@ class UMovementComponent : public UActorComponent
 
 	// Quaternion NewRotation
 	// 공통 전처리, 파라미터 검증, 이동 가능 여부 확인 (호출 Interface)
-	inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
+	inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport = ETeleportType::None)
 	{
 		return MoveUpdatedComponentImpl(Delta, NewRotation, bSweep, OutHit, Teleport);
 	}
 
   private:
+	// UpdatedComponent가 비어 있으면 Owner의 RootComponent로 설정 (UE의 bAutoRegisterUpdatedComponent)
+	void AutoRegisterUpdatedComponent();
+
 	// SRT를 가진 Component
-	USceneComponent* UpdatedComponent;
+	USceneComponent* UpdatedComponent = nullptr;
 
 	// Collision, Physics, Bounds, Hit, Overlap 등을 처리하는 Component
-	UPrimitiveComponent* UpdatedPrimitive;
+	UPrimitiveComponent* UpdatedPrimitive = nullptr;
 
-	FVector Velocity;
+	FVector Velocity = FVector::ZeroVector;
 };

@@ -3,6 +3,9 @@
 #include "../Math/Transform.h"
 #include "ActorComponent.h"
 #include "Rendering/StaticMeshResources.h"
+#include "Engine/EngineTypes.h"
+
+struct FHitResult;
 
 class USceneComponent : public UActorComponent
 {
@@ -118,6 +121,10 @@ class USceneComponent : public UActorComponent
 	}
 
 	virtual void DuplicateSubObjects() override;
+
+	// 월드 공간 Delta만큼 이동하고 월드 회전을 NewRotation으로 설정한다. 움직였으면 true.
+	// SceneComponent는 충돌이 없으므로 bSweep, Teleport는 무시한다.
+	virtual bool MoveComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport = ETeleportType::None);
 
 protected:
 	virtual void OnBoundsMarkedDirty() {}
