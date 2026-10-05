@@ -19,7 +19,7 @@ UObject::UObject()
 	InternalSerialNumber = NextSerialNumber++;
 	ObjectUUID = FEngineStatics::GetUUID();
 	
-	if (ObjAvailableList.IsEmpty())
+	/*if (ObjAvailableList.IsEmpty())
 	{
 		InternalIndex = GUObjectArray.Num();
 		GUObjectArray.Add(this);
@@ -29,7 +29,10 @@ UObject::UObject()
 		InternalIndex = ObjAvailableList.Last();
 		ObjAvailableList.RemoveLast();
 		GUObjectArray[InternalIndex] = this;
-	}
+	}*/
+
+	InternalIndex = GUObjectArray.Num();
+	GUObjectArray.Add(this);
 	
 	LOG(Info, "UUID : {}", ObjectUUID);
 }
@@ -58,14 +61,14 @@ UObject::~UObject()
 		}
 		GUObjectArray[InternalIndex] = nullptr;
 		ObjAvailableList.Add(InternalIndex);
-		//int32 LastIndex = GUObjectArray.Num() - 1;
-		//if (InternalIndex != LastIndex)
-		//{
-		//	UObject* MovedObject = GUObjectArray[LastIndex];
-		//	GUObjectArray[InternalIndex] = MovedObject;
-		//	MovedObject->InternalIndex = InternalIndex; // 옮겨간 오브젝트 인덱스 갱신
-		//}
-		//GUObjectArray.RemoveLast();
+		int32 LastIndex = GUObjectArray.Num() - 1;
+		if (InternalIndex != LastIndex)
+		{
+			UObject* MovedObject = GUObjectArray[LastIndex];
+			GUObjectArray[InternalIndex] = MovedObject;
+			MovedObject->InternalIndex = InternalIndex; // 옮겨간 오브젝트 인덱스 갱신
+		}
+		GUObjectArray.RemoveLast();
 	}
 }
 
