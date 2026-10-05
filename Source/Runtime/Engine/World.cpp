@@ -137,6 +137,7 @@ void UWorld::ClearWorld()
 	DirtyPrimitiveComponents.Reset();
 	DirtyRenderPrimitiveComponents.Reset();
 	FogComponents.Reset();
+	FireballComponents.Reset();
 	SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
 	TickActors.Reset();
 	++PrimitiveTopologyRevision;
@@ -254,6 +255,7 @@ bool UWorld::DestroyActor(AActor* Actor)
 		}
 	}
 
+	// Fog Destroy
 	if (UExponentialHeightFogComponent* Fog = Cast<UExponentialHeightFogComponent>(Actor->GetRootComponent()))
 	{
 		for (int32 Index = FogComponents.Num() - 1; Index >= 0; --Index)
@@ -265,6 +267,20 @@ bool UWorld::DestroyActor(AActor* Actor)
 			}
 		}
 	}
+
+	// Fireball Destroy
+	if (UFireballComponent* Fireball = Cast<UFireballComponent>(Actor->GetRootComponent()))
+	{
+		for (int32 Index = FireballComponents.Num() - 1; Index >= 0; --Index)
+		{
+			if (FireballComponents[Index].Get() == Fireball)
+			{
+				FireballComponents.RemoveAt(Index, 1);
+				break;
+			}
+		}
+	}
+
 	// 6. Actor 삭제
 	delete Actor;
 
@@ -426,6 +442,10 @@ void UWorld::DuplicateSubObjects()
 				{
 					AddComponent(Fog);
 				}
+				else if (UFireballComponent* Fireball = Cast<UFireballComponent>(Comp))
+				{
+					AddComponent(Fireball);
+				}
 			}
 		}
 
@@ -453,6 +473,13 @@ void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 	if (FogComp)
 	{
 		FogComponents.Add(FogComp);
+	}
+}
+void UWorld::AddComponent(UFireballComponent* FireballComp)
+{
+	if (FireballComp)
+	{
+		FireballComponents.Add(FireballComp);
 	}
 }
 void UWorld::UpdateSceneData()

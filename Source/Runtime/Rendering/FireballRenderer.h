@@ -5,8 +5,8 @@
 #include "RHI/PipelineState.h"
 #include "Engine/Texture2D.h"
 
-#include "Rendering/Vertex.h"
 #include "Math/Color.h"
+#include "FireballSceneData.h"
 
 struct FFireballFrameConstants
 {
@@ -35,11 +35,12 @@ public:
     ~FFireballRenderer() = default;
 
     bool Init();
-    bool IsValid() const { return Shader != nullptr; }
+    bool IsValid() const { return (Shader != nullptr) && (SphereMesh != nullptr); }
 
     void OnRender(FRHITexture2D* SceneDepthTexture,
                                  const FMatrix& ViewProj,
-                                 const TArray<FFireballSceneData>& Fireballs);
+                                 const TArray<FFireballSceneData>& Fireballs,
+                                 const FViewportSettings& Viewport);
 
 private:
     FShaderProgram* Shader = nullptr;
@@ -49,12 +50,6 @@ private:
     TUniquePtr<FRHIUniformBuffer> FireBallCB;
 
     FPipelineState PipelineState;
-
-    UStaticMesh* SphereMesh;
-
-    TUniquePtr<FRHIVertexBuffer> VertexBuffer;
-	TUniquePtr<FRHIIndexBuffer> IndexBuffer;
-
-	uint32 MaxIndices = 0;
+    UStaticMesh* SphereMesh = nullptr;
 };
 

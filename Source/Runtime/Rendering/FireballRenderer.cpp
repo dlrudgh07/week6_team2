@@ -3,7 +3,7 @@
 #include "RenderResourceManager.h"
 #include "RenderPacket.h"
 #include "FireballSceneData.h"
-#include <AssetManager.h>
+#include "Engine/AssetManager.h"
 
 bool FFireballRenderer::Init()
 {
@@ -34,7 +34,8 @@ bool FFireballRenderer::Init()
 
 void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
                                 const FMatrix& ViewProj,
-                                const TArray<FFireballSceneData>& Fireballs)
+                                const TArray<FFireballSceneData>& Fireballs,
+                                const FViewportSettings& Viewport)
 {
     if (!IsValid() || Fireballs.Num() == 0) return;
 
@@ -61,25 +62,22 @@ void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
     FFireballFrameConstants Frame;
     Frame.ViewProj = ViewProj;
     Frame.InvViewProj = ViewProj.Inverse();      
-    Frame.ScreenSize[0] = ;
-    Frame.ScreenSize[1] = ;
+    Frame.ScreenSize[0] = Viewport.Width;
+    Frame.ScreenSize[1] = Viewport.Height;
 
     FRenderCommand::UpdateBufferData(PerFrameCB.get(), &Frame);
     FRenderCommand::BindConstantBuffer(0, PerFrameCB.get(),
         EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
         
     FRenderCommand::BindMesh(SphereMesh);
-    FRenderCommand::BindVertexBuffer(SphereVB.get());
-
-    FRenderCommand::BindIndexBuffer(SphereIB.get());
 
     for (const FFireballSceneData& F : Fireballs)
     {
         // CB b1
-        FMatrix World = FMatrix::ApplyScale(Radius) * FMatrix::MakeTranslation(F.Position);
+        FMatrix World = FMatrix::Identity.ApplyScale(F.Radius) * FMatrix::MakeTranslation(F.Position);
         FRenderCommand::UpdateBufferData(PerObjCB.get(), &World);
         FRenderCommand::BindConstantBuffer(1, PerObjCB.get(),
-            EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
+                                        EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel);
 
         // CB b2
         FFireballConstants C;
@@ -97,7 +95,7 @@ void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
     // SRV 해제, RTV/DSV 복원, 참조 해제
     FRenderCommand::PSSetShaderResource(0, nullptr);
     Context->OMSetRenderTargets(1, CurrentRTV, CurrentDSV);
-    if (CurrentRTV) CurrentRTV[0]->Release();
+    if (CurrentRTV[0]) CurrentRTV[0]->Release();
     if (CurrentDSV) CurrentDSV->Release();
 
 

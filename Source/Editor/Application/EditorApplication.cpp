@@ -46,6 +46,8 @@
 
 #include "Tasks/Tasks.h"
 #include "FScene.h"
+#include "Rendering/FireballRenderer.h"
+#include "Rendering/DepthSceneRenderer.h"
 
 // 렌더 자원·월드·에디터와 MultipleViewports 연결을 초기화한다.
 bool FEditorApplication::Init(HINSTANCE hInstance)
@@ -178,7 +180,7 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 	FogRenderer = MakeUnique<FFogRenderer>();
 	FogRenderer->Init();
 
-	FireballRenderer = MakeUnique<FFireRenderer>();
+	FireballRenderer = MakeUnique<FFireballRenderer>();
 	FireballRenderer->Init();
 
 	DepthSceneRenderer = MakeUnique<FDepthSceneRenderer>();
@@ -631,9 +633,9 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		}
 
 		// fireball 렌더링
-		if (SceneData.Fireballs.IsValid())
+		if (!SceneData.Fireballs.IsEmpty())
 		{
-			FireballRenderer->OnRender(ViewRenderingInfo.DepthStencil.Texture, ViewProjection, SceneData.Fireballs)
+			FireballRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, SceneData.Fireballs, ViewRenderingInfo.ViewportSetting);
 		}
 
 		// Anti Aliasing 처리

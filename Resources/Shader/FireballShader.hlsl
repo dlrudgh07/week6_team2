@@ -5,7 +5,7 @@ cbuffer PerFrame : register(b0)
     row_major matrix ViewProj;       // 64 bytes
     row_major matrix InvViewProj;    // 64 bytes
     float2 ScreenSize;               // 8  bytes
-    float2 Padding;                  // 8  bytes
+    float2 Padding0;                  // 8  bytes
 };
 
 cbuffer PerObj : register(b1)
@@ -22,13 +22,14 @@ cbuffer FireballConstants : register(b2)
 
     float Intensity;
     float RadiusFallOff;
-    float2 Padding;
+    float2 Padding1;
 };
 
 struct VS_INPUT
 {
     float3 Position : POSITION;
     float3 Normal   : NORMAL;
+    float4 Color    : COLOR;
     float2 uv       : TEXCOORD0;
 };
 
@@ -37,7 +38,7 @@ struct PS_INPUT
     float4 Position : SV_POSITION;
 };
 
-Texture2D<float> DepthTexture : register(t0);
+Texture2D DepthTexture : register(t0);
 SamplerState PointSampler : register(s0);
 
 PS_INPUT mainVS(VS_INPUT input)
@@ -57,8 +58,7 @@ float4 mainPS(PS_INPUT input) : SV_TARGET
     float depth = DepthTexture.Sample(PointSampler, uv).r;
 
     // 깊이 -> World Position 복원
-    float2 ndc = float2(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0);
-    float4 worldPos = ReconstructWorldPosition(uv, depth, InvViewProj);
+    float3 worldPos = ReconstructWorldPosition(uv, depth, InvViewProj);
 
     // 거리 감쇠
     float dist = length(worldPos - FireballPosition);
