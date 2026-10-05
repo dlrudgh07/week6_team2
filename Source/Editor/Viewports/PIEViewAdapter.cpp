@@ -357,8 +357,9 @@ void FPIEViewAdapter::CaptureWorld(UWorld& World)
 	SoftwareOcclusion.SynchronizeObjects(RenderObjects);
 }
 
-void FPIEViewAdapter::SetViewCamera(const FViewCamera& Camera)
+void FPIEViewAdapter::SetViewCamera(int32 ViewIndex, const FViewCamera& Camera)
 {
+	assert(ViewIndex == 0);
 	ViewCamera = Camera;
 
 	ConstrainOrthographicWidth(ViewCamera.Projection, ViewRect);
@@ -371,8 +372,9 @@ void FPIEViewAdapter::SetViewCamera(const FViewCamera& Camera)
 	PreparedView.bValid = false;
 }
 
-void FPIEViewAdapter::SetViewRect(const FRect& Rect)
+void FPIEViewAdapter::SetViewRect(int32 ViewIndex, const FRect& Rect)
 {
+	assert(ViewIndex == 0);
 	ViewRect = Rect;
 
 	if (ViewRect.Width > 0.0f && ViewRect.Height > 0.0f)
@@ -383,23 +385,28 @@ void FPIEViewAdapter::SetViewRect(const FRect& Rect)
 	PreparedView.bValid = false;
 }
 
-FMatrix FPIEViewAdapter::GetEngineViewProjection() const
+FMatrix FPIEViewAdapter::GetEngineViewProjection(int32 ViewIndex) const
 {
+	assert(ViewIndex == 0);
+
 	return PrepareView().EngineViewProjection;
 }
 
-FVector FPIEViewAdapter::GetEngineCameraLocation() const
+FVector FPIEViewAdapter::GetEngineCameraLocation(int32 ViewIndex) const
 {
+	assert(ViewIndex == 0);
 	return ViewCamera.Transform.Location;
 }
 
-FVector FPIEViewAdapter::GetEngineCameraForward() const
+FVector FPIEViewAdapter::GetEngineCameraForward(int32 ViewIndex) const
 {
+	assert(ViewIndex == 0);
 	return NormalizedOrZero(CameraForward(ViewCamera.Transform.Rotation));
 }
 
-FMatrix FPIEViewAdapter::BuildEngineBillboardMatrix(const FVector& WorldPosition, float Width, float Height) const
+FMatrix FPIEViewAdapter::BuildEngineBillboardMatrix(int32 ViewIndex, const FVector& WorldPosition, float Width, float Height) const
 {
+	assert(ViewIndex == 0);
 	if (ViewCamera.Projection.Mode == ECameraProjectionMode::Orthographic)
 	{
 		const FVector Facing = NormalizedOrZero(CameraForward(ViewCamera.Transform.Rotation)) * -1.0f;
@@ -432,13 +439,15 @@ FMatrix FPIEViewAdapter::BuildEngineBillboardMatrix(const FVector& WorldPosition
 	return EngineMatrix;
 }
 
-bool FPIEViewAdapter::IsOrthographic() const
+bool FPIEViewAdapter::IsOrthographic(int32 ViewIndex) const
 {
+	assert(ViewIndex == 0);
 	return ViewCamera.Projection.Mode == ECameraProjectionMode::Orthographic;
 }
 
-void FPIEViewAdapter::BuildRenderPackets(TArray<FRenderPacket>& OutPackets)
+void FPIEViewAdapter::BuildRenderPackets(int32 ViewIndex, TArray<FRenderPacket>& OutPackets)
 {
+	assert(ViewIndex == 0);
 	OutPackets.Reset();
 	if (ViewRect.Width <= 0.0f || ViewRect.Height <= 0.0f)
 		return;

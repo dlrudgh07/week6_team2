@@ -360,7 +360,7 @@ void FEditorApplication::UpdatePIEViewportState(const float DeltaTime)
 
 	// PIE Adapter도 동일한 화면 크기를 기준으로
 	// VP / Frustum / Orthographic 범위를 계산하도록 갱신한다.
-	PIEViewAdapter.SetViewRect(ViewRect);
+	PIEViewAdapter.SetViewRect(0, ViewRect);
 }
 
 // 월드를 한 번 Tick·Capture한 뒤 에디터와 피킹을 갱신한다.
@@ -431,9 +431,9 @@ void FEditorApplication::RenderPIEViewport()
 
 		PIEPanel->SetView(PIEViewRect);
 
-		PIEViewAdapter.BuildRenderPackets(SceneRenderPackets);
+		PIEViewAdapter.BuildRenderPackets(0, SceneRenderPackets);
 
-		RenderPIEFrame(PIEPanel->GetRenderingInfo(), PIEViewAdapter.GetEngineViewProjection(), PIEViewAdapter.GetEngineCameraLocation(), PIEViewAdapter.GetEngineCameraForward(), SceneRenderPackets);
+		RenderPIEFrame(PIEPanel->GetRenderingInfo(), PIEViewAdapter.GetEngineViewProjection(0), PIEViewAdapter.GetEngineCameraLocation(0), PIEViewAdapter.GetEngineCameraForward(0), SceneRenderPackets);
 	}
 }
 
@@ -630,7 +630,7 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 	FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
 	const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
-	const float FarClip = PIEViewAdapter.GetViewCamera().Projection.FarClip;
+	const float FarClip = PIEViewAdapter.GetViewCamera(0).Projection.FarClip;
 	{
 		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
 		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting, FarClip);
@@ -643,7 +643,7 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 		Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
 	}
 
-	PIEViewAdapter.PostRenderOpaque(ViewRenderingInfo.DepthSteincil.Texture);
+	PIEViewAdapter.PostRenderOpaque(0, ViewRenderingInfo.DepthSteincil.Texture);
 
 	RenderWorldTexts(GetPIEWorld(), ViewProjection);
 

@@ -33,6 +33,9 @@ public:
 
 	const char* Items[6] = {"StaticMesh", "Particle", "Text", "Light", "Fog", "Rotating(Test)"};
 
+	const char* PIEMode[2] = {"Selected", "NewEditor"};
+	int32 SelectedPIEModIndex = 0;
+
 	FGizmo* Gizmo = nullptr;
 	int32 GizmoSelectedIndex = 0;
 	const char* GizmoItems[3] ={"Location","Rotation","Scale"};

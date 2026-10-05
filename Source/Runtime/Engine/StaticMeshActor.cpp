@@ -47,6 +47,8 @@ void AStaticMeshActor::SetPrimitiveType(EPrimitiveType Type)
 void AStaticMeshActor::BeginPlay()
 {
 	Super::BeginPlay();
+	SetCanEverTick(true);
+	SetActorTickEnabled(true);
 }
 
 void AStaticMeshActor::DuplicateSubObjects()

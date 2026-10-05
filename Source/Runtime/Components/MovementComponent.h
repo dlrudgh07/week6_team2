@@ -64,7 +64,7 @@ class UMovementComponent : public UActorComponent
 
 	// Quaternion NewRotation
 	// 공통 전처리, 파라미터 검증, 이동 가능 여부 확인 (호출 Interface)
-	inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
+	inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport= ETeleportType::None)
 	{
 		return MoveUpdatedComponentImpl(Delta, NewRotation, bSweep, OutHit, Teleport);
 	}
