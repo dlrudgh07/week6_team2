@@ -51,7 +51,6 @@ class UMovementComponent : public UActorComponent
 	virtual void TickComponent(float DeltaTime) override;
 
 	USceneComponent* GetUpdatedComponent() const;
-	void SetUpdatedComponent(USceneComponent* SceneComponent);
 
 	UPrimitiveComponent* GetUpdatedPrimitive() const;
 	void SetUpdatedPrimitive(UPrimitiveComponent* PrimitiveComponent);

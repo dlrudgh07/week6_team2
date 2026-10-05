@@ -31,6 +31,5 @@ void URotatingMovementComponent::TickComponent(float DeltaTime)
 		DeltaLocation = OldPivot - NewPivot;
 	}
 
-	const bool bEnableCollision = false;
-	MoveUpdatedComponent(DeltaLocation, NewRotation, bEnableCollision);
+	// MoveUpdatedComponent(DeltaLocation, NewRotation, );
 }
