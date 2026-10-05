@@ -11,14 +11,26 @@
 #include "UObject/UObjectGlobals.h"
 
 TArray<UObject*> GUObjectArray;
+TArray<int32> ObjAvailableList;
 
 UObject::UObject()
 {
 	static uint32 NextSerialNumber = 1;
 	InternalSerialNumber = NextSerialNumber++;
 	ObjectUUID = FEngineStatics::GetUUID();
-	InternalIndex = GUObjectArray.Num();
-	GUObjectArray.Add(this);
+	
+	if (ObjAvailableList.IsEmpty())
+	{
+		InternalIndex = GUObjectArray.Num();
+		GUObjectArray.Add(this);
+	}
+	else
+	{
+		InternalIndex = ObjAvailableList.Last();
+		ObjAvailableList.RemoveLast();
+		GUObjectArray[InternalIndex] = this;
+	}
+	
 	LOG(Info, "UUID : {}", ObjectUUID);
 }
 
@@ -44,14 +56,16 @@ UObject::~UObject()
 		{
 			UnhashObject(this, ClassPrivate);
 		}
-		int32 LastIndex = GUObjectArray.Num() - 1;
-		if (InternalIndex != LastIndex)
-		{
-			UObject* MovedObject = GUObjectArray[LastIndex];
-			GUObjectArray[InternalIndex] = MovedObject;
-			MovedObject->InternalIndex = InternalIndex; // 옮겨간 오브젝트 인덱스 갱신
-		}
-		GUObjectArray.RemoveLast();
+		GUObjectArray[InternalIndex] = nullptr;
+		ObjAvailableList.Add(InternalIndex);
+		//int32 LastIndex = GUObjectArray.Num() - 1;
+		//if (InternalIndex != LastIndex)
+		//{
+		//	UObject* MovedObject = GUObjectArray[LastIndex];
+		//	GUObjectArray[InternalIndex] = MovedObject;
+		//	MovedObject->InternalIndex = InternalIndex; // 옮겨간 오브젝트 인덱스 갱신
+		//}
+		//GUObjectArray.RemoveLast();
 	}
 }
 
