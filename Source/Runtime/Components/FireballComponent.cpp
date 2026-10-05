@@ -3,9 +3,9 @@
 
 UFireballComponent::UFireballComponent()
 {
-    Intensity = 5.0f;
-    Radius = 300.0f;
-    RadiusFallOff = 2.0f;
+    Intensity = 0.9f;
+    Radius = 15.0f;
+    RadiusFallOff = 6.0f;
     Color = FLinearColor::Red;
 }
 

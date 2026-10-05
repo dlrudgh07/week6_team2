@@ -4,6 +4,7 @@
 #include "RenderPacket.h"
 #include "FireballSceneData.h"
 #include "Engine/AssetManager.h"
+#include "Engine/StaticMesh.h"
 
 bool FFireballRenderer::IsValid()
 {

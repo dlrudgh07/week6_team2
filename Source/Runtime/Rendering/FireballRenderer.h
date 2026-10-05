@@ -7,6 +7,7 @@
 
 #include "Math/Color.h"
 #include "FireballSceneData.h"
+#include "Rendering/RenderingInfo.h"
 
 struct FFireballFrameConstants
 {
