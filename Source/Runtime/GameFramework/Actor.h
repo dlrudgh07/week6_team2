@@ -78,6 +78,8 @@ class AActor : public UObject
 		return nullptr;
 	}
 
+	bool GetTickInEditor() const;
+
   protected:
 	void SetCanEverTick(bool bEnabled);
 

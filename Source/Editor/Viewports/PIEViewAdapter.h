@@ -18,6 +18,9 @@ class FPIEViewAdapter
 	// World를 기준으로 PIE View의 초기 카메라 상태를 구성한다.
 	void InitializeFromWorld(UWorld& World);
 
+	// PIE View 카메라를 World의 MainCamera에 반영한다. (빌보드 등 MainCamera 기준 계산을 PIE 화면과 일치시킨다)
+	void SyncViewCameraToWorld(UWorld& World) const;
+
 	// 현재 World의 렌더링 대상 정보를 갱신한다.
 	void CaptureWorld(UWorld& World);
 

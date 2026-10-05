@@ -4,14 +4,14 @@
 
 UExponentialHeightFogComponent::UExponentialHeightFogComponent()
 {
-    FogDensity = 0.02f;
-    FogHeightFalloff = 0.2f;
+    FogDensity = 0.03f;
+    FogHeightFalloff = 0.03f;
     
-    FogMaxOpacity = 1.0f;
+    FogMaxOpacity = 0.9f;
     StartDistance = 0.0f;
     EndDistance = 10000.0f;
 
-    FogCutoffDistance = 10000.0f;
+    FogCutoffDistance = 1000000.0f;
 
 }
 

@@ -9,6 +9,8 @@ AEmitter::AEmitter()
 
 	ParticleComponent->SetSubUVSize(8, 8);
 	ParticleComponent->SetFrameRate(12.0f);
+
+	bTickInEditor = true;
 }
 
 UParticleSubUVComponent* AEmitter::GetParticleComponent() const

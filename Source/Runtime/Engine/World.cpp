@@ -83,16 +83,28 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 
 void UWorld::Tick(float DeltaTime)
 {
-	while (!BeginPlayList.IsEmpty())
+	if (WorldType == EWorldType::PIE || WorldType == EWorldType::Game)
 	{
-		BeginPlayList.Peek()->BeginPlay();
-		BeginPlayList.Dequeue();
-	}
+		while (!BeginPlayList.IsEmpty())
+		{
+			BeginPlayList.Peek()->BeginPlay();
+			BeginPlayList.Dequeue();
+		}
+	}	
 
 	for (AActor* Actor : TickActors)
 	{
 		if (Actor && Actor->IsActorTickEnabled())
-			Actor->Tick(DeltaTime);
+		{
+			if (WorldType == EWorldType::Editor && Actor->GetTickInEditor())
+			{
+				Actor->Tick(DeltaTime);
+			}
+			else if (WorldType == EWorldType::PIE || WorldType == EWorldType::Game)
+			{
+				Actor->Tick(DeltaTime);
+			}
+		}
 	}
 
 	if (MainCamera)
@@ -115,7 +127,11 @@ void UWorld::ClearWorld()
 		BeginPlayList.Dequeue();
 	}
 
-	Level->ClearActors();
+	if (Level)
+	{
+		Level->ClearActors();
+	}
+	
 	WorldPrimitiveComponents.Reset();
 	DirtyPrimitiveComponents.Reset();
 	DirtyRenderPrimitiveComponents.Reset();
@@ -371,7 +387,10 @@ void UWorld::DuplicateSubObjects()
 	PrimitiveBVH.Reset();
 	DirtyPrimitiveComponents.Reset();
 	DirtyRenderPrimitiveComponents.Reset();
-	
+	FogComponents.Reset();
+	// 포그가 없는 월드면 UpdateSceneData가 갱신하지 않으므로 원본 값을 끈다.
+	SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
+
 	if (MainCamera)
 	{
 		MainCamera = FObjectFactory::DuplicateObject(MainCamera, this);
@@ -401,11 +420,31 @@ void UWorld::DuplicateSubObjects()
 				{
 					WorldPrimitiveComponents.Add(Prim);
 				}
+				else if (UExponentialHeightFogComponent* Fog = Cast<UExponentialHeightFogComponent>(Comp))
+				{
+					AddComponent(Fog);
+				}
 			}
 		}
 
 		++PrimitiveTopologyRevision;
 	}
+}
+EWorldType UWorld::GetWorldType() const
+{
+	return WorldType;
+}
+void UWorld::SetWorldType(EWorldType InWorldType)
+{
+	WorldType = InWorldType;
+}
+void UWorld::DestroyWorld()
+{
+	ClearWorld();
+	delete Level;
+	Level = nullptr;
+	delete MainCamera;
+	MainCamera = nullptr;
 }
 void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 {
@@ -416,6 +455,7 @@ void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 }
 void UWorld::UpdateSceneData()
 {
+	// 지금은 가장 나중 Fog만 적용됨
 	for (const auto& FogComp : FogComponents)
 	{
 		if (FogComp.IsValid())
@@ -426,7 +466,7 @@ void UWorld::UpdateSceneData()
 			SceneData.FogSceneData.StartDistance = FogComp->GetStartDistance();
 			SceneData.FogSceneData.EndDistance = FogComp->GetEndDistance();
 			SceneData.FogSceneData.FogCutoffDistance = FogComp->GetFogCutoffDistance();
-			SceneData.FogSceneData.FogHeight = FogComp->GetComponentLocation().Z;
+			SceneData.FogSceneData.FogHeight = FogComp->GetComponentLocation().Z;		
 			SceneData.FogSceneData.FogInscatteringColor[0] = FogComp->GetFogInscatteringColor().R;
 			SceneData.FogSceneData.FogInscatteringColor[1] = FogComp->GetFogInscatteringColor().G;
 			SceneData.FogSceneData.FogInscatteringColor[2] = FogComp->GetFogInscatteringColor().B;

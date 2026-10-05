@@ -51,7 +51,8 @@ float CalculateFogFactor(float3 WorldPos, float3 CameraPos, FogParams Fog)
     float3 Dir = Ray / Distance;
 
     // 1. 거리 최적화
-    float EffectiveDistance = max(0.0, Distance - Fog.StartDistance);
+    float EffectiveDistance = Distance - Fog.StartDistance;
+    //max(0.0, Distance - Fog.StartDistance);
 
     // 2. 높이 안개 농도 적분
     // d(z) = Density * exp(-Falloff * (z - Height))

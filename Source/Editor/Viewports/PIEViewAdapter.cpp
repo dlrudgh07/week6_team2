@@ -193,6 +193,13 @@ struct FPickTraceState
 void FPIEViewAdapter::InitializeFromWorld(UWorld& World)
 {
 	SoftwareOcclusion.ResetScene();
+
+	// 새 월드는 이전 월드와 토폴로지 리비전이 같을 수 있으므로 캡처 캐시를 버리고 전체 캡처를 강제한다.
+	// (리비전은 1부터 시작하므로 0은 어떤 월드와도 일치하지 않는다)
+	CapturedPrimitiveTopologyRevision = 0;
+	RenderObjects.Reset();
+	RenderObjectIndexByObjectIndex.Reset();
+
 	UCameraComponent* MainCamera = World.GetMainCamera() ? World.GetMainCamera()->GetCameraComponent() : nullptr;
 	assert(MainCamera != nullptr);
 
@@ -205,6 +212,19 @@ void FPIEViewAdapter::InitializeFromWorld(UWorld& World)
 	ConstrainOrthographicWidth(ViewCamera.Projection, ViewRect);
 
 	PreparedView.bValid = false;
+}
+
+// PIE View 카메라를 PIE 월드의 MainCamera에 반영한다.
+// 게임에서는 월드의 카메라가 곧 플레이어 화면이므로, 이 카메라를 기준으로 하는 빌보드·게임 로직이 PIE 화면과 일치한다.
+void FPIEViewAdapter::SyncViewCameraToWorld(UWorld& World) const
+{
+	UCameraComponent* MainCamera = World.GetMainCamera() ? World.GetMainCamera()->GetCameraComponent() : nullptr;
+	if (!MainCamera)
+		return;
+
+	const FQuat Rotation = ViewCamera.Transform.Rotation;
+	MainCamera->SetRelativeLocation(ViewCamera.Transform.Location);
+	MainCamera->SetRelativeRotation(Rotation.ToFRotator());
 }
 
 void FPIEViewAdapter::CaptureWorld(UWorld& World)

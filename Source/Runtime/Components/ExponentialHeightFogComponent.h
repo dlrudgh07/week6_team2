@@ -10,18 +10,20 @@ class UExponentialHeightFogComponent : public USceneComponent
     
 	//Property Reflection
 	REFLECT_START(ClassName)
-		PROPERTY(FogDensity)
-		PROPERTY(FogHeightFalloff)
-		PROPERTY(FogMaxOpacity)
-		PROPERTY(StartDistance)
-		PROPERTY(EndDistance)
-		PROPERTY(FogCutoffDistance)
-		PROPERTY_TYPE(FogInscatteringColor, Color)
+	PROPERTY(FogDensity)
+	PROPERTY(FogHeightFalloff)
+	PROPERTY(FogMaxOpacity)
+	PROPERTY(StartDistance)
+
+	PROPERTY(FogCutoffDistance)
+	PROPERTY_TYPE(FogInscatteringColor, Color)
 	REFLECT_END()
 
+public:
     UExponentialHeightFogComponent();
     virtual ~UExponentialHeightFogComponent();
-    
+
+private:
     // 안개 전체 농도 (0 ~ 0.05)
     float FogDensity;
 

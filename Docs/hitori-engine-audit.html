@@ -1,0 +1,657 @@
+<title>Hitori 엔진 구조 점검</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 엔지니어링 점검표. 상단 요약 → 필터 가능한 수정 목록 → 구조 레퍼런스. 카드 대신 행과 헤어라인. */
+:root {
+	--bg: #f3f5f8;
+	--surface: #ffffff;
+	--ink: #17202b;
+	--muted: #5a6676;
+	--line: #d8dee6;
+	--accent: #2457a6;
+	--accent-soft: #e4ecf8;
+	--bug: #b8352a;
+	--bug-soft: #fbe9e7;
+	--risk: #9a6512;
+	--risk-soft: #fbf1df;
+	--tidy: #556273;
+	--tidy-soft: #eceff3;
+	--code-bg: #eef1f5;
+	--font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+	--font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+	--step-0: 0.875rem;
+	--step-1: 1rem;
+	--step-2: 1.25rem;
+	--step-3: 1.75rem;
+	--step-4: 2.25rem;
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--bg: #0f141b; --surface: #161d27; --ink: #e4e9f0; --muted: #96a3b4; --line: #2a3441;
+		--accent: #82aef0; --accent-soft: #1c2a40;
+		--bug: #f08074; --bug-soft: #3a1d1b; --risk: #e6b65e; --risk-soft: #362a14; --tidy: #a3b0c0; --tidy-soft: #222b37;
+		--code-bg: #1d2531; color-scheme: dark;
+	}
+}
+:root[data-theme="dark"] {
+	--bg: #0f141b; --surface: #161d27; --ink: #e4e9f0; --muted: #96a3b4; --line: #2a3441;
+	--accent: #82aef0; --accent-soft: #1c2a40;
+	--bug: #f08074; --bug-soft: #3a1d1b; --risk: #e6b65e; --risk-soft: #362a14; --tidy: #a3b0c0; --tidy-soft: #222b37;
+	--code-bg: #1d2531; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+	background: var(--bg);
+	color: var(--ink);
+	font-family: var(--font-body);
+	font-size: var(--step-0);
+	line-height: 1.6;
+	padding-inline: 16px;
+	padding-block: 0 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.25; }
+h1 { font-size: var(--step-4); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: var(--step-3); font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: var(--step-1); font-weight: 700; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: 0.92em; }
+code { background: var(--code-bg); padding: 0.05em 0.35em; border-radius: 3px; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Header */
+header.top { padding-block: 40px 24px; display: grid; gap: 14px; border-bottom: 1px solid var(--line); }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { color: var(--muted); max-width: 68ch; font-size: var(--step-1); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 500; }
+
+nav.sections {
+	position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+	background: var(--bg); border-bottom: 1px solid var(--line);
+	display: flex; gap: 4px; overflow-x: auto; padding-block: 8px;
+}
+nav.sections a {
+	white-space: nowrap; text-decoration: none; color: var(--muted);
+	padding: 4px 10px; border-radius: 4px; font-weight: 500;
+}
+nav.sections a:hover { color: var(--ink); background: var(--surface); }
+
+section { padding-block: 40px 8px; display: grid; gap: 20px; scroll-margin-top: 56px; }
+.section-head { display: grid; gap: 6px; }
+.section-head p { color: var(--muted); max-width: 70ch; }
+
+/* Summary */
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.stat {
+	background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+	padding: 14px 16px; display: grid; gap: 2px; text-align: left; font: inherit; color: inherit; cursor: pointer;
+}
+.stat[aria-pressed="true"] { border-color: currentColor; box-shadow: inset 0 0 0 1px currentColor; }
+.stat .n { font-size: var(--step-4); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat .l { font-weight: 500; }
+.stat .d { color: var(--muted); font-size: 0.8rem; }
+.stat.bug .n { color: var(--bug); }
+.stat.risk .n { color: var(--risk); }
+.stat.tidy .n { color: var(--tidy); }
+.stat.prog { cursor: default; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+
+/* Filters */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip {
+	font: inherit; font-size: 0.8rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+	padding: 3px 10px; border-radius: 999px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.filters .spacer { flex: 1; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.8rem; cursor: pointer; }
+input[type="search"] {
+	font: inherit; font-size: 0.85rem; padding: 5px 10px; border: 1px solid var(--line); border-radius: 4px;
+	background: var(--surface); color: var(--ink); min-width: 0; width: 220px; max-width: 100%;
+}
+
+/* Issue list */
+.issues { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.issue { padding: 18px 20px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
+.issue:first-child { border-top: 0; }
+.issue-head { display: grid; grid-template-columns: auto auto 1fr; gap: 10px 12px; align-items: start; }
+.issue-head input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+.id { font-family: var(--font-mono); font-weight: 500; color: var(--muted); padding-top: 1px; min-width: 2.4em; }
+.title-line { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; min-width: 0; }
+.title-line h3 { font-size: 1.02rem; }
+.pill { font-size: 0.72rem; font-weight: 700; padding: 1px 8px; border-radius: 3px; letter-spacing: 0.02em; white-space: nowrap; }
+.pill.bug { color: var(--bug); background: var(--bug-soft); }
+.pill.risk { color: var(--risk); background: var(--risk-soft); }
+.pill.tidy { color: var(--tidy); background: var(--tidy-soft); }
+.cat { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.verify { font-size: 0.72rem; color: var(--risk); border: 1px dashed var(--risk); padding: 0 6px; border-radius: 3px; white-space: nowrap; }
+.issue-body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding-left: calc(16px + 2.4em + 24px); }
+.issue-body div { min-width: 0; display: grid; gap: 4px; align-content: start; }
+.issue-body .k { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-family: var(--font-mono); }
+.files { display: flex; flex-wrap: wrap; gap: 6px; padding-left: calc(16px + 2.4em + 24px); }
+.file {
+	font-family: var(--font-mono); font-size: 0.75rem; background: var(--code-bg); color: var(--ink);
+	border: 1px solid transparent; border-radius: 3px; padding: 2px 8px; cursor: pointer; max-width: 100%;
+	overflow-wrap: anywhere; text-align: left;
+}
+.file:hover { border-color: var(--line); }
+.file.copied { border-color: var(--accent); color: var(--accent); }
+.issue.done h3 { text-decoration: line-through; color: var(--muted); }
+.issue.done .issue-body, .issue.done .files { opacity: 0.55; }
+.empty { padding: 28px 20px; color: var(--muted); text-align: center; }
+
+/* Order */
+.order { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--line); }
+.order li { position: relative; padding: 0 0 18px 22px; display: grid; gap: 2px; }
+.order li::before {
+	content: counter(step); counter-increment: step; position: absolute; left: -13px; top: 0;
+	width: 24px; height: 24px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent);
+	color: var(--accent); font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; display: grid; place-items: center;
+}
+.order { counter-reset: step; }
+.order li b { font-weight: 700; }
+.order li span { color: var(--muted); }
+.ref { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); }
+
+/* Reference blocks */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.two > * { min-width: 0; }
+pre.tree {
+	margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+	padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.65; color: var(--ink);
+}
+pre.tree .s { color: var(--accent); font-weight: 500; }
+pre.tree .c { color: var(--muted); }
+.notes { display: grid; gap: 10px; }
+.note { display: grid; gap: 2px; }
+.note b { font-weight: 700; }
+.note p { color: var(--muted); }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-top: 1px solid var(--line); }
+thead th { border-top: 0; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-family: var(--font-mono); font-weight: 500; background: var(--bg); }
+td:first-child { font-weight: 500; white-space: nowrap; }
+.ok { color: var(--accent); font-weight: 700; }
+ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.8rem; }
+
+@media (max-width: 760px) {
+	.issue-body { grid-template-columns: 1fr; padding-left: 0; }
+	.files { padding-left: 0; }
+	.issue { padding: 16px; }
+	h1 { font-size: var(--step-3); }
+	input[type="search"] { width: 100%; }
+	.filters .spacer { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<div class="wrap">
+	<header class="top">
+		<div class="eyebrow">Code audit · Unreal Engine 구조 대비</div>
+		<h1>Hitori 엔진 구조 점검</h1>
+		<p class="lede">언리얼 엔진 구조를 따라 만든 엔진입니다. 상속, 소유, 코어 시스템, 네이밍을 UE와 비교했고, 그 과정에서 찾은 고칠 점을 우선순위와 함께 정리했습니다.</p>
+		<div class="meta">
+			<span>repo <b>week6_team2</b></span>
+			<span>branch <b>main @ 007819b</b></span>
+			<span>점검일 <b>2026-10-04</b></span>
+			<span>방식 <b>소스 정적 리딩 (빌드·실행 안 함)</b></span>
+		</div>
+	</header>
+
+	<nav class="sections" aria-label="섹션">
+		<a href="#fix">수정 목록</a>
+		<a href="#order">권장 순서</a>
+		<a href="#inherit">상속 구조</a>
+		<a href="#own">소유 구조</a>
+		<a href="#core">코어 시스템</a>
+		<a href="#naming">네이밍</a>
+	</nav>
+
+	<section id="fix">
+		<div class="section-head">
+			<h2>수정 목록</h2>
+			<p>버그는 지금 잘못 동작하는 것, 위험은 아직 터지지 않았지만 구조상 터질 수 있는 것, 정리는 동작과 무관한 일관성 문제입니다. 체크 표시는 이 브라우저에만 저장됩니다. 파일 칩을 누르면 경로가 복사됩니다.</p>
+		</div>
+
+		<div class="summary">
+			<button class="stat bug" type="button" data-sev="bug" id="stat-bug" aria-pressed="false"><span class="n" id="n-bug">0</span><span class="l">버그</span><span class="d">지금 잘못 동작함</span></button>
+			<button class="stat risk" type="button" data-sev="risk" id="stat-risk" aria-pressed="false"><span class="n" id="n-risk">0</span><span class="l">위험</span><span class="d">구조상 터질 수 있음</span></button>
+			<button class="stat tidy" type="button" data-sev="tidy" id="stat-tidy" aria-pressed="false"><span class="n" id="n-tidy">0</span><span class="l">정리</span><span class="d">네이밍·데드코드·장기 과제</span></button>
+			<div class="stat prog"><span class="n" id="n-done">0 / 0</span><span class="l">완료</span><div class="bar"><i id="bar"></i></div></div>
+		</div>
+
+		<div class="filters" id="cats" role="group" aria-label="분류 필터"></div>
+		<div class="filters">
+			<input type="search" id="q" placeholder="제목·파일명으로 찾기" aria-label="검색">
+			<span class="spacer"></span>
+			<label class="toggle"><input type="checkbox" id="hide-done"> 완료 항목 숨기기</label>
+		</div>
+
+		<ol class="issues" id="list"></ol>
+	</section>
+
+	<section id="order">
+		<div class="section-head">
+			<h2>권장 순서</h2>
+			<p>뒤 단계가 앞 단계에 기대는 순서입니다. 예를 들어 에디터 선택 상태를 약참조로 바꾸려면 약참조가 먼저 믿을 만해야 합니다.</p>
+		</div>
+		<ol class="order">
+			<li><b>GUObjectArray를 free-list로 교체</b><span>약참조와 InternalIndex 기반 캐시가 전부 여기에 기댑니다.</span><span class="ref">B1</span></li>
+			<li><b>Dirty 리스트 비우기, Destroy 지연 처리</b><span>세션이 길수록 느려지는 문제와 Tick 중 삭제 크래시를 막습니다.</span><span class="ref">B6 · B3 · R1</span></li>
+			<li><b>컴포넌트 등록 경로 통일</b><span>SpawnActor, AddComponentByClass, PIE 복제가 같은 함수를 쓰게 합니다.</span><span class="ref">B4 · R2 · R3</span></li>
+			<li><b>씬 로드 이름 매칭 확인 후 이름 규칙 수정</b><span>먼저 실제로 씬을 열어 Transform이 적용되는지 확인합니다.</span><span class="ref">B2</span></li>
+			<li><b>링크 에러 위험 제거, 빠른 정리</b><span>정의 없는 선언, 로그 스팸, 데드코드를 치웁니다.</span><span class="ref">B5 · C1 · C3</span></li>
+			<li><b>장기 과제</b><span>프로퍼티 플래그, 직렬화 기반 복제, 컬링을 Runtime으로 이동, SceneProxy와 렌더 스레드 분리.</span><span class="ref">R4 · R5 · R8 · R10</span></li>
+		</ol>
+	</section>
+
+	<section id="inherit">
+		<div class="section-head">
+			<h2>상속 구조</h2>
+			<p><span class="ok">★</span> 표시는 UE와 다른 지점입니다.</p>
+		</div>
+		<div class="two">
+<pre class="tree">UObject
+├─ UClass            <span class="c">UObject(false), GUObjectArray 미등록</span>
+├─ UWorld / ULevel
+├─ UAssetManager     <span class="c">싱글턴</span>
+├─ <span class="s">URenderAsset ★</span>
+│   ├─ UStaticMesh
+│   ├─ UTexture2D
+│   ├─ UFont
+│   └─ UMaterialInterface ─ UMaterial
+├─ AActor
+│   ├─ ACameraActor, AStaticMeshActor
+│   ├─ ARotatingActor, ABillboardActor
+│   ├─ ATextRenderActor, ASpotLight
+│   └─ AEmitter, AExponentialHeightFog
+└─ UActorComponent
+    └─ USceneComponent
+        ├─ UCameraComponent
+        ├─ <span class="s">USpotLightComponent ★</span>
+        ├─ UExponentialHeightFogComponent
+        └─ UPrimitiveComponent
+            ├─ UMeshComponent ─ UStaticMeshComponent
+            ├─ UBillboardComponent
+            │   └─ <span class="s">UParticleSubUVComponent ★</span>
+            └─ UTextRenderComponent
+
+<span class="c">UObject 밖</span>
+FApplication ← FEditorApplication / FObjViewerApp
+IEditorPanel ← F*Panel (9개)
+FRHIBuffer   ← Vertex / Index / UniformBuffer
+FRHIShader   ← Vertex / Pixel / ComputeShader</pre>
+			<div class="notes">
+				<div class="note"><b>URenderAsset</b><p>UE에서는 UFont와 UMaterialInterface가 UObject를 바로 상속합니다. UStreamableRenderAsset은 Mesh와 Texture만 묶습니다. 여기서는 경로를 가진 에셋의 공통 부모로 쓰입니다.</p></div>
+				<div class="note"><b>라이트</b><p>UE는 ULightComponentBase → ULightComponent → ULocalLightComponent → UPointLightComponent → USpotLightComponent 순서입니다. UE의 ASpotLight는 라이트 컴포넌트가 Root이고, 빌보드는 에디터 전용 스프라이트입니다. 여기서는 Billboard가 Root입니다.</p></div>
+				<div class="note"><b>파티클</b><p>UE는 UParticleSystemComponent : UFXSystemComponent : UPrimitiveComponent이고, SubUV는 이미터 모듈입니다. Billboard 상속은 이 프로젝트 고유 설계입니다.</p></div>
+				<div class="note"><b>머티리얼 인스턴스</b><p>UE는 UMaterialInstance와 UMaterialInstanceDynamic을 별도 클래스로 둡니다. 여기서는 UMaterial의 bIsInstance와 Parent로 처리합니다.</p></div>
+				<div class="note"><b>없는 게임플레이 프레임워크</b><p>UEngine, UGameInstance, APawn, AController, AGameModeBase, ULocalPlayer, UInputComponent. 지금은 카메라가 FInputSystem을 직접 폴링합니다.</p></div>
+			</div>
+		</div>
+	</section>
+
+	<section id="own">
+		<div class="section-head">
+			<h2>소유 구조</h2>
+			<p>실선 소유는 delete 책임이 있는 관계입니다. 나머지는 소유하지 않는 참조입니다.</p>
+		</div>
+		<div class="two">
+<pre class="tree">FEditorApplication  <span class="c">≈ FEngineLoop + UEditorEngine</span>
+├─ TUniquePtr: FDynamicRHI, FRenderer, 각종 Renderer
+├─ TUniquePtr&lt;FEditorUI&gt;
+│   └─ TArray&lt;TUniquePtr&lt;IEditorPanel&gt;&gt;
+├─ TArray&lt;FWindowContext&gt;  <span class="c">Window + Swapchain</span>
+└─ TArray&lt;FWorldContext&gt;   <span class="c">Editor 1 + PIE 1</span>
+    └─ UWorld*
+        ├─ ULevel* Level              <span class="c">단일 PersistentLevel</span>
+        │   └─ TArray&lt;AActor*&gt;        <span class="c">ClearActors()에서 delete</span>
+        │       └─ TArray&lt;UActorComponent*&gt;  <span class="c">~AActor()에서 delete</span>
+        │           └─ AttachParent / Children  <span class="c">비소유 트리</span>
+        ├─ <span class="s">ACameraActor* MainCamera ★</span>  <span class="c">Level 밖</span>
+        ├─ TickActors, BeginPlayList   <span class="c">비소유</span>
+        ├─ TArray&lt;TWeakObjectPtr&lt;UPrimitiveComponent&gt;&gt;
+        └─ FPrimitiveBVH, FScene(포그)
+
+<span class="c">전역</span>
+GUObjectArray      <span class="c">모든 UObject. Shutdown에서 일괄 delete</span>
+UAssetManager::Get()  <span class="c">에셋 소유</span>
+FRenderResourceManager (static)
+
+<span class="c">Outer 체인</span>
+Component → Actor → Level → <span class="s">nullptr ★</span>  <span class="c">(PIE 복제 시에는 World)</span></pre>
+			<div class="notes">
+				<div class="note"><b>GC 대신 명시적 delete</b><p>UE는 UPROPERTY 참조 그래프와 GC로 수명을 관리하고, Destroy는 EndPlay 후 MarkAsGarbage를 거쳐 GC 때 해제합니다. 여기서는 DestroyActor가 즉시 delete합니다. 그래서 에디터의 생 포인터를 ResetSceneSelection()으로 직접 정리해야 합니다.</p></div>
+				<div class="note"><b>World 소유자</b><p>UE는 GEngine의 WorldList에 있는 FWorldContext가 World를 소유하고, World의 Outer는 UPackage입니다. 여기서는 FEditorApplication이 그 역할을 합니다.</p></div>
+				<div class="note"><b>카메라</b><p>UE의 카메라는 Level 안의 Actor입니다. 여기서는 Level 밖이라 저장과 Outliner에서 빠집니다. 의도된 설계로 보입니다.</p></div>
+				<div class="note"><b>컴포넌트 등록</b><p>UE의 RegisterComponent는 SceneProxy를 만들어 FScene에 넣습니다. 여기서는 UWorld::AddComponent로 BVH용 약참조 배열에 넣는 것이 전부입니다.</p></div>
+			</div>
+		</div>
+	</section>
+
+	<section id="core">
+		<div class="section-head">
+			<h2>코어 시스템</h2>
+			<p>각 시스템이 UE의 무엇에 해당하고 어디가 다른지 정리했습니다.</p>
+		</div>
+		<div class="table-wrap">
+			<table>
+				<thead><tr><th>시스템</th><th>Hitori</th><th>UE</th><th>평가</th></tr></thead>
+				<tbody>
+					<tr><td>클래스 선언</td><td>직접 작성한 <code>DECLARE_CLASS</code>, <code>inline static FAutoRegister</code>로 자동 등록</td><td>UHT 코드 생성 (<code>UCLASS</code>, <code>GENERATED_BODY</code>)</td><td>매크로 수준에서는 충분히 비슷함</td></tr>
+					<tr><td>프로퍼티</td><td><code>offsetof</code> + <code>EPropertyType</code> enum인 POD 구조체</td><td><code>FProperty</code> 클래스 계층, <code>CPF_*</code> 플래그, 메타데이터</td><td>플래그가 없어 Edit·Transient 구분 불가</td></tr>
+					<tr><td>생성</td><td><code>FObjectFactory::ConstructObject</code></td><td><code>NewObject</code> / <code>StaticConstructObject_Internal</code></td><td>대응됨</td></tr>
+					<tr><td>복제</td><td>복사 생성자로 얕은 복사 후 <code>DuplicateSubObjects()</code>에서 수동 깊은 복사</td><td>직렬화 기반 <code>DuplicateObject</code></td><td>포인터 멤버 추가마다 수동 처리 필요</td></tr>
+					<tr><td>CDO</td><td><code>Constructor()</code> 직접 호출, ClassPrivate 없음</td><td>클래스 초기화 때 생성, 아키타입과 델타 직렬화 기준</td><td>사실상 미사용</td></tr>
+					<tr><td>FName</td><td>NamePool, Comparison/Display Id, Number</td><td>동일</td><td><span class="ok">거의 같음</span></td></tr>
+					<tr><td>고유 이름</td><td>전역 카운터 <code>_N</code></td><td>Outer 안에서 클래스별 충돌 검사</td><td>씬 로드 매칭에 영향</td></tr>
+					<tr><td>오브젝트 배열</td><td>swap-remove</td><td>free-list로 인덱스 고정</td><td>약참조가 깨짐</td></tr>
+					<tr><td>엔진 루프</td><td><code>WinMain</code> → <code>CreateApplication()</code> → Init / Run / Shutdown</td><td><code>GuardedMain</code> → <code>FEngineLoop</code></td><td>대응됨</td></tr>
+					<tr><td>틱</td><td>TickActors 순회, Actor가 모든 TickComponent 호출</td><td><code>FTickFunction</code>, 틱 그룹, <code>FTickTaskManager</code></td><td>의존 순서 표현 불가</td></tr>
+					<tr><td>PIE</td><td>World를 복사 생성자로 복제</td><td><code>PPF_DuplicateForPIE</code> 직렬화, <code>UEDPIE_</code> 접두사</td><td>복제 누락 위험</td></tr>
+					<tr><td>렌더링</td><td>컴포넌트가 매 프레임 <code>FRenderPacket</code> 제출 → <code>FRenderer</code> → static <code>FRenderCommand</code> → <code>FDynamicRHI</code></td><td>GameThread / RenderThread / RHIThread, SceneProxy, MeshDrawCommand</td><td>렌더 스레드와 SceneProxy 없음</td></tr>
+					<tr><td>RHI</td><td>이름은 <code>FDynamicRHI</code>, 실제로는 D3D11 전용</td><td>플랫폼별 DynamicRHI 구현</td><td>D3D11 타입이 공개 API에 노출</td></tr>
+					<tr><td>FScene</td><td>포그 데이터만 담은 구조체, 두 곳에 중복</td><td>렌더러 쪽 월드</td><td>이름만 같고 의미가 다름</td></tr>
+					<tr><td>Tasks</td><td>Launch, FTask, Pipe, Prerequisite, work stealing</td><td><code>UE::Tasks</code></td><td><span class="ok">잘 따라 만듦</span></td></tr>
+					<tr><td>Stats</td><td><code>FStats</code>, <code>FScopeCycleCounter</code>, <code>FGPUProfiler</code></td><td>stat 시스템, <code>SCOPE_CYCLE_COUNTER</code></td><td><span class="ok">대응됨</span></td></tr>
+					<tr><td>로그</td><td><code>LOG(Verbosity, fmt)</code> + <code>FOutputDevice</code> 싱크</td><td><code>UE_LOG(Category, Verbosity, ...)</code></td><td>로그 카테고리 없음</td></tr>
+					<tr><td>직렬화</td><td><code>Serialize(json&amp;, bool)</code>, <code>FArchive</code>는 빈 껍데기</td><td><code>FArchive</code> 기반</td><td>Object 프로퍼티는 에셋 경로만 지원</td></tr>
+					<tr><td>에셋</td><td><code>Assets/</code> 상대 경로가 키</td><td><code>/Game/...</code> 패키지, SoftObjectPath, 비동기 로딩</td><td>단순화된 형태</td></tr>
+					<tr><td>컨테이너</td><td><code>TArray</code> = <code>std::vector</code> 래퍼, <code>FString</code> = <code>std::string</code></td><td>자체 구현, TCHAR(UTF-16)</td><td>인덱스 타입 불일치</td></tr>
+					<tr><td>입력</td><td>static <code>FInputSystem</code> 폴링</td><td>PlayerController → InputComponent, Enhanced Input</td><td>게임플레이 계층 없음</td></tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<section id="naming">
+		<div class="section-head">
+			<h2>네이밍</h2>
+			<p>기본 규칙은 잘 지키고 있습니다. 어긋나는 부분은 수정 목록의 정리 항목(C5 ~ C11)에 넣었습니다.</p>
+		</div>
+		<div class="two">
+			<div class="notes">
+				<h3>잘 지키는 것</h3>
+				<ul class="plain">
+					<li>접두사 <code>U</code> <code>A</code> <code>F</code> <code>T</code> <code>E</code> <code>I</code>, 전역 <code>G</code> (<code>GUObjectArray</code>), <code>NAME_None</code></li>
+					<li>bool은 <code>b</code>, 파라미터는 <code>In</code> / <code>Out</code>, <code>Super</code> / <code>ThisClass</code> 별칭</li>
+					<li>파일명은 접두사를 뗀 클래스명 (<code>AActor</code> ↔ <code>Actor.h</code>)</li>
+					<li>폴더가 UE와 같음: GameFramework, Components, UObject, HAL, RHI, Misc, Templates, Camera, Particles</li>
+					<li><code>enum class</code> + <code>E</code> 접두사, <code>.clang-format</code> (Allman, 탭)</li>
+				</ul>
+			</div>
+			<div class="notes">
+				<h3>어긋나는 것 (요약)</h3>
+				<ul class="plain">
+					<li>헝가리안 표기 <code>mDatas</code>, 소문자 멤버 <code>model</code>, <code>mesh</code></li>
+					<li>오타 <code>DepthSteincil</code>, <code>Attatch</code></li>
+					<li>기본 컴포넌트 이름에 접두사가 있기도 없기도 함</li>
+					<li>Orthogonal과 Orthographic, NearZ와 NearClipPlane 혼용</li>
+					<li>클래스 이름 문자열 <code>"AActor"</code> vs <code>"Object"</code></li>
+					<li>파일명에 F 접두사 (<code>FScene.h</code>, <code>FogSceneData.h</code>)</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<footer>
+		소스를 정적으로 읽고 작성했습니다. 빌드나 실행으로 확인하지 않았으며, "확인 필요" 표시 항목은 먼저 재현해 보는 것을 권합니다.
+	</footer>
+</div>
+
+<script>
+const ISSUES = [
+	{ id: "B1", sev: "bug", cat: "메모리·수명", title: "오브젝트 하나를 지우면 다른 오브젝트의 약참조가 끊김",
+		files: ["Source/Runtime/UObject/Object.cpp:54", "Source/Runtime/UObject/WeakObjectPtrTemplates.h:55"],
+		sym: "삭제 시 swap-remove로 맨 뒤 오브젝트를 빈자리로 옮기고 InternalIndex를 바꿉니다. 그 오브젝트를 가리키던 TWeakObjectPtr는 옛 인덱스를 들고 있어서 null을 반환합니다. WorldPrimitiveComponents가 약참조 배열이라 Actor 하나를 지우면 무관한 Primitive가 BVH와 피킹에서 빠질 수 있습니다.",
+		ue: "FUObjectArray는 인덱스를 옮기지 않습니다. 빈 슬롯은 free-list(ObjAvailableList)에 넣고, 재사용 여부는 SerialNumber로 구분합니다.",
+		fix: "삭제 시 슬롯을 nullptr로 두고 인덱스를 free-list에 넣습니다. 생성자는 free-list에서 먼저 꺼냅니다. Serial 비교는 그대로 둡니다." },
+	{ id: "B2", sev: "bug", cat: "직렬화", verify: true, title: "씬 로드 시 컴포넌트 이름이 맞지 않을 수 있음",
+		files: ["Source/Runtime/UObject/UObjectGlobals.cpp:62", "Source/Runtime/Serialization/JsonArchive.cpp:184"],
+		sym: "모든 이름에 전역 카운터가 붙습니다(UPrimitiveComponent_57). 로드할 때 새로 Spawn한 Actor의 컴포넌트는 다른 번호를 받는데, 매칭은 Number까지 비교합니다. 그러면 \"has no component\" 경고가 나고 Transform과 Mesh가 적용되지 않습니다. 기존 씬 파일은 전부 _0이라 현재 코드와 맞지 않습니다.",
+		ue: "CreateDefaultSubobject는 넘긴 이름을 그대로 씁니다. 같은 클래스는 매번 같은 이름의 서브오브젝트를 가집니다.",
+		fix: "기본 서브오브젝트는 이름을 그대로 쓰고, MakeUniqueObjectName은 같은 Outer 안에서만 충돌을 검사하게 바꿉니다. 먼저 실제 씬을 열어 재현합니다." },
+	{ id: "B3", sev: "bug", cat: "월드·틱", title: "Tick 도중 Destroy하면 순회 중인 배열이 바뀜",
+		files: ["Source/Runtime/Engine/World.cpp:95", "Source/Runtime/Engine/World.cpp:268"],
+		sym: "TickActors를 range-for로 도는 중에 Actor가 Destroy()를 부르면 DestroyActor가 같은 배열에서 RemoveAt을 하고 즉시 delete합니다. 반복자가 무효화되고 해제된 메모리에 접근합니다. EndPlay도 호출되지 않습니다.",
+		ue: "Destroy는 EndPlay를 부르고 PendingKill로 표시합니다. 틱 목록에서는 안전하게 빠지고, 메모리는 나중에 GC가 해제합니다.",
+		fix: "Destroy는 플래그를 세우고 PendingDestroy 목록에 넣기만 합니다. UWorld::Tick 끝에서 EndPlay를 부른 뒤 일괄 delete합니다." },
+	{ id: "B4", sev: "bug", cat: "월드·틱", title: "에디터 월드는 Root 컴포넌트만 BVH에 등록",
+		files: ["Source/Runtime/Engine/World.cpp:69", "Source/Runtime/Engine/World.cpp:421"],
+		sym: "SpawnActor는 Root Primitive만 WorldPrimitiveComponents에 넣고, PIE 복제는 모든 Primitive를 넣습니다. Root에 붙은 두 번째 메시는 에디터에서는 피킹되지 않고 PIE에서는 됩니다.",
+		ue: "AActor::RegisterAllComponents가 모든 컴포넌트를 같은 방식으로 등록합니다.",
+		fix: "AActor::RegisterAllComponents(UWorld*)를 만들어 SpawnActor, AddComponentByClass, DuplicateSubObjects가 모두 이 함수를 쓰게 합니다." },
+	{ id: "B5", sev: "bug", cat: "빌드", title: "GetActorRotation, GetActorQuat 정의 없음",
+		files: ["Source/Runtime/GameFramework/Actor.h:46", "Source/Runtime/GameFramework/Actor.h:48"],
+		sym: "헤더에 선언만 있고 Actor.cpp의 정의는 주석 처리되어 있습니다. 누군가 처음 호출하는 순간 LNK2019 링크 에러가 납니다.",
+		ue: "AActor::GetActorRotation은 RootComponent의 월드 회전을 반환합니다.",
+		fix: "주석을 풀어 RootComponent->GetComponentRotation()을 반환하게 하거나 선언을 지웁니다." },
+	{ id: "B6", sev: "bug", cat: "성능", title: "DirtyRenderPrimitiveComponents가 비워지지 않음",
+		files: ["Source/Runtime/Engine/World.cpp:368", "Source/Editor/Viewports/MultipleViewportsAdapter.cpp:547"],
+		sym: "ClearDirtyRenderPrimitiveComponents의 본문이 PIE 커밋(e5a9845) 이후 주석 처리되어 있습니다. Transform이 바뀔 때마다 항목이 쌓이고, CaptureWorld가 매 프레임 전체 이력을 순회합니다. 세션이 길어질수록 메모리와 프레임 비용이 늘어납니다.",
+		ue: "변경 목록은 프레임마다 소비하고 비웁니다(MarkRenderStateDirty → SendRenderDynamicData).",
+		fix: "왜 주석 처리했는지 먼저 확인합니다. 소비자가 여럿이라면 어댑터별로 마지막으로 읽은 위치나 revision을 기억하게 하고, 아니면 다시 Reset합니다." },
+
+	{ id: "R1", sev: "risk", cat: "월드·틱", title: "BeginPlay 상태값이 반대로 쓰임",
+		files: ["Source/Runtime/GameFramework/Actor.cpp:41"],
+		sym: "BeginPlay는 끝난 뒤 BeginningPlay를, EndPlay는 HasBegunPlay를 설정합니다. AddComponentByClass가 BeginningPlay를 검사하기 때문에 지금은 우연히 동작합니다.",
+		ue: "BeginPlay 진행 중에는 BeginningPlay, 끝나면 HasBegunPlay입니다. EndPlay는 HasNotBegunPlay로 되돌립니다.",
+		fix: "상태 전이를 UE 순서로 고치고 AddComponentByClass는 HasBegunPlay를 검사하게 합니다." },
+	{ id: "R2", sev: "risk", cat: "렌더링", title: "월드 구분 없이 전역 오브젝트를 순회",
+		files: ["Source/Runtime/Engine/World.cpp:150", "Source/Runtime/Rendering/LineBatcher.cpp:37"],
+		sym: "TObjectIterator<UPrimitiveComponent>는 모든 월드의 컴포넌트를 돕니다. PIE 중에는 에디터 월드와 PIE 월드가 섞입니다. RenderWorldTexts는 월드를 걸러내지만 이 두 곳은 거르지 않습니다.",
+		ue: "렌더링은 월드별 FScene의 프리미티브만 다룹니다.",
+		fix: "월드가 가진 컴포넌트 목록(WorldPrimitiveComponents)을 순회하게 바꿉니다." },
+	{ id: "R3", sev: "risk", cat: "메모리·수명", title: "Outer 체인이 경로마다 다름",
+		files: ["Source/Runtime/Engine/World.cpp:25", "Source/Runtime/Engine/World.cpp:403"],
+		sym: "Init에서는 ConstructObject<ULevel>()라 Level의 Outer가 nullptr이고, PIE 복제에서는 World입니다. MainCamera의 Outer도 null입니다. Outer로 World를 찾는 코드가 생기면 에디터와 PIE에서 다르게 동작합니다.",
+		ue: "Actor의 Outer는 Level, Level의 Outer는 World(패키지)입니다.",
+		fix: "ConstructObject(ULevel::StaticClass(), this)처럼 Outer를 넘깁니다. 카메라도 마찬가지입니다." },
+	{ id: "R4", sev: "risk", cat: "리플렉션", title: "CDO가 팩토리를 거치지 않음",
+		files: ["Source/Runtime/UObject/Class.cpp:26"],
+		sym: "GetDefaultObject가 Constructor()를 직접 부릅니다. CDO의 GetClass()는 null이라 IsA와 Cast가 실패하고, GUObjectArray에는 들어가지만 해시에는 없습니다.",
+		ue: "CDO는 RF_ClassDefaultObject 플래그와 함께 클래스 초기화 때 만들어지고, 생성과 델타 직렬화의 기준이 됩니다.",
+		fix: "ConstructObject로 만들고 RF_ClassDefaultObject 플래그를 추가해 이터레이터와 저장에서 제외합니다." },
+	{ id: "R5", sev: "risk", cat: "메모리·수명", title: "복사 생성자 기반 복제",
+		files: ["Source/Runtime/UObject/Object.cpp:227", "Source/Runtime/GameFramework/Actor.cpp:238"],
+		sym: "얕은 복사로 모든 생 포인터가 그대로 복사되고, 클래스마다 DuplicateSubObjects에서 직접 고쳐야 합니다. 포인터 멤버를 추가하고 처리하지 않으면 PIE 월드가 에디터 월드와 상태를 공유하고, 이중 delete가 날 수 있습니다.",
+		ue: "DuplicateObject는 아카이브로 직렬화해 복제하고, Instanced 서브오브젝트를 자동으로 복제합니다.",
+		fix: "단기: 포인터 멤버 체크리스트를 둡니다. 장기: 리플렉션 프로퍼티(Object 타입)를 돌며 자동으로 복제하는 방식으로 바꿉니다." },
+	{ id: "R6", sev: "risk", cat: "메모리·수명", title: "에디터 선택 상태가 생 포인터",
+		files: ["Source/Editor/Application/EditorApplication.cpp:796"],
+		sym: "Gizmo, Outline, Details가 대상의 생 포인터를 들고 있고, 삭제 경로마다 ResetSceneSelection으로 직접 비웁니다. 놓친 경로가 하나라도 있으면 해제된 메모리를 가리킵니다.",
+		ue: "에디터 선택은 GC와 TWeakObjectPtr로 안전하게 무효화됩니다.",
+		fix: "B1을 고친 뒤 선택 대상을 TWeakObjectPtr로 바꿉니다." },
+	{ id: "R7", sev: "risk", cat: "구조", title: "에디터 전용 코드가 Runtime에 있음",
+		files: ["Source/Runtime/Asset/ObjImporter", "Source/Runtime/Serialization/DefaultSceneLoader.cpp"],
+		sym: "OBJ 임포트와 대회용 씬 로더가 Runtime 라이브러리에 들어 있습니다. 게임 빌드에 불필요한 코드와 의존성이 따라갑니다.",
+		ue: "임포터는 에디터 모듈의 Factory가 담당합니다.",
+		fix: "Editor로 옮기거나 별도 Developer 프로젝트로 분리합니다." },
+	{ id: "R8", sev: "risk", cat: "구조", title: "컬링이 Editor/Viewports에 있고 코드가 중복됨",
+		files: ["Source/Editor/Viewports/MultipleViewportsAdapter.cpp", "Source/Editor/Viewports/PIEViewAdapter.cpp", "Source/Editor/Application/EditorApplication.cpp:503"],
+		sym: "Software·HZB 오클루전과 월드 캡처가 에디터에만 있어서 게임 빌드에는 컬링이 없습니다. 에디터와 PIE 어댑터의 ParallelFor 캡처 코드, RenderFrame과 RenderPIEFrame이 거의 같은 코드입니다.",
+		ue: "가시성은 Renderer 모듈이 FSceneView 단위로 처리하고, 뷰포트마다 FViewportClient가 붙습니다.",
+		fix: "FSceneView 같은 뷰 구조체와 컬링을 Runtime으로 옮기고, 에디터와 PIE는 그것을 쓰는 클라이언트로 만듭니다." },
+	{ id: "R9", sev: "risk", cat: "성능", title: "UObject를 만들 때마다 로그를 남김",
+		files: ["Source/Runtime/UObject/Object.cpp:22"],
+		sym: "생성자에서 LOG(Info, \"UUID\")를 부릅니다. 대량 Spawn이나 PIE 복제 때 std::format과 싱크 호출이 오브젝트 수만큼 일어나고, OutputLog가 묻힙니다.",
+		ue: "생성 로그는 기본적으로 남기지 않습니다.",
+		fix: "삭제하거나 Verbose 수준으로 낮춥니다." },
+	{ id: "R10", sev: "risk", cat: "리플렉션", title: "프로퍼티 플래그가 없음",
+		files: ["Source/Runtime/UObject/UnrealType.h", "Source/Runtime/UObject/ObjectMacros.h"],
+		sym: "Edit 가능, 읽기 전용, Transient 같은 구분을 표현할 수 없습니다. Details 패널과 직렬화가 모든 프로퍼티를 같게 다룹니다. 오브젝트 플래그도 RF_Transient 하나뿐입니다.",
+		ue: "CPF_Edit, CPF_Transient 같은 플래그와 메타데이터를 둡니다.",
+		fix: "PROPERTY 매크로에 EPropertyFlags 인자를 추가하고 Details와 Serialize가 이를 확인하게 합니다." },
+
+	{ id: "C1", sev: "tidy", cat: "성능", title: "TObjectIterator가 만들 때마다 전체 목록을 복사",
+		files: ["Source/Runtime/UObject/UObjectIterator.h:12"],
+		sym: "생성자에서 GetObjectsOfClass로 배열을 새로 채웁니다. 매 프레임 여러 번 쓰면 할당과 복사가 반복됩니다.",
+		ue: "GUObjectArray나 해시 버킷을 직접 순회합니다.",
+		fix: "해시 셋을 직접 도는 이터레이터로 바꾸거나, 핫패스에서는 월드 목록을 씁니다." },
+	{ id: "C2", sev: "tidy", cat: "데드코드", title: "쓰지 않거나 비어 있는 코드",
+		files: ["Source/Runtime/Job/FiberJobManager.h", "Source/Runtime/Serialization/Archive.h", "Source/Runtime/UObject/ObjectPtr.h", "Source/Runtime/UObject/Class.h:54"],
+		sym: "FFiberJobManager는 아무 데서도 쓰지 않습니다. FArchive와 TObjectPtr는 빈 껍데기, UWorld::BeginPlay/EndPlay와 PausePIE는 비어 있고, CopyProperties는 \"보류\" 상태입니다.",
+		ue: "",
+		fix: "지울 것과 구현할 것을 나눕니다. 이름만 UE인 빈 타입은 오해를 부르므로 구현 전까지 지우는 편이 낫습니다." },
+	{ id: "C3", sev: "tidy", cat: "구조", title: "FScene.h 중복, UE와 다른 의미",
+		files: ["Source/Runtime/FScene.h", "Source/Editor/FScene.h"],
+		sym: "같은 내용의 파일이 두 곳에 있습니다. include 경로에 따라 다른 파일을 잡을 수 있습니다. UE의 FScene은 렌더러 쪽 월드라서 이름이 혼동을 줍니다.",
+		ue: "FScene은 프리미티브와 라이트의 렌더러 쪽 표현입니다.",
+		fix: "Editor 쪽을 지우고, 이름을 FSceneEnvironment처럼 바꾸거나 Rendering 폴더로 옮깁니다. 파일명에서 F 접두사도 뗍니다." },
+	{ id: "C4", sev: "tidy", cat: "구조", title: "AExponentialHeightFog가 Components 폴더에 있음",
+		files: ["Source/Runtime/Components/ExponentialHeightFog.h"],
+		sym: "Actor인데 컴포넌트 폴더에 있습니다.",
+		ue: "Engine/ExponentialHeightFog.h이고 AInfo를 상속합니다.",
+		fix: "Engine 폴더로 옮깁니다." },
+	{ id: "C5", sev: "tidy", cat: "네이밍", title: "클래스 이름 문자열 규칙이 섞임",
+		files: ["Source/Runtime/UObject/Object.cpp:64", "Source/Runtime/UObject/Object.h:55"],
+		sym: "DECLARE_CLASS는 \"AActor\"처럼 접두사를 포함하고, UObject만 \"Object\"입니다. 씬 파일에도 접두사 포함 이름이 저장됩니다.",
+		ue: "접두사를 뗀 \"Actor\"를 씁니다.",
+		fix: "한쪽으로 통일합니다. 씬 파일 호환을 생각하면 \"UObject\"로 맞추는 쪽이 비용이 적습니다." },
+	{ id: "C6", sev: "tidy", cat: "네이밍", title: "컨테이너의 헝가리안 표기",
+		files: ["Source/Runtime/Containers/Array.h:75", "Source/Runtime/Containers/Queue.h:31", "Source/Runtime/Containers/Set.h:38"],
+		sym: "mDatas, mQueue, mSet. 나머지 코드는 PascalCase입니다.",
+		ue: "PascalCase 멤버(AllocatorInstance, ArrayNum)를 씁니다.",
+		fix: "Data, Queue, Set처럼 바꿉니다." },
+	{ id: "C7", sev: "tidy", cat: "네이밍", title: "FRenderPacket의 소문자 멤버와 포인터 정렬",
+		files: ["Source/Runtime/Rendering/RenderPacket.h"],
+		sym: "model, mesh, material이 소문자이고 UStaticMesh *mesh로 .clang-format의 PointerAlignment Left와 맞지 않습니다. 같은 구조체 안의 CameraDistanceSquared는 PascalCase입니다.",
+		ue: "",
+		fix: "Model, Mesh, Material로 바꾸고 clang-format을 적용합니다." },
+	{ id: "C8", sev: "tidy", cat: "네이밍", title: "오타",
+		files: ["Source/Runtime/Rendering/RenderingInfo.h:50", "Source/Runtime/Components/SceneComponent.h:67"],
+		sym: "DepthSteincil(DepthStencil), Attatch(Attach). DepthSteincil은 여러 파일에서 쓰입니다.",
+		ue: "",
+		fix: "IDE 이름 바꾸기로 한 번에 고칩니다." },
+	{ id: "C9", sev: "tidy", cat: "네이밍", title: "기본 컴포넌트 이름이 제각각",
+		files: ["Source/Runtime/Engine/StaticMeshActor.cpp", "Source/Runtime/Engine/SpotLight.cpp", "Source/Runtime/Camera/CameraActor.cpp"],
+		sym: "UStaticMeshComponent에 \"UPrimitiveComponent\", Billboard에 \"UBillboardComponent\"(접두사 있음), 카메라에 \"CameraComponent\"(접두사 없음). 씬 파일 매칭 키라서 바꿀 때 호환에 주의해야 합니다.",
+		ue: "\"StaticMeshComponent0\"처럼 접두사 없이 역할 이름을 씁니다.",
+		fix: "B2와 함께 접두사 없는 역할 이름으로 통일하고, 로더에 옛 이름 매핑을 둡니다." },
+	{ id: "C10", sev: "tidy", cat: "네이밍", title: "REFLECT_START 인자를 쓰지 않음",
+		files: ["Source/Runtime/UObject/Object.h:30", "Source/Runtime/Components/StaticMeshComponent.h:9"],
+		sym: "대부분 리터럴 ClassName을 넘기고 UStaticMeshComponent만 클래스명을 넘깁니다. 매크로는 인자를 쓰지 않습니다.",
+		ue: "",
+		fix: "인자를 없애거나 static_assert로 ThisClass와 같은지 검사합니다." },
+	{ id: "C11", sev: "tidy", cat: "네이밍", title: "같은 개념에 다른 용어",
+		files: ["Source/Runtime/Camera/CameraComponent.h:42"],
+		sym: "GetIsOrthogonal과 SetIsOrthogonal(bInIsOrthographic), GetNearZ와 NearClipPlane이 섞여 있습니다. GetUUID는 UE의 GetUniqueID에 해당합니다.",
+		ue: "IsOrthographic, OrthoNearClipPlane, GetUniqueID를 씁니다.",
+		fix: "Orthographic, NearClipPlane으로 통일합니다." },
+	{ id: "C12", sev: "tidy", cat: "정합성", title: "인덱스 타입과 const 정합성",
+		files: ["Source/Runtime/Containers/Array.h:17", "Source/Runtime/Templates/Casts.h:7"],
+		sym: "TArray::operator[]는 uint32를 받고 Num()은 int32를 반환해 부호 경고가 곳곳에 납니다. IsA()가 non-const이고 Cast는 UObject*만 받아 const 객체를 Cast할 수 없습니다.",
+		ue: "int32로 통일하고, Cast는 const 오버로드가 있습니다.",
+		fix: "int32로 맞추고 IsA를 const로, Cast에 const T* 오버로드를 추가합니다." },
+	{ id: "C13", sev: "tidy", cat: "장기", title: "RHI가 D3D11에 묶여 있음",
+		files: ["Source/Runtime/Rendering/RenderCommand.h", "Source/Runtime/RHI/DynamicRHI.h"],
+		sym: "FRenderCommand와 FDynamicRHI의 공개 API에 D3D11_*, ID3D11* 타입이 그대로 나옵니다. 지금 단계에서는 문제가 아니지만 플랫폼을 늘릴 때 전부 바꿔야 합니다.",
+		ue: "RHI 계층은 플랫폼 독립 타입만 노출하고 D3D11/D3D12/Vulkan 구현이 뒤에 붙습니다.",
+		fix: "새 API를 추가할 때부터 RHI 자체 enum과 desc 구조체를 쓰도록 합니다." },
+	{ id: "C14", sev: "tidy", cat: "장기", title: "렌더 스레드와 SceneProxy 없음",
+		files: ["Source/Runtime/Components/PrimitiveComponent.h", "Source/Runtime/Rendering/Renderer.h"],
+		sym: "게임 스레드가 매 프레임 컴포넌트에서 직접 RenderPacket을 만듭니다. 컴포넌트 상태와 렌더 상태가 분리되어 있지 않습니다.",
+		ue: "컴포넌트는 등록 시 FPrimitiveSceneProxy를 만들고, 렌더 스레드는 프록시만 읽습니다.",
+		fix: "UE 구조를 계속 따라갈 계획이라면 FPrimitiveSceneProxy에 해당하는 렌더 데이터 객체부터 도입합니다." },
+];
+
+const SEV_LABEL = { bug: "버그", risk: "위험", tidy: "정리" };
+const KEY = "hitori-audit-done-v1";
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch (e) {}
+const state = { sev: null, cat: null, q: "", hideDone: false };
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function save() {
+	try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch (e) {}
+}
+
+function renderCats() {
+	const cats = [...new Set(ISSUES.map((i) => i.cat))];
+	const box = $("#cats");
+	box.innerHTML = `<button class="chip" type="button" id="cat-all" data-cat="" aria-pressed="${state.cat === null}">전체 분류</button>` +
+		cats.map((c, n) => `<button class="chip" type="button" id="cat-${n}" data-cat="${esc(c)}" aria-pressed="${state.cat === c}">${esc(c)} <span class="mono">${ISSUES.filter((i) => i.cat === c).length}</span></button>`).join("");
+}
+
+function renderStats() {
+	for (const s of ["bug", "risk", "tidy"]) {
+		$("#n-" + s).textContent = ISSUES.filter((i) => i.sev === s).length;
+		$("#stat-" + s).setAttribute("aria-pressed", String(state.sev === s));
+	}
+	const d = ISSUES.filter((i) => done.has(i.id)).length;
+	$("#n-done").textContent = `${d} / ${ISSUES.length}`;
+	$("#bar").style.width = (d / ISSUES.length * 100) + "%";
+}
+
+function renderList() {
+	const q = state.q.trim().toLowerCase();
+	const items = ISSUES.filter((i) =>
+		(!state.sev || i.sev === state.sev) &&
+		(!state.cat || i.cat === state.cat) &&
+		(!state.hideDone || !done.has(i.id)) &&
+		(!q || (i.title + " " + i.files.join(" ") + " " + i.id).toLowerCase().includes(q))
+	);
+	const list = $("#list");
+	if (!items.length) {
+		list.innerHTML = `<li class="empty">조건에 맞는 항목이 없습니다. 필터를 풀어 보세요.</li>`;
+		return;
+	}
+	list.innerHTML = items.map((i) => `
+		<li class="issue${done.has(i.id) ? " done" : ""}" id="item-${i.id}">
+			<div class="issue-head">
+				<input type="checkbox" id="chk-${i.id}" data-id="${i.id}" ${done.has(i.id) ? "checked" : ""} aria-label="${i.id} 완료 표시">
+				<span class="id">${i.id}</span>
+				<div class="title-line">
+					<h3>${esc(i.title)}</h3>
+					<span class="pill ${i.sev}">${SEV_LABEL[i.sev]}</span>
+					<span class="cat">${esc(i.cat)}</span>
+					${i.verify ? '<span class="verify">확인 필요</span>' : ""}
+				</div>
+			</div>
+			<div class="issue-body">
+				<div><span class="k">증상</span><p>${esc(i.sym)}</p></div>
+				<div><span class="k">UE에서는</span><p>${i.ue ? esc(i.ue) : '<span style="color:var(--muted)">해당 없음 (일관성 문제)</span>'}</p></div>
+				<div><span class="k">고치는 법</span><p>${esc(i.fix)}</p></div>
+			</div>
+			<div class="files">${i.files.map((f) => `<button class="file" type="button" data-path="${esc(f)}" title="경로 복사">${esc(f.replace(/^Source\//, ""))}</button>`).join("")}</div>
+		</li>`).join("");
+}
+
+function render() { renderStats(); renderCats(); renderList(); }
+
+document.addEventListener("click", (e) => {
+	const stat = e.target.closest(".stat[data-sev]");
+	if (stat) { state.sev = state.sev === stat.dataset.sev ? null : stat.dataset.sev; render(); return; }
+	const chip = e.target.closest(".chip[data-cat]");
+	if (chip) { state.cat = chip.dataset.cat || null; render(); return; }
+	const file = e.target.closest(".file");
+	if (file) {
+		const path = file.dataset.path;
+		const mark = () => { file.classList.add("copied"); file.textContent = "복사됨"; setTimeout(() => { file.classList.remove("copied"); file.textContent = path.replace(/^Source\//, ""); }, 1200); };
+		const fallback = () => { const r = document.createRange(); r.selectNodeContents(file); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+		try { navigator.clipboard.writeText(path).then(mark, fallback); } catch (err) { fallback(); }
+	}
+});
+document.addEventListener("change", (e) => {
+	if (e.target.matches(".issue-head input[type=checkbox]")) {
+		const id = e.target.dataset.id;
+		e.target.checked ? done.add(id) : done.delete(id);
+		save(); renderStats();
+		e.target.closest(".issue").classList.toggle("done", e.target.checked);
+		if (state.hideDone) renderList();
+	}
+	if (e.target.id === "hide-done") { state.hideDone = e.target.checked; renderList(); }
+});
+$("#q").addEventListener("input", (e) => { state.q = e.target.value; renderList(); });
+
+render();
+</script>

@@ -44,6 +44,25 @@ namespace
 		}
 	};
 
+	// 오브젝트별 상수 슬롯 = World 행렬 + (있으면) 패킷별 재질 파라미터.
+	// 슬롯 전체를 b0으로 VS/PS에 함께 바인딩하므로, 셰이더는 b0의 World 뒤에서 파라미터를 읽는다.
+	// (예: ParticleSubUVShader의 SubUV 프레임·알파)
+	constexpr EShaderBindFlagBits PerObjectStages = EShaderBindFlagBits::Vertex | EShaderBindFlagBits::Pixel;
+
+	void WritePerObjectSlot(uint8* Dest, const FRenderPacket& Packet, const uint32 SlotSize)
+	{
+		FPerObjectConstants Constants;
+		Constants.World = Packet.model;
+		std::memcpy(Dest, &Constants, sizeof(FPerObjectConstants));
+
+		if (Packet.MaterialParamData && Packet.MaterialParamDataSize > 0)
+		{
+			const uint32 MaxParamSize = SlotSize - static_cast<uint32>(sizeof(FPerObjectConstants));
+			assert(Packet.MaterialParamDataSize <= MaxParamSize);
+			std::memcpy(Dest + sizeof(FPerObjectConstants), Packet.MaterialParamData, (std::min)(Packet.MaterialParamDataSize, MaxParamSize));
+		}
+	}
+
 	EPSOType GetPacketPSO(const FRenderPacket& Packet)
 	{
 		return Packet.material ? Packet.material->PSOType : EPSOType::Count;
@@ -81,7 +100,8 @@ bool FRenderer::Init()
 	{
 		return EnsureConstantBufferCapacity(Temp, InitialPacketCapacity);
 	}
-	Temp = FRenderCommand::CreateConstantBuffer(sizeof(FPerObjectConstants));
+	// 패킷별 재질 파라미터까지 담도록 슬롯 크기로 만든다.
+	Temp = FRenderCommand::CreateConstantBuffer(PerObjectSlotSize);
 	return Temp && Temp->GetBuffer();
 }
 
@@ -229,9 +249,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 			uint8* Base = static_cast<uint8*>(MappedData);
 			for (int32 i = 0; i < TotalPackets; ++i)
 			{
-				FPerObjectConstants Constants;
-				Constants.World = InPackets[i].model;
-				std::memcpy(Base + static_cast<size_t>(i) * PerObjectSlotSize, &Constants, sizeof(Constants));
+				WritePerObjectSlot(Base + static_cast<size_t>(i) * PerObjectSlotSize, InPackets[i], PerObjectSlotSize);
 			}
 			FRenderCommand::UnmapBuffer(Temp.get());
 			if (BatchStats.bCountUploadBytes)
@@ -270,7 +288,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 
 			if (bUseOffsets)
 			{
-				FRenderCommand::BindConstantBufferRange(0, Temp.get(), EShaderBindFlagBits::Vertex, FirstConstant, NumConstants);
+				FRenderCommand::BindConstantBufferRange(0, Temp.get(), PerObjectStages, FirstConstant, NumConstants);
 			}
 			else
 			{
@@ -279,13 +297,11 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 				{
 					return;
 				}
-				FPerObjectConstants Constants;
-				Constants.World = RenderPacket.model;
-				std::memcpy(MappedData, &Constants, sizeof(Constants));
+				WritePerObjectSlot(static_cast<uint8*>(MappedData), RenderPacket, PerObjectSlotSize);
 				FRenderCommand::UnmapBuffer(Temp.get());
 				if (BatchStats.bCountUploadBytes)
 					BatchStats.UploadBytes += sizeof(FPerObjectConstants);
-				FRenderCommand::BindConstantBuffer(0, Temp.get(), EShaderBindFlagBits::Vertex);
+				FRenderCommand::BindConstantBuffer(0, Temp.get(), PerObjectStages);
 			}
 			const uint32 IndexCount = RenderPacket.IndexCount ? RenderPacket.IndexCount : RenderPacket.mesh->GetIndexCount(RenderPacket.LODIndex);
 			FRenderCommand::DrawIndexed(IndexCount, RenderPacket.StartIndex);
@@ -372,14 +388,8 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 
 			for (int32 i = Start; i < End; ++i)
 			{
-				FPerObjectConstants Constants;
-				Constants.World = InPackets[i].model;
-
 				const uint32 LocalIndex = i - Start;
-
-				uint8* Dest = Base + LocalIndex * PerObjectSlotSize;
-
-				std::memcpy(Dest, &Constants, sizeof(FPerObjectConstants));
+				WritePerObjectSlot(Base + LocalIndex * PerObjectSlotSize, InPackets[i], PerObjectSlotSize);
 			}
 
 			FRenderCommand::UnmapBuffer(WorkerCB, Context);
@@ -410,7 +420,7 @@ void FRenderer::RenderOpaque(TArray<FRenderPacket>& InPackets, const FMatrix& Vi
 				const uint32 FirstConstant = LocalIndex * (PerObjectSlotSize / 16);
 				const uint32 NumConstants = PerObjectSlotSize / 16;
 
-				FRenderCommand::BindConstantBufferRange(0, WorkerCB, EShaderBindFlagBits::Vertex, FirstConstant, NumConstants, Context1);
+				FRenderCommand::BindConstantBufferRange(0, WorkerCB, PerObjectStages, FirstConstant, NumConstants, Context1);
 
 				const uint32 IndexCount = RenderPacket.IndexCount ? RenderPacket.IndexCount : RenderPacket.mesh->GetIndexCount(RenderPacket.LODIndex);
 				FRenderCommand::DrawIndexed(

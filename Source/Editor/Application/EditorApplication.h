@@ -47,7 +47,7 @@ struct FWindowContext
 
 class FEditorApplication : public FApplication
 {
-public:
+  public:
 	bool Init(HINSTANCE hInstance) override;
 	void Run() override;
 	void Shutdown() override;
@@ -55,9 +55,19 @@ public:
 	// Active View의 입력과 Picking 결과만 Gizmo 및 선택 상태에 반영한다.
 	void UpdateGizmoAndPicking();
 	// View 하나의 Scene·Grid·Gizmo·텍스트를 해당 ViewProjection으로 렌더한다.
-	void RenderFrame(int32 ViewIndex, const FRenderingInfo& ViewRenderingInfo, const FMatrix& ViewProjection, const FVector& ViewCameraLocation, const FVector& ViewCameraForward, TArray<FRenderPacket>& RenderPackets,const FScene& SceneData );
-	
-	void RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo, const FMatrix& ViewProjection, const FVector& ViewCameraLocation, const FVector& ViewCameraForward, TArray<FRenderPacket>& RenderPackets);
+	void RenderFrame(int32 ViewIndex,
+		const FRenderingInfo& ViewRenderingInfo,
+		const FMatrix& ViewProjection,
+		const FVector& ViewCameraLocation,
+		const FVector& ViewCameraForward,
+		TArray<FRenderPacket>& RenderPackets,
+		const FScene& SceneData);
+
+	void RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
+		const FMatrix& ViewProjection,
+		const FVector& ViewCameraLocation,
+		const FVector& ViewCameraForward,
+		TArray<FRenderPacket>& RenderPackets);
 	// 네 View 결과와 ImGui를 메인 Swapchain에 합성해 화면에 표시한다.
 	void PresentFrame();
 	void DeleteActor(AActor* Actor);
@@ -65,11 +75,17 @@ public:
 	//윈도우 크기 변경 처리
 	void HandleMainWindow();
 
-	void StartPIE(); // 월드 복제
+	void StartPIE();       // 월드 복제
 	void PausePIE() const; // 월드 정지
-	void EndPIE();   // 월드 삭제
+	void EndPIE();         // 월드 삭제
 
-private:
+	FWorldContext FindWorldContext(EWorldType WorldType);
+	UWorld* GetEditorWorld();
+	UWorld* GetPIEWorld();
+
+	void RemovePIEWorld();
+
+  private:
 	// 입력과 창 이벤트를 처리하고 이번 프레임 DeltaTime을 계산한다.
 	bool BeginFrame(float& OutDeltaTime);
 	// 패널 요청과 입력을 Core Adapter에 전달해 레이아웃·카메라 상태를 갱신한다.
@@ -81,8 +97,10 @@ private:
 	void TickWorldAndEditor(float DeltaTime);
 	// 한 번 캡처한 월드 결과를 재사용해 현재 레이아웃의 각 View를 렌더한다.
 	void RenderMultipleViewports();
-	
+
 	void RenderPIEViewport();
+
+	void RenderWorldTexts(const UWorld* TargetWorld, const FMatrix& ViewProjection);
 
 	// 화면 합성과 View 설정 보관으로 프레임을 마무리한다.
 	void EndFrame();
@@ -97,8 +115,6 @@ private:
 	FSwapchain* MainWindowSC;
 
 	TArray<FWorldContext> WorldContexts;
-	UWorld* World;
-	UWorld* PIEWorld;
 
 	TUniquePtr<FEditorUI> EditorUI;
 
@@ -113,8 +129,6 @@ private:
 	TUniquePtr<FOutlineRenderer> OutlineRenderer;
 	TUniquePtr<FLoadingScreen> LoadingScreen;
 	TUniquePtr<FFogRenderer> FogRenderer;
-
-	
 
 	UFont* SystemFont;
 
