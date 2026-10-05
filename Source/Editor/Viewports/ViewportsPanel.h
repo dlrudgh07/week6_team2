@@ -5,12 +5,20 @@
 #include "Rendering/RenderingInfo.h"
 class FMultipleViewportsAdapter;
 class FPIEViewportPanel;
+class IViewportAdapter;
+
+enum class EViewportMode
+{
+	Editor,
+	PIE
+};
 
 class FViewportsPanel : public IEditorPanel
 {
 public:
 	// View 표시 모드를 편집할 Adapter를 연결한다. 엔진이 수명을 보장한다.
-	void SetViewportAdapter(FMultipleViewportsAdapter* Value) { ViewportAdapter = Value; }
+	void SetViewportAdapter(IViewportAdapter* Value);
+    IViewportAdapter* GetViewportAdapter() { return ViewportAdapter; };
 	// 네 View의 렌더 타깃과 UI 제어 상태를 초기화한다.
 	bool Init() override;
 	// 프레임 입력에서 Splitter Drag와 View별 UI 요청을 수집한다.
@@ -38,8 +46,40 @@ public:
 
 	void SetPIEViewportPanel(FPIEViewportPanel* PIE);
 
-private:
-	FMultipleViewportsAdapter* ViewportAdapter = nullptr;
+	void SetViewportMode(EViewportMode InMode)
+	{
+		ViewportMode = InMode;
+	}
+
+	EViewportMode GetViewportMode() const
+	{
+		return ViewportMode;
+	}
+
+	bool IsPIEMode() const
+	{
+		return ViewportMode == EViewportMode::PIE;
+	}
+
+	void UpdatePIEInput();
+
+	void GetPIEMouseDelta(float& OutDeltaX, float& OutDeltaY) const
+	{
+		OutDeltaX = PIEMouseDeltaX;
+		OutDeltaY = PIEMouseDeltaY;
+	}
+
+	void ResetPIEInput();
+
+	bool IsPIEFocused() const
+	{
+		return bPIEFocus;
+	}
+
+	void SetPIE();
+
+  private:
+	IViewportAdapter* ViewportAdapter = nullptr;
 	struct FViewSlot
 	{
 		// View 하나의 Rect·활성 상태·Color/Depth 타깃과 렌더 정보를 담는다.
@@ -75,4 +115,8 @@ private:
 	int32 PendingCameraPresetViewIndex = InvalidViewIndex;
 	EMultipleViewportsCameraPreset PendingCameraPreset = EMultipleViewportsCameraPreset::Perspective;
 	FPIEViewportPanel* PIEPanel = nullptr;
+	EViewportMode ViewportMode = EViewportMode::Editor;
+	bool bPIEFocus = false;
+	float PIEMouseDeltaX = 0.0f;
+	float PIEMouseDeltaY = 0.0f;
 };

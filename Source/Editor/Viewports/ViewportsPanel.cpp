@@ -6,6 +6,7 @@
 #include "Stats/Stats.h"
 #include "Stats/StatDefinitions.h"
 #include "Rendering/RenderCommand.h"
+#include "ViewportAdapter.h"
 
 #include <algorithm>
 #include <cassert>
@@ -24,6 +25,11 @@ constexpr float StatOverlayPadding = 6.0f;
 constexpr ImU32 StatOverlayBackgroundColor = IM_COL32(0, 0, 0, 140);
 constexpr ImU32 TitleColor = IM_COL32(255, 210, 60, 255);
 constexpr ImU32 ValueColor = IM_COL32(235, 235, 235, 255);
+}
+
+void FViewportsPanel::SetViewportAdapter(IViewportAdapter* Value)
+{
+	ViewportAdapter = Value;
 }
 
 // 네 View의 렌더 타깃을 최소 크기로 초기화한다.
@@ -122,6 +128,61 @@ void FViewportsPanel::SetPIEViewportPanel(FPIEViewportPanel* PIE)
 	PIEPanel = PIE;
 }
 
+void FViewportsPanel::UpdatePIEInput()
+{
+	PIEMouseDeltaX = 0.0f;
+	PIEMouseDeltaY = 0.0f;
+
+	if (!IsPIEMode())
+		return;
+
+	if (!bHovered)
+		return;
+
+	const int CenterX = static_cast<int>(ContentOrigin.x + ContentSize.x * 0.5f);
+
+	const int CenterY = static_cast<int>(ContentOrigin.y + ContentSize.y * 0.5f);
+
+	if (bPIEFocus)
+	{
+		POINT CurrentPos{};
+		GetCursorPos(&CurrentPos);
+
+		PIEMouseDeltaX = static_cast<float>(CurrentPos.x - CenterX);
+
+		PIEMouseDeltaY = static_cast<float>(CurrentPos.y - CenterY);
+
+		SetCursorPos(CenterX, CenterY);
+	}
+
+	if (ImGui::IsKeyPressed(ImGuiKey_F8, false))
+	{
+		ResetPIEInput();
+	}
+
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+	{
+		ResetPIEInput();
+		PIEPanel->SetActive(false);
+		PIEPanel->SetPause(false);
+	}
+}
+
+void FViewportsPanel::ResetPIEInput()
+{
+	while(ShowCursor(TRUE) < 0);
+	bPIEFocus = false;
+	PIEMouseDeltaX = 0.0f;
+	PIEMouseDeltaY = 0.0f;
+}
+
+void FViewportsPanel::SetPIE()
+{
+	bPIEFocus = true;
+	while(ShowCursor(FALSE) >= 0)
+	SetCursorPos(ContentOrigin.x + ContentSize.x * 0.5f, ContentOrigin.y + ContentSize.y * 0.5f);
+}
+
 // View Texture와 Splitter·Layout·Preset UI를 그리고 요청을 기록한다.
 void FViewportsPanel::OnRender()
 {
@@ -144,6 +205,7 @@ void FViewportsPanel::OnRender()
 	ImDrawList* DrawList = ImGui::GetWindowDrawList();
 	DrawList->PushClipRect(ContentOrigin,
 		{ContentOrigin.x + ContentSize.x, ContentOrigin.y + ContentSize.y}, true);
+
 	for (int32 ViewIndex = 0; ViewIndex < 4; ++ViewIndex)
 	{
 		const FViewSlot& Slot = Slots[ViewIndex];
@@ -229,12 +291,37 @@ void FViewportsPanel::OnRender()
 		// 레이아웃과 독립적으로 각 View의 장면 Fill Mode를 편집한다.
         if (ViewportAdapter)
         {
-            int Mode = ViewportAdapter->IsViewWireframe(ViewIndex) ? 1 : 0;
-            const char* Labels[] = {"Solid", "Wireframe"};
-            ImGui::SetNextItemWidth(100.0f);
-            if (ImGui::Combo("##FillMode", &Mode, Labels, 2))
-                ViewportAdapter->SetViewWireframe(ViewIndex, Mode == 1);
-            ImGui::SameLine();
+			if (ViewportAdapter)
+			{
+				int Mode = ViewportAdapter->IsViewWireframe(ViewIndex) ? 1 : 0;
+				bool SceneDepthMode = ViewportAdapter->IsViewSceneDepthMode(ViewIndex);
+
+				const char* Labels[] = {"Solid", "Wireframe", "Buffer Visualization"};
+				ImGui::SetNextItemWidth(170.0f);
+
+				if (ImGui::BeginCombo("##FillMode", Labels[Mode]))
+				{
+					if (ImGui::Selectable(Labels[0], Mode == 0))
+						ViewportAdapter->SetViewWireframe(ViewIndex, false);
+
+					if (ImGui::Selectable(Labels[1], Mode == 1))
+						ViewportAdapter->SetViewWireframe(ViewIndex, true);
+
+					ImGui::Separator();
+
+					if (ImGui::BeginMenu(Labels[2]))
+					{
+						if (ImGui::Checkbox("SceneDepth", &SceneDepthMode))
+							ViewportAdapter->SetViewSceneDepthMode(ViewIndex, SceneDepthMode);
+
+						ImGui::EndMenu();
+					}
+
+					ImGui::EndCombo();
+				}
+
+				ImGui::SameLine();
+			}
         }
 
         if (CurrentLayoutMode == ELayoutMode::QuadSplit)

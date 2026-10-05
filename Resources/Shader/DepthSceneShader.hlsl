@@ -1,17 +1,9 @@
 #include "HeightFogCommon.hlsli"
 
-// Camera + Fog Constant Buffer
 cbuffer FogConstants : register(b0)
 {
-    // 64-bytes
-    row_major matrix InvViewProj;
-    
-    // 16-bytes
-    float3 CameraPos;
-    float Padding0;
+    row_major matrix InvProj;
 
-    // 48-bytes
-    FogParams Fog;
 };
 
 struct PS_INPUT
@@ -42,19 +34,23 @@ PS_INPUT mainVS(uint ID : SV_VertexID)
 // Pixel Shader
 float4 mainPS(PS_INPUT input) : SV_TARGET
 {
+    // Scene Color Read
+    // float4 Color = Texture.Sample(LinearSampler, input.uv);
+
     // Depth Read
     float Depth = DepthTexture.Sample(PointSampler, input.UV).r;
+    
+    // View Pos 계산
+    float2 UV = input.UV;
+    float4 ndc;
+    ndc.x = UV.x * 2.0 - 1.0;
+    ndc.y = 1.0 - UV.y * 2.0;
+    ndc.z = Depth;
+    ndc.w = 1.0;
 
-    // World Pos 계산
-    float3 WorldPos = ReconstructWorldPosition(input.UV, Depth, InvViewProj);
+    float4 ViewPos = mul(ndc, InvProj);
+    ViewPos /= ViewPos.w; 
+    float DepthColor = exp(-ViewPos.x * 0.05); //0.05=가까이 있는것에 더 진하게 해주는 보정. 일단 하드코딩
 
-    // Fog Factor 계산
-    float FogFactor = CalculateFogFactor(WorldPos, CameraPos, Fog);
-
-    return float4(Fog.FogInscatteringColor.rgb, FogFactor);
-
-    // Lerp(선형보간) : Scene Color + Fog Color 
-    // float3 RGB = Color.rgb * ( 1 - FogFactor ) + FogInscatteringColor.rgb * FogFactor;
-
-    // return float4(RGB, Color.a);
+    return float4(DepthColor, DepthColor, DepthColor,1);
 }

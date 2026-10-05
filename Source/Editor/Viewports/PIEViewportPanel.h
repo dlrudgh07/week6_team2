@@ -4,6 +4,13 @@
 #include "Rendering/RenderingInfo.h"
 #include "Editor/Viewports/MultipleViewportsAdapterTypes.h"
 #include "../../Runtime/Engine/World.h"
+
+enum ETypePIEMode
+{
+	Selected,
+	NewEditor
+};
+
 class FPIEViewportPanel : public IEditorPanel
 {
 public:
@@ -33,6 +40,9 @@ public:
 	static float DeltaY;
 	static bool bFocus;
 
+	ETypePIEMode GetMode() const { return Mode; }
+	void SetMode(ETypePIEMode InMode) { Mode = InMode; }
+
   private:
 	FRect Rect{};
 	bool bActive = false;
@@ -50,4 +60,6 @@ public:
 	bool bHovered = false;
 	bool bIsPlay = false;
 	bool bIsPause = false;
+
+	ETypePIEMode Mode = ETypePIEMode::Selected;
 };

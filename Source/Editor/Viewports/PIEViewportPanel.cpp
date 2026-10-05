@@ -28,6 +28,12 @@ void FPIEViewportPanel::OnRender()
 {
 	if (!bActive)
 		return;
+
+	if (Mode == ETypePIEMode::Selected)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.0f);
+	}
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
 
 	ImGui::Begin("PIE", nullptr, ImGuiWindowFlags_NoScrollbar);
@@ -41,22 +47,20 @@ void FPIEViewportPanel::OnRender()
 	ContentSize.y = std::max(1.0f, ContentSize.y);
 
 	bHovered = ImGui::IsWindowHovered();
+
 	ImGuiIO& io = ImGui::GetIO();
-	// 창이 활성화되어 있고, 사용자가 이 창을 클릭했을 때 가두기
 
 	int centerX = ContentOrigin.x + Width / 2.0f;
 	int centerY = ContentOrigin.y + Height / 2.0f;
 
-	// ShowCursor는 내부 카운터 방식이므로 상태가 바뀔 때만 호출해야 한다
 	if (!bFocus && ImGui::IsMouseClicked(0) && bHovered)
 	{
 		RECT rect = {ContentOrigin.x + Rect.X, ContentOrigin.y + Rect.Y, ContentOrigin.x + Rect.X + Rect.Width, ContentOrigin.y + Rect.Y + Rect.Height};
-		
-		ShowCursor(FALSE);
+
+		while(ShowCursor(FALSE) >= 0)
 		bFocus = true;
 
 		SetCursorPos(centerX, centerY);
-
 	}
 
 	if (bFocus)
@@ -70,11 +74,21 @@ void FPIEViewportPanel::OnRender()
 		SetCursorPos(centerX, centerY);
 	}
 
-	// 특정 조건(예: F8 키)이나 창이 포커스를 잃으면 해제
 	if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
 	{
-		ClipCursor(NULL); // 제한 해제
-		ShowCursor(TRUE);
+		ClipCursor(NULL);
+		while(ShowCursor(TRUE) < 0);
+		bFocus = false;
+		DeltaX = 0;
+		DeltaY = 0;
+	}
+
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+	{
+		SetActive(false);
+		SetPause(false);
+		ClipCursor(NULL);
+		while(ShowCursor(TRUE) < 0);
 		bFocus = false;
 		DeltaX = 0;
 		DeltaY = 0;
@@ -97,9 +111,16 @@ void FPIEViewportPanel::OnRender()
 	}
 
 	DrawList->PopClipRect();
+
 	ImGui::EndChild();
 	ImGui::End();
+
 	ImGui::PopStyleVar();
+
+	if (Mode == ETypePIEMode::Selected)
+	{
+		ImGui::PopStyleVar();
+	}
 }
 
 // Core에서 전달된 PIE View Rect와 활성 상태를 반영하고,

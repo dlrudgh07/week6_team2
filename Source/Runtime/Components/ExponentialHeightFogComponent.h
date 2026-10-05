@@ -14,7 +14,7 @@ class UExponentialHeightFogComponent : public USceneComponent
 	PROPERTY(FogHeightFalloff)
 	PROPERTY(FogMaxOpacity)
 	PROPERTY(StartDistance)
-
+	
 	PROPERTY(FogCutoffDistance)
 	PROPERTY_TYPE(FogInscatteringColor, Color)
 	REFLECT_END()
@@ -41,7 +41,6 @@ private:
 
     // 안개를 적용하지 않는 거리 (100000 ~ 20000000)
     float FogCutoffDistance;
-
     // 안개 산란 색 
     FLinearColor FogInscatteringColor;
     
