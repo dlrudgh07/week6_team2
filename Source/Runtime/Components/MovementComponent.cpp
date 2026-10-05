@@ -10,3 +10,15 @@ bool UMovementComponent::MoveUpdatedComponentImpl(const FVector& Delta, const FQ
     }        
     return false;
 }
+
+// Inlines
+inline float UMovementComponent::GetMaxSpeed() const
+{
+	return 0.f;
+}
+
+inline void UMovementComponent::StopMovementImmediately()
+{
+	Velocity = FVector::ZeroVector;
+	UpdateComponentVelocity();
+}

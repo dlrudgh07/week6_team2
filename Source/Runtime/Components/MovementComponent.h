@@ -54,10 +54,6 @@ protected:
     // 실제 이동 처리, 충돌 검사, 위치 변경
     virtual bool MoveUpdatedComponentImpl(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit = nullptr, ETeleportType Teleport = ETeleportType::None);
     
-    // Inlines
-    inline float UMovementComponent::GetMaxSpeed() const { return 0.f; }
-    inline void UMovementComponent::StopMovementImmediately() { Velocity = FVector::ZeroVector; UpdateComponentVelocity(); }
-    
     // Quaternion NewRotation
     // 공통 전처리, 파라미터 검증, 이동 가능 여부 확인 (호출 Interface)
     inline bool MoveUpdatedComponent(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport)
