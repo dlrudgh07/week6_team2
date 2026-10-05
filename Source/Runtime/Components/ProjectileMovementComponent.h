@@ -12,23 +12,41 @@ class UProjectileMovementComponent : public UMovementComponent
         REFLECT_END()
 
 public:
-    uint8 bSimulationUseScopedMovement:1;
-    uint8 bInterpolationUseScopedMovement:1;
+    bool bSimulationUseScopedMovement = 1;
+    bool bInterpolationUseScopedMovement = 1;
+    float PreviousHitTime;
+    FVector PreviousHitNormal;
+    float ProjectileGravityScale;
+    float Buoyancy;
+    float Bounciness;
+    float Friction;
+    float BounceVelocityStopSimulatingThreshold;
+    float MinFrictionFraction;
+
+    virtual void SetVelocityInLocalSpace(FVector NewVelocity);
+    virtual void TickComponent(float DeltaTime) override;
+
+    virtual float GetMaxSpeed() const override { return MaxSpeed; }
+    virtual float GetGravityZ() const override;
+
+protected:
+    bool bThrottleInterpolation = 1;
+    bool ThrottleInterpolationFramesSinceInterp = 1;
+    FVector LimitVelocity(FVector NewVelocity) const;
+
+    virtual FVector ComputeBounceResult(const FHitResult& Hit, float TimeSlice, const FVector& MoveDelta);
+    virtual FVector ComputeMoveDelta(const FVector& InVelocity, float DeltaTime) const;
 
 private:
     float InitialSpeed;
     float MaxSpeed;
-    uint8 bRotationFollowsVelocity:1;
-    uint8 bRotationRemainsVertical:1;
-    uint8 bInitialVelocityInLocalSpace:1;
-    uint8 bForceSubStepping:1;
-    uint8 bSimulationEnabled:1;
-    uint8 bIsHomingProjectile:1;
-    uint8 bIsSliding:1;
-    uint8 bInterpMovement:1;
-
-protected:
-    uint8 bThrottleInterpolation:1;
-    uint8 ThrottleInterpolationFramesSinceInterp;
+    bool bRotationFollowsVelocity = false;
+    bool bRotationRemainsVertical = false;
+    bool bInitialVelocityInLocalSpace = false;
+    bool bForceSubStepping = false;
+    bool bSimulationEnabled = false;
+    bool bIsHomingProjectile = false;
+    bool bIsSliding = false;
+    bool bInterpMovement = false;
 
 };
