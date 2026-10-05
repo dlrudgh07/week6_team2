@@ -43,6 +43,7 @@ class UMovementComponent : public UActorComponent
 
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime) override;
+	virtual void DuplicateSubObjects() override;
 
 	USceneComponent* GetUpdatedComponent() const;
 

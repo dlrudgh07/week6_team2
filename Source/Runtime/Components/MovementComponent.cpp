@@ -19,6 +19,16 @@ void UMovementComponent::TickComponent(float DeltaTime)
 	AutoRegisterUpdatedComponent();
 }
 
+void UMovementComponent::DuplicateSubObjects()
+{
+	Super::DuplicateSubObjects();
+
+	// 얕은 복사로 원본 월드의 컴포넌트를 가리키고 있으므로 끊는다.
+	// 다음 BeginPlay/Tick에서 복제된 Owner의 RootComponent로 다시 등록된다.
+	UpdatedComponent = nullptr;
+	UpdatedPrimitive = nullptr;
+}
+
 void UMovementComponent::AutoRegisterUpdatedComponent()
 {
 	if (UpdatedComponent)
