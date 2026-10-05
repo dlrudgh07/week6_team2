@@ -3,6 +3,7 @@
 #include "Editor/EditorUI/EditorPanel.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
+#include "Components/RotatingMovementComponent.h"
 #include "Logging/LogMacros.h"
 
 class UWorld;
@@ -43,12 +44,15 @@ class FDetailsPanel : public IEditorPanel
 	ImFont* CustomFont = nullptr;
 
 	int32 SelectedIndex = 0;
-	const char* ComponentList[2] = {
+	const char* ComponentList[3] = {
 		"StaticMesh",
 		"Text",
+		"Rotating",
 	};
+
 	TArray<UClass*> Classes{
 		UStaticMeshComponent::StaticClass(),
 		UTextRenderComponent::StaticClass(),
+		URotatingMovementComponent::StaticClass(),
 	};
 };
