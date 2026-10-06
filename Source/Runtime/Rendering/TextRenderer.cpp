@@ -221,9 +221,12 @@ void FTextRenderer::OnRender(const FString& Text, const FMatrix& WorldMatrix, fl
 	FRenderCommand::BindConstantBuffer(0, MVP.get(), EShaderBindFlagBits::Vertex);
 	FRenderCommand::BindConstantBuffer(1, ScreenPx.get(), EShaderBindFlagBits::Pixel);
 
+	FRenderCommand::BindSamplerState(0, ESamplerState::LinearClamp, EShaderBindFlagBits::Pixel);
+
 	FRenderCommand::BindVertexBuffer(VertexBuffer.get());
 	FRenderCommand::BindIndexBuffer(IndexBuffer.get());
 	FRenderCommand::DrawIndexed(Indices.Num());
+
 
 	Vertices.Reset();
 	Indices.Reset();
