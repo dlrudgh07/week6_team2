@@ -181,6 +181,9 @@ void FViewportsPanel::SetPIE()
 	bPIEFocus = true;
 	while(ShowCursor(FALSE) >= 0);
 	SetCursorPos(ContentOrigin.x + ContentSize.x * 0.5f, ContentOrigin.y + ContentSize.y * 0.5f);
+	RequestedLayoutMode = ELayoutMode::Single;
+	RequestedSingleViewIndex = 0;
+	bHasLayoutRequest = true;
 }
 
 // View Texture와 Splitter·Layout·Preset UI를 그리고 요청을 기록한다.
