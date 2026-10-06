@@ -173,34 +173,69 @@ bool FJsonArchive::LoadWorld(UWorld* World, const FString& Path)
 		}
 		Actor->Serialize(ActorJson["Properties"], true);
 
+		// 컴포넌트 이름 뒤 번호(_168)는 전역 카운터라 새로 Spawn한 액터와 맞지 않으므로 번호를 뗀 이름으로 비교한다.
+		// 같은 이름이 여러 개일 수 있으니 한 번 매칭된 컴포넌트는 다시 쓰지 않고, 클래스도 반드시 같아야 한다.
+		// 우선순위: 같은 순서 + 같은 이름 → 같은 이름 → 같은 클래스
+		const TArray<UActorComponent*>& Components = Actor->GetComponents();
+		TArray<uint8> bMatched;
+		bMatched.Init(0, Components.Num());
+
+		int32 SavedIndex = 0;
 		for (json& ComponentJson : ActorJson["Components"])       // json → json&
 		{
-			const FName Name(ComponentJson["Name"].get<FString>());
+			const int32 Index = SavedIndex++;
 
-			// 이름으로 컴포넌트 찾기
-			UActorComponent* Component = nullptr;
-			for (UActorComponent* C : Actor->GetComponents())
+			if (!ComponentJson.is_object() ||
+				!ComponentJson.contains("Class") || !ComponentJson["Class"].is_string())
+				continue;
+
+			const FString ClassName = ComponentJson["Class"].get<FString>();
+			const FString SavedName = ComponentJson.value("Name", FString());
+			const FString PlainName = FName(SavedName).GetPlainNameString();
+
+			auto IsCandidate = [&](int32 i, bool bRequireName)
 			{
-				if (C && C->GetFName() == Name)
+				UActorComponent* C = Components[i];
+				return C && !bMatched[i] && C->GetClass()->Name == ClassName &&
+					(!bRequireName || C->GetFName().GetPlainNameString() == PlainName);
+			};
+
+			int32 FoundIndex = -1;
+			if (Components.IsValidIndex(Index) && IsCandidate(Index, true))
+				FoundIndex = Index;
+			for (int32 i = 0; FoundIndex < 0 && i < Components.Num(); ++i)
+			{
+				if (IsCandidate(i, true))
+					FoundIndex = i;
+			}
+			for (int32 i = 0; FoundIndex < 0 && i < Components.Num(); ++i)
+			{
+				if (IsCandidate(i, false))
+					FoundIndex = i;
+			}
+			// 생성자가 만들지 않은 컴포넌트(Details 패널에서 추가한 것 등)는 저장된 클래스로 새로 만든다.
+			// AddComponentByClass가 Owner 설정, 루트 부착, 월드 등록까지 처리한다.
+			if (FoundIndex < 0)
+			{
+				UClass* ComponentClass = FindClass(ClassName);
+				if (ComponentClass && ComponentClass->IsChildOf(UActorComponent::StaticClass()))
 				{
-					Component = C;
-					break;
+					if (Actor->AddComponentByClass(ComponentClass, FName(PlainName)))
+					{
+						FoundIndex = Components.Num() - 1;
+						bMatched.Add(0);
+					}
 				}
 			}
 
-			if (!Component)
+			if (FoundIndex < 0)
 			{
-				LOG(Warning, "Load: {} has no component {}", Class->Name, Name.ToString());
+				LOG(Warning, "Load: {} could not create component {} ({})", Class->Name, SavedName, ClassName);
 				continue;
 			}
 
-			if (Component->GetClass()->Name != ComponentJson["Class"].get<FString>())
-			{
-				LOG(Warning, "Load: component {} class mismatch", Name.ToString());
-				continue;
-			}
-
-			Component->Serialize(ComponentJson["Properties"], true);
+			bMatched[FoundIndex] = 1;
+			Components[FoundIndex]->Serialize(ComponentJson["Properties"], true);
 		}
 	}
 

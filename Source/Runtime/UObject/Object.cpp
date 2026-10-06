@@ -157,6 +157,15 @@ void UObject::Serialize(json& Handle, bool bIsLoading)
 					Handle[Property.Name] = Value;
 				break;
 			}
+			case EPropertyType::Rotator:
+			{
+				FRotator& Value = *static_cast<FRotator*>(Ptr);
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<FRotator>();
+				else
+					Handle[Property.Name] = Value;
+				break;
+			}
 			case EPropertyType::Vector4:
 			{
 				FVector4& Value = *static_cast<FVector4*>(Ptr);
@@ -190,8 +199,9 @@ void UObject::Serialize(json& Handle, bool bIsLoading)
 
 				if (bIsLoading)
 				{
-					// null로 저장된 건 "되찾을 수 없는 값"이었으므로 기본값을 유지한다
-					if (Handle[Property.Name].is_null())
+					// null로 저장된 건 "되찾을 수 없는 값"이었으므로 기본값을 유지한다.
+					// 문자열이 아닌 값(예: Billboard의 Material 객체)은 하위 클래스 Serialize가 직접 처리한다.
+					if (!Handle[Property.Name].is_string())
 					{
 						break;
 					}
