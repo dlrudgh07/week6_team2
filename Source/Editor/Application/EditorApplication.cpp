@@ -207,7 +207,8 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 		[this](AActor* Actor)
 		{
 			UPrimitiveComponent* Primitive = Actor ? Cast<UPrimitiveComponent>(Actor->GetRootComponent()) : nullptr;
-			Gizmo->SetTarget(Primitive);
+			USceneComponent* SceneComp = Actor ? Cast<USceneComponent>(Actor->GetRootComponent()) : nullptr;
+			Gizmo->SetTarget(SceneComp);
 			Outline->SetTarget(Primitive);
 			DetailsPanel->SetTarget(Actor);
 		});
@@ -675,7 +676,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		if (Gizmo->GetTarget() && CurrentWorld == Gizmo->GetTarget()->GetOwner()->GetWorld())
 		{
 			auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
-			FBox box = Target->CalcBounds();
+			//FBox box = Target->CalcBounds();
 			FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
 			GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation, MultipleViewportsAdapter.IsOrthographic(ViewIndex));
 		}
