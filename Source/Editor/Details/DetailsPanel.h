@@ -5,6 +5,7 @@
 #include "Engine/TextRenderActor.h"
 #include "Components/RotatingMovementComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
+#include "Components/FireballComponent.h"
 #include "Logging/LogMacros.h"
 
 class UWorld;
@@ -47,12 +48,13 @@ class FDetailsPanel : public IEditorPanel
 	int32 SelectedIndex = 0;
 
 	// TODO: 나중에 TObjectIterator로 변경
-	const char* ComponentList[5] = {
+	const char* ComponentList[6] = {
 		"StaticMeshComponent",
 		"TextRenderComponent",
 		"RotatingMovementComponent",
 		"BillboardComponent",
 		"ExponentialHeightFogComponent",
+		"FireballComponent",
 	};
 
 	TArray<UClass*> Classes{
@@ -61,5 +63,6 @@ class FDetailsPanel : public IEditorPanel
 		URotatingMovementComponent::StaticClass(),
 		UBillboardComponent::StaticClass(),
 		UExponentialHeightFogComponent::StaticClass(),
+		UFireballComponent::StaticClass(),
 	};
 };

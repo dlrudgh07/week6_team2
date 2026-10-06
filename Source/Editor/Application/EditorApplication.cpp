@@ -177,6 +177,9 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 	FogRenderer = MakeUnique<FFogRenderer>();
 	FogRenderer->Init();
 
+	FireballRenderer = MakeUnique<FFireballRenderer>();
+	FireballRenderer->Init();
+
 	DepthSceneRenderer = MakeUnique<FDepthSceneRenderer>();
 	DepthSceneRenderer->Init();
 
@@ -639,6 +642,12 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
 	// Multi pass 렌더링
 	{
+		// fireball 렌더링
+		if (!SceneData.Fireballs.IsEmpty())
+		{
+			FireballRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, SceneData.Fireballs, ViewRenderingInfo.ViewportSetting);
+		}
+
 		// fog 렌더링
 		if (SceneData.FogSceneData.IsValid())
 		{

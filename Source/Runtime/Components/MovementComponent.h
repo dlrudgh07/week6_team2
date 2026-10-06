@@ -12,6 +12,7 @@ class UMovementComponent : public UActorComponent
 	DECLARE_CLASS(UMovementComponent, UActorComponent)
 
 	REFLECT_START(ClassName)
+	PROPERTY(Velocity)
 	REFLECT_END()
 
   public:

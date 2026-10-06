@@ -1,34 +1,34 @@
 #pragma once
 
 #include "MovementComponent.h"
+#include "SceneComponent.h"
 
 struct FHitResult;
 
 class UProjectileMovementComponent : public UMovementComponent
 {
-        DECLARE_CLASS(UProjectileMovementComponent, UMovementComponent)
+    DECLARE_CLASS(UProjectileMovementComponent, UMovementComponent)
 
-        REFLECT_START(ClassName)
-        REFLECT_END()
+    REFLECT_START(ClassName)
+    REFLECT_END()
 
 public:
-    uint8 bSimulationUseScopedMovement:1;
-    uint8 bInterpolationUseScopedMovement:1;
+	UProjectileMovementComponent() = default;
+	virtual ~UProjectileMovementComponent() override;
 
-private:
-    float InitialSpeed;
-    float MaxSpeed;
-    uint8 bRotationFollowsVelocity:1;
-    uint8 bRotationRemainsVertical:1;
-    uint8 bInitialVelocityInLocalSpace:1;
-    uint8 bForceSubStepping:1;
-    uint8 bSimulationEnabled:1;
-    uint8 bIsHomingProjectile:1;
-    uint8 bIsSliding:1;
-    uint8 bInterpMovement:1;
+    // 중력을 쓰지 않는 것이 default
+    float ProjectileGravityScale = 0.f;
+
+    virtual void TickComponent(float DeltaTime) override;
+
+    virtual float GetMaxSpeed() const override { return MaxSpeed; }
+    virtual float GetGravityZ() const override;
 
 protected:
-    uint8 bThrottleInterpolation:1;
-    uint8 ThrottleInterpolationFramesSinceInterp;
+    FVector LimitVelocity(FVector NewVelocity) const;
 
+    virtual FVector ComputeMoveDelta(const FVector& InVelocity, float DeltaTime) const;
+
+private:
+    float MaxSpeed = 0.f;
 };

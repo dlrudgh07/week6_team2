@@ -360,6 +360,18 @@ void FDynamicRHI::CreateStates()
 
 		Device->CreateBlendState(&Desc, BlendStates[(uint8)EBlendState::AlphaBlend].GetAddressOf());
 
+		// Additive
+		Desc.RenderTarget[0].BlendEnable = TRUE;
+		Desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		Desc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+		Desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		Desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		Desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+		Desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		Desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		
+		Device->CreateBlendState(&Desc, BlendStates[(uint8)EBlendState::Additive].GetAddressOf());
+
 		// 스텐실 마스크 패스처럼 색은 쓰지 않고 깊이·스텐실만 갱신할 때 쓴다.
 		Desc.RenderTarget[0].BlendEnable = FALSE;
 		Desc.RenderTarget[0].RenderTargetWriteMask = 0;

@@ -68,6 +68,7 @@ AActor* UWorld::SpawnActor(UClass* Class, FName InName, const FTransform* Transf
 
 		AddComponent(Cast<UPrimitiveComponent>(NewActor->GetRootComponent()));
 		AddComponent(Cast<UExponentialHeightFogComponent>(NewActor->GetRootComponent()));
+		AddComponent(Cast<UFireballComponent>(NewActor->GetRootComponent()));
 
 	}
 
@@ -136,6 +137,7 @@ void UWorld::ClearWorld()
 	DirtyPrimitiveComponents.Reset();
 	DirtyRenderPrimitiveComponents.Reset();
 	FogComponents.Reset();
+	FireballComponents.Reset();
 	SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
 	TickActors.Reset();
 	++PrimitiveTopologyRevision;
@@ -253,6 +255,7 @@ bool UWorld::DestroyActor(AActor* Actor)
 		}
 	}
 
+	// Fog Destroy
 	if (UExponentialHeightFogComponent* Fog = Cast<UExponentialHeightFogComponent>(Actor->GetRootComponent()))
 	{
 		for (int32 Index = FogComponents.Num() - 1; Index >= 0; --Index)
@@ -264,6 +267,20 @@ bool UWorld::DestroyActor(AActor* Actor)
 			}
 		}
 	}
+
+	// Fireball Destroy
+	if (UFireballComponent* Fireball = Cast<UFireballComponent>(Actor->GetRootComponent()))
+	{
+		for (int32 Index = FireballComponents.Num() - 1; Index >= 0; --Index)
+		{
+			if (FireballComponents[Index].Get() == Fireball)
+			{
+				FireballComponents.RemoveAt(Index, 1);
+				break;
+			}
+		}
+	}
+
 	// 6. Actor 삭제
 	delete Actor;
 
@@ -390,6 +407,7 @@ void UWorld::DuplicateSubObjects()
 	FogComponents.Reset();
 	// 포그가 없는 월드면 UpdateSceneData가 갱신하지 않으므로 원본 값을 끈다.
 	SceneData.FogSceneData.FogType = FFogSceneData::EFogType::None;
+	FireballComponents.Reset();
 
 	if (MainCamera)
 	{
@@ -424,6 +442,10 @@ void UWorld::DuplicateSubObjects()
 				{
 					AddComponent(Fog);
 				}
+				else if (UFireballComponent* Fireball = Cast<UFireballComponent>(Comp))
+				{
+					AddComponent(Fireball);
+				}
 			}
 		}
 
@@ -453,6 +475,13 @@ void UWorld::AddComponent(UExponentialHeightFogComponent* FogComp)
 		FogComponents.Add(FogComp);
 	}
 }
+void UWorld::AddComponent(UFireballComponent* FireballComp)
+{
+	if (FireballComp)
+	{
+		FireballComponents.Add(FireballComp);
+	}
+}
 void UWorld::UpdateSceneData()
 {
 
@@ -476,5 +505,22 @@ void UWorld::UpdateSceneData()
 		}
 
 	}
-	
+
+	SceneData.Fireballs.Reset();
+	for (const auto& FireballComp : FireballComponents)
+	{
+		if (!FireballComp.IsValid()) continue;
+
+		USceneComponent* Root = FireballComp->GetUpdatedComponent();
+		if (!Root && FireballComp->GetOwner()) Root = FireballComp->GetOwner()->GetRootComponent();
+		if (!Root) continue;
+
+		SceneData.Fireballs.Add(FFireballSceneData{ Root->GetComponentLocation(),
+													FireballComp->GetIntensity(),
+													FireballComp->GetRadius(),
+													FireballComp->GetRadiusFallOff(),
+													FireballComp->GetColor() }
+		);
+	} 
+
 }
