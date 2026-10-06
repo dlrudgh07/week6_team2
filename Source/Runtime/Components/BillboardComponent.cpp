@@ -12,7 +12,7 @@
 UBillboardComponent::UBillboardComponent()
 {
 	QuadMesh = UAssetManager::GetAssetByKey<UStaticMesh>("ParticleQuad");
-	Material = UAssetManager::GetAssetByKey<UMaterial>("SubUVMaterial");
+	Material = UAssetManager::GetAssetByKey<UMaterial>("BillboardMaterial");
 }
 
 // Billboard 컴포넌트의 소멸을 처리한다.

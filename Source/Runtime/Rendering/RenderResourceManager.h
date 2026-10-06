@@ -15,6 +15,7 @@ enum class EPSOType : uint8
 	Grid,
 	Outline_Mask,
 	Outline_Draw,
+	Billboard,
 	Count
 };
 

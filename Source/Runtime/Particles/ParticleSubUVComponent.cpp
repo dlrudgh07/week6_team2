@@ -19,6 +19,7 @@ UParticleSubUVComponent::UParticleSubUVComponent()
 	ColSize = 8;
 	RowSize = 8;
 	FrameRate = 12.0f;
+	Material = UAssetManager::GetAssetByKey<UMaterial>("SubUVMaterial");
 }
 
 // 게임(PIE) 시작 시 에디터 미리보기에서 복제된 파티클을 버리고 처음부터 다시 재생한다.
