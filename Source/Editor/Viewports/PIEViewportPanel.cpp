@@ -72,14 +72,14 @@ void FPIEViewportPanel::OnRender()
 		SetCursorPos(centerX, centerY);
 	}
 
-	/*if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
+	if (bFocus && ImGui::IsKeyDown(ImGuiKey_LeftShift) && ImGui::IsKeyPressed(ImGuiKey_F1, false)) //쉬프트f1
 	{
 		ClipCursor(NULL);
 		while(ShowCursor(TRUE) < 0);
 		bFocus = false;
 		DeltaX = 0;
 		DeltaY = 0;
-	}*/
+	}
 
 	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 	{
