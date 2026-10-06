@@ -774,9 +774,14 @@ void FEditorApplication::Shutdown()
 	UAssetManager::Get().Shutdown();
 	FRenderResourceManager::Shutdown();
 
-	while (GUObjectArray.Num() > 0)
+	// 삭제된 슬롯은 nullptr로 남으므로 건너뛴다.
+	// (액터를 지우면 컴포넌트도 같이 지워져 앞쪽 슬롯이 비워질 수 있어 매번 다시 확인한다)
+	for (int32 Index = GUObjectArray.Num() - 1; Index >= 0; --Index)
 	{
-		delete GUObjectArray.Last();
+		if (GUObjectArray[Index])
+		{
+			delete GUObjectArray[Index];
+		}
 	}
 
 	ImGuiRenderer->Shutdown();

@@ -11,15 +11,19 @@
 #include "UObject/UObjectGlobals.h"
 
 TArray<UObject*> GUObjectArray;
-//TArray<int32> ObjAvailableList;
+
+// 삭제된 오브젝트가 비운 GUObjectArray 슬롯. 다음 생성 때 재사용한다.
+// swap-remove로 다른 오브젝트를 옮기면 그 오브젝트를 가리키던 TWeakObjectPtr(Index + SerialNumber)가 끊어지므로,
+// 살아 있는 오브젝트의 인덱스는 절대 바꾸지 않는다. 재사용된 슬롯은 SerialNumber 검사로 걸러진다.
+static TArray<uint32> ObjAvailableList;
 
 UObject::UObject()
 {
 	static uint32 NextSerialNumber = 1;
 	InternalSerialNumber = NextSerialNumber++;
 	ObjectUUID = FEngineStatics::GetUUID();
-	
-	/*if (ObjAvailableList.IsEmpty())
+
+	if (ObjAvailableList.IsEmpty())
 	{
 		InternalIndex = GUObjectArray.Num();
 		GUObjectArray.Add(this);
@@ -29,11 +33,8 @@ UObject::UObject()
 		InternalIndex = ObjAvailableList.Last();
 		ObjAvailableList.RemoveLast();
 		GUObjectArray[InternalIndex] = this;
-	}*/
+	}
 
-	InternalIndex = GUObjectArray.Num();
-	GUObjectArray.Add(this);
-	
 	LOG(Info, "UUID : {}", ObjectUUID);
 }
 
@@ -60,15 +61,7 @@ UObject::~UObject()
 			UnhashObject(this, ClassPrivate);
 		}
 		GUObjectArray[InternalIndex] = nullptr;
-		/*ObjAvailableList.Add(InternalIndex);*/
-		int32 LastIndex = GUObjectArray.Num() - 1;
-		if (InternalIndex != LastIndex)
-		{
-			UObject* MovedObject = GUObjectArray[LastIndex];
-			GUObjectArray[InternalIndex] = MovedObject;
-			MovedObject->InternalIndex = InternalIndex; // 옮겨간 오브젝트 인덱스 갱신
-		}
-		GUObjectArray.RemoveLast();
+		ObjAvailableList.Add(InternalIndex);
 	}
 }
 
