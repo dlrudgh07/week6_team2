@@ -375,6 +375,11 @@ FMultipleViewportsAdapter::GetGridPlane(const int32 ViewIndex) const {
   return EGridPlane::YZ;
 }
 
+void FMultipleViewportsAdapter::SetViewCameraTransform(int32 ViewIndex, const FViewCamera& Camera)
+{
+	Views.Cameras[ViewIndex].Transform = Camera.Transform;
+}
+
 // Core Rect 계산 결과를 Single 대상 슬롯에 재배치하고 Hover·활성 View를
 // 갱신한다.
 void FMultipleViewportsAdapter::UpdateLayout(

@@ -265,7 +265,10 @@ void FEditorApplication::Run()
 		{
 			FGPUStatScope Scope(StatIds::GpuFrame(), L"Viewport Render");
 			RenderMultipleViewports();
-			RenderPIEViewport();
+			if (PIEPanel->GetMode() != ETypePIEMode::Selected)
+			{
+				RenderPIEViewport();
+			}
 		}
 		FGPUProfiler::Get().EndFrame();
 		EndFrame();
@@ -444,7 +447,7 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime)
 		else
 		{
 			ViewportsPanel->SetViewportAdapter(&PIEViewAdapter);
-			MultipleViewportsAdapter.SetViewCamera(0, PIEViewAdapter.GetViewCamera(0));
+			MultipleViewportsAdapter.SetViewCameraTransform(0, PIEViewAdapter.GetViewCamera(0));
 		}
 	}
 	else

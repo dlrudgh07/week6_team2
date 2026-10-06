@@ -385,6 +385,10 @@ void FPIEViewAdapter::SetViewRect(int32 ViewIndex, const FRect& Rect)
 	PreparedView.bValid = false;
 }
 
+void FPIEViewAdapter::SetViewCameraTransform(int32 ViewIndex, const FViewCamera& Camera){
+	ViewCamera.Transform = Camera.Transform;
+}
+
 FMatrix FPIEViewAdapter::GetEngineViewProjection(int32 ViewIndex) const
 {
 	assert(ViewIndex == 0);

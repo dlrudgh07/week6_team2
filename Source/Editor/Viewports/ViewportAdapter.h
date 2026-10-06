@@ -16,6 +16,7 @@ class IViewportAdapter
 	virtual void CaptureWorld(UWorld& World) = 0;
 	virtual void SetViewCamera(int32 ViewIndex, const FViewCamera& Camera) = 0;
 	virtual const FViewCamera& GetViewCamera(int32 ViewIndex = 0) const = 0;
+	virtual void SetViewCameraTransform(int32 ViewIndex, const FViewCamera& Camera) = 0;
 	virtual void SetViewRect(int32 ViewIndex, const FRect& Rect) = 0;
 	virtual const FRect& GetViewRect(int32 ViewIndex = 0) const = 0;
 	virtual FMatrix GetEngineViewProjection(int32 ViewIndex = 0) const = 0;
