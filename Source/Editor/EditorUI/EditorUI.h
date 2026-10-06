@@ -34,7 +34,6 @@ private:
 
 	std::function<void()> OnNewScene;
 	std::function<void()> OnOpenScene;
-	std::function<void()> OnOpenCompetitionScene;
 	std::function<void()> OnSaveScene;
 	std::function<void()> OnSaveSceneAs;
 

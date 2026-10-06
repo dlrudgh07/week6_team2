@@ -5,8 +5,6 @@
 
 #include "RenderUtil.h"
 
-
-
 struct FPipelineTableEntry
 {
 	EPSOType Type;
@@ -17,30 +15,37 @@ struct FPipelineTableEntry
 	EDepthStencilState DepthStencilState;
 };
 
-
-constexpr FPipelineTableEntry PipelineTable[] =
-{
+constexpr FPipelineTableEntry PipelineTable[] = {
 	// [StaticMesh_Opaque] 사과 5만 개 기본값
-	{ EPSOType::StaticMesh_Opaque,		"Resources/Shader/StaticMeshShader.hlsl",    D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidBack, EBlendState::Opaque,       EDepthStencilState::Default },
+	{EPSOType::StaticMesh_Opaque, "Resources/Shader/StaticMeshShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidBack, EBlendState::Opaque, EDepthStencilState::Default},
 	// [StaticMesh_Translucent]
-	{ EPSOType::StaticMesh_Translucent,	"Resources/Shader/StaticMeshShader.hlsl",    D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidBack, EBlendState::AlphaBlend,   EDepthStencilState::ReadOnly },
+	{EPSOType::StaticMesh_Translucent,
+		"Resources/Shader/StaticMeshShader.hlsl",
+		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+		ERasterizerState::SolidBack,
+		EBlendState::AlphaBlend,
+		EDepthStencilState::ReadOnly},
 	// [StaticMesh_Wireframe]
-	{ EPSOType::StaticMesh_Wireframe,	"Resources/Shader/StaticMeshShader.hlsl",    D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::Wireframe, EBlendState::Opaque,       EDepthStencilState::Default },
+	{EPSOType::StaticMesh_Wireframe, "Resources/Shader/StaticMeshShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::Wireframe, EBlendState::Opaque, EDepthStencilState::Default},
 	// [Particle_AlphaBlend]
-	{ EPSOType::Particle_AlphaBlend,	"Resources/Shader/ParticleSubUVShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::AlphaBlend,   EDepthStencilState::ReadOnly },
+	{EPSOType::Particle_AlphaBlend,
+		"Resources/Shader/ParticleSubUVShader.hlsl",
+		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+		ERasterizerState::SolidNone,
+		EBlendState::AlphaBlend,
+		EDepthStencilState::ReadOnly},
 	// [Particle_Additive]
-	{ EPSOType::Particle_Additive,		"Resources/Shader/ParticleSubUVShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::Additive,     EDepthStencilState::ReadOnly },
+	{EPSOType::Particle_Additive, "Resources/Shader/ParticleSubUVShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::Additive, EDepthStencilState::ReadOnly},
 	// [Skybox]
-	{ EPSOType::StaticMesh_Opaque,		"Resources/Shader/SkyboxShader.hlsl",        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::Opaque,       EDepthStencilState::ReadOnly },
+	{EPSOType::StaticMesh_Opaque, "Resources/Shader/SkyboxShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::Opaque, EDepthStencilState::ReadOnly},
 	// [Grid]
-	{ EPSOType::Grid,					"Resources/Shader/GridShader.hlsl",          D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidBack, EBlendState::AlphaBlend,   EDepthStencilState::Default },
+	{EPSOType::Grid, "Resources/Shader/GridShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidBack, EBlendState::AlphaBlend, EDepthStencilState::Default},
 	// [Outline_Mask]
-	{ EPSOType::Outline_Mask,			"Resources/Shader/OutlineShader.hlsl",       D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::NoColorWrite, EDepthStencilState::StencilMask },
+	{EPSOType::Outline_Mask, "Resources/Shader/OutlineShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::NoColorWrite, EDepthStencilState::StencilMask},
 	// [Outline_Draw]
-	{ EPSOType::Outline_Draw,			"Resources/Shader/OutlineShader.hlsl",       D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::Opaque,       EDepthStencilState::StencilOutline }
+	{EPSOType::Outline_Draw, "Resources/Shader/OutlineShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::Opaque, EDepthStencilState::StencilOutline},
+	{EPSOType::Billboard, "Resources/Shader/BillboardShader.hlsl", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, ERasterizerState::SolidNone, EBlendState::Opaque, EDepthStencilState::Default},
 };
-
-
 
 void FRenderResourceManager::ScanShaders(const fs::path& ShaderRoot)
 {
@@ -54,9 +59,12 @@ void FRenderResourceManager::ScanShaders(const fs::path& ShaderRoot)
 
 	for (const fs::directory_entry& Entry : fs::recursive_directory_iterator(ShaderRoot))
 	{
-		if (!Entry.is_regular_file()) continue;
-		if (Entry.path().extension() != ".hlsl") continue;
-		if (Entry.path().filename().string().find("CS.hlsl") != std::string::npos) continue;
+		if (!Entry.is_regular_file())
+			continue;
+		if (Entry.path().extension() != ".hlsl")
+			continue;
+		if (Entry.path().filename().string().find("CS.hlsl") != std::string::npos)
+			continue;
 
 		FString Path = Entry.path().generic_string();
 		LoadOrCompileShader(Path);
@@ -77,8 +85,7 @@ FShaderProgram* FRenderResourceManager::GetShaderProgram(const FString& InPath)
 
 	LOG(Error, "[Shader] not found: {}", InPath);
 
-	if (TUniquePtr<FShaderProgram>* Fallback =
-		Get().ShaderProgramMap.Find("Resources/Shader/DefaultShader.hlsl"))
+	if (TUniquePtr<FShaderProgram>* Fallback = Get().ShaderProgramMap.Find("Resources/Shader/DefaultShader.hlsl"))
 		return Fallback->get();
 
 	return nullptr;
@@ -94,13 +101,11 @@ FPipelineState* FRenderResourceManager::GetPSO(const EPSOType& Intype)
 	return nullptr;
 }
 
-
-
 void FRenderResourceManager::LoadOrCompileShader(const FString& Path)
-{ 
+{
 	FString VSCSOPath;
 	FString PSCSOPath;
-	FShaderByteCode VSCode = FRenderUtil::GetOrCompile(Path,"mainVS", EShaderType::Vertex, VSCSOPath);
+	FShaderByteCode VSCode = FRenderUtil::GetOrCompile(Path, "mainVS", EShaderType::Vertex, VSCSOPath);
 	FShaderByteCode PSCode = FRenderUtil::GetOrCompile(Path, "mainPS", EShaderType::Pixel, PSCSOPath);
 
 	if (!VSCode.IsValid() || !PSCode.IsValid())
@@ -110,7 +115,7 @@ void FRenderResourceManager::LoadOrCompileShader(const FString& Path)
 	}
 
 	TUniquePtr<FRHIVertexShader> Vs = FRenderCommand::CreateVertexShader(VSCode);
-	TUniquePtr<FRHIPixelShader>  Ps = FRenderCommand::CreatePixelShader(PSCode);
+	TUniquePtr<FRHIPixelShader> Ps = FRenderCommand::CreatePixelShader(PSCode);
 
 	if (!Vs || !Vs->IsValid() || !Ps || !Ps->IsValid())
 	{
@@ -126,7 +131,6 @@ void FRenderResourceManager::LoadOrCompileShader(const FString& Path)
 	ShaderProgramMap[Path] = MakeUnique<FShaderProgram>(VsRaw, PsRaw);
 
 	LOG(Info, "[Shader] loaded: {}", Path);
-
 }
 
 void FRenderResourceManager::InitPipelineStates()
@@ -136,13 +140,7 @@ void FRenderResourceManager::InitPipelineStates()
 	{
 		const auto& Entry = PipelineTable[i];
 		const EPSOType Type = static_cast<EPSOType>(i);
-		PipelineStateMap[Type] = MakeUnique<FPipelineState>(
-			GetShaderProgram(Entry.ShaderPath),
-			Entry.Topology,
-			Entry.RasterizerState,
-			Entry.BlendState,
-			Entry.DepthStencilState
-		);
+		PipelineStateMap[Type] = MakeUnique<FPipelineState>(GetShaderProgram(Entry.ShaderPath), Entry.Topology, Entry.RasterizerState, Entry.BlendState, Entry.DepthStencilState);
 	}
 	LOG(Info, "Pipeline States Initialized from Table.");
 }

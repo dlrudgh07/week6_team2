@@ -21,7 +21,6 @@
 #include "UObject/UObjectIterator.h"
 #include "Engine/World.h"
 
-
 #include "Tasks/Tasks.h"
 
 #include <algorithm>
@@ -374,6 +373,11 @@ FMultipleViewportsAdapter::GetGridPlane(const int32 ViewIndex) const {
   if (AbsY >= AbsX)
     return EGridPlane::XZ;
   return EGridPlane::YZ;
+}
+
+void FMultipleViewportsAdapter::SetViewCameraTransform(int32 ViewIndex, const FViewCamera& Camera)
+{
+	Views.Cameras[ViewIndex].Transform = Camera.Transform;
 }
 
 // Core Rect 계산 결과를 Single 대상 슬롯에 재배치하고 Hover·활성 View를
@@ -923,6 +927,23 @@ void FMultipleViewportsAdapter::BuildRenderPackets(
 
     const TArray<uint8>& VisibleLODs = SoftwareOcclusion.GetVisibleLODs(ViewIndex);
     const UClass* StaticMeshClass = UStaticMeshComponent::StaticClass();
+    const UClass* BillboardClass = UBillboardComponent::StaticClass();
+
+    // Billboard·Particle은 MainCamera가 아니라 이 View 카메라를 향하도록 피킹과 같은 행렬 함수를 넘긴다
+    struct FBillboardBuildContext
+    {
+        const FMultipleViewportsAdapter* Adapter;
+        int32 ViewIndex;
+    };
+    const FBillboardBuildContext BillboardBuildContext{this, ViewIndex};
+    FBillboardViewContext BillboardView;
+    BillboardView.ViewContext = &BillboardBuildContext;
+    BillboardView.CameraLocation = GetEngineCameraLocation(ViewIndex);
+    BillboardView.BuildMatrixFn = [](const void* Context, const FVector& WorldPosition, float Width, float Height) -> FMatrix
+    {
+        const FBillboardBuildContext& Build = *static_cast<const FBillboardBuildContext*>(Context);
+        return Build.Adapter->BuildEngineBillboardMatrix(Build.ViewIndex, WorldPosition, Width, Height);
+    };
 
     Tasks::ParallelFor(TotalPrimitives, ChunkSize, [&](int32 Start, int32 End)
     {
@@ -947,7 +968,15 @@ void FMultipleViewportsAdapter::BuildRenderPackets(
                 }
 
                 const int32 PrevCount = LocalList.Num();
-                Primitive->SubmitToRenderPackets(LocalList);
+                // 대다수인 StaticMesh는 클래스 비교만으로 빠르게 기본 경로로 보낸다
+                if (Primitive->GetClass() != StaticMeshClass && Primitive->IsA(BillboardClass))
+                {
+                    static_cast<UBillboardComponent*>(Primitive)->SubmitToRenderPacketsForView(LocalList, BillboardView);
+                }
+                else
+                {
+                    Primitive->SubmitToRenderPackets(LocalList);
+                }
 				if (LocalList.Num() > PrevCount)
 				{
 					for (int32 p = PrevCount; p < LocalList.Num(); ++p)

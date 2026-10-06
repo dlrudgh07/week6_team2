@@ -179,7 +179,7 @@ void FViewportsPanel::ResetPIEInput()
 void FViewportsPanel::SetPIE()
 {
 	bPIEFocus = true;
-	while(ShowCursor(FALSE) >= 0)
+	while(ShowCursor(FALSE) >= 0);
 	SetCursorPos(ContentOrigin.x + ContentSize.x * 0.5f, ContentOrigin.y + ContentSize.y * 0.5f);
 }
 

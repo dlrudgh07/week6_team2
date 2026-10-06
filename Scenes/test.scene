@@ -1,0 +1,101 @@
+{
+    "Version": 2,
+    "Actors": [
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_168",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Shiba/Shiba.obj",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                -2.3756933212280273,
+                                12.032708168029785,
+                                5.536357879638672
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_170",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Nijika/Nijika.obj",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                -9.134825706481934,
+                                15.819829940795898,
+                                9.04718017578125
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_172",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Ryo/Ryo.obj",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                -6.141783714294434,
+                                19.955551147460938,
+                                11.408066749572754
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        }
+    ]
+}

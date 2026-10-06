@@ -28,12 +28,8 @@ void FPIEViewportPanel::OnRender()
 {
 	if (!bActive)
 		return;
-
 	if (Mode == ETypePIEMode::Selected)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.0f);
-	}
-
+		return;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
 
 	ImGui::Begin("PIE", nullptr, ImGuiWindowFlags_NoScrollbar);
@@ -57,7 +53,9 @@ void FPIEViewportPanel::OnRender()
 	{
 		RECT rect = {ContentOrigin.x + Rect.X, ContentOrigin.y + Rect.Y, ContentOrigin.x + Rect.X + Rect.Width, ContentOrigin.y + Rect.Y + Rect.Height};
 
-		while(ShowCursor(FALSE) >= 0)
+		while (ShowCursor(FALSE) >= 0);
+		
+			
 		bFocus = true;
 
 		SetCursorPos(centerX, centerY);
@@ -74,14 +72,14 @@ void FPIEViewportPanel::OnRender()
 		SetCursorPos(centerX, centerY);
 	}
 
-	if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
+	/*if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
 	{
 		ClipCursor(NULL);
 		while(ShowCursor(TRUE) < 0);
 		bFocus = false;
 		DeltaX = 0;
 		DeltaY = 0;
-	}
+	}*/
 
 	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 	{
@@ -116,11 +114,6 @@ void FPIEViewportPanel::OnRender()
 	ImGui::End();
 
 	ImGui::PopStyleVar();
-
-	if (Mode == ETypePIEMode::Selected)
-	{
-		ImGui::PopStyleVar();
-	}
 }
 
 // Core에서 전달된 PIE View Rect와 활성 상태를 반영하고,
