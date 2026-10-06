@@ -255,16 +255,17 @@ void FRenderCommand::BindShaderResource(uint32 Slot, UTexture2D* Texture2D, ESha
 void FRenderCommand::BeginRenderPass(const FRenderingInfo& RenderingInfo)
 {
 	TArray<ID3D11RenderTargetView*> RTVs;
-	for (const FRenderingDesc& RenderTargetDesc : RenderingInfo.ColorRenderTargets)
-	{
-		FClearValue ClearValue = RenderTargetDesc.ClearValue;
-		if (RenderTargetDesc.LoadOp == ERenderTargetLoadOp::Clear)
+	
+		for (const FRenderingDesc& RenderTargetDesc : RenderingInfo.ColorRenderTargets)
 		{
-			RenderDevice->GetContext()->ClearRenderTargetView(RenderTargetDesc.Texture->GetRTV(), &RenderTargetDesc.ClearValue.ColorClearValue.V[0]);
+			FClearValue ClearValue = RenderTargetDesc.ClearValue;
+			if (RenderTargetDesc.LoadOp == ERenderTargetLoadOp::Clear)
+			{
+				RenderDevice->GetContext()->ClearRenderTargetView(RenderTargetDesc.Texture->GetRTV(), &RenderTargetDesc.ClearValue.ColorClearValue.V[0]);
+			}
+			RTVs.Add(RenderTargetDesc.Texture->GetRTV());
 		}
-		RTVs.Add(RenderTargetDesc.Texture->GetRTV());
-	}
-
+	
 	ID3D11DepthStencilView* DSV = nullptr;
 	if (RenderingInfo.DepthSteincil.Texture != nullptr)
 	{
@@ -283,7 +284,50 @@ void FRenderCommand::BeginRenderPass(const FRenderingInfo& RenderingInfo)
 		RenderingInfo.ViewportSetting.Width,
 		RenderingInfo.ViewportSetting.Height);
 }
+void FRenderCommand::BeginRenderPassSceneColor(const FRenderingInfo& RenderingInfo)
+{
+	TArray<ID3D11RenderTargetView*> RTVs;
+	if (RenderingInfo.SceneColorTarget.Texture != nullptr) // AA등 SceneColorTarget를 가장 먼저 바인딩해야 하는 경우
+	{
+		const FRenderingDesc& SceneColorDesc = RenderingInfo.SceneColorTarget;
+		if (SceneColorDesc.Texture != nullptr)
+		{
+			if (SceneColorDesc.LoadOp == ERenderTargetLoadOp::Clear)
+			{
+				RenderDevice->GetContext()->ClearRenderTargetView(SceneColorDesc.Texture->GetRTV(), &SceneColorDesc.ClearValue.ColorClearValue.V[0]);
+			}
+			RTVs.Add(SceneColorDesc.Texture->GetRTV());
+		}
+	}
+	else
+	{
+		for (const FRenderingDesc& RenderTargetDesc : RenderingInfo.ColorRenderTargets)
+		{
+			FClearValue ClearValue = RenderTargetDesc.ClearValue;
+			if (RenderTargetDesc.LoadOp == ERenderTargetLoadOp::Clear)
+			{
+				RenderDevice->GetContext()->ClearRenderTargetView(RenderTargetDesc.Texture->GetRTV(), &RenderTargetDesc.ClearValue.ColorClearValue.V[0]);
+			}
+			RTVs.Add(RenderTargetDesc.Texture->GetRTV());
+		}
+	}
+	ID3D11DepthStencilView* DSV = nullptr;
+	if (RenderingInfo.DepthSteincil.Texture != nullptr)
+	{
+		FClearValue dsvClearValue = RenderingInfo.DepthSteincil.ClearValue;
+		DSV = RenderingInfo.DepthSteincil.Texture->GetDSV();
+		if (RenderingInfo.DepthSteincil.LoadOp == ERenderTargetLoadOp::Clear)
+		{
+			RenderDevice->GetContext()->ClearDepthStencilView(RenderingInfo.DepthSteincil.Texture->GetDSV(),
+				D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+				dsvClearValue.depthClearValue,
+				dsvClearValue.stencilClearValue);
+		}
+	}
+	RenderDevice->GetContext()->OMSetRenderTargets((uint32)RTVs.Num(), RTVs.GetData(), DSV);
 
+	SetViewport(RenderingInfo.ViewportSetting.StartX, RenderingInfo.ViewportSetting.StartY, RenderingInfo.ViewportSetting.Width, RenderingInfo.ViewportSetting.Height);
+}
 void FRenderCommand::EndRenderPass(const FRenderingInfo& RenderingInfo)
 {
 	RenderDevice->GetContext()->OMSetRenderTargets(0, nullptr, nullptr);
@@ -412,4 +456,10 @@ void FRenderCommand::PSSetShaderResource(uint32 Slot, ID3D11ShaderResourceView* 
 	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
 	Ctx->PSSetShaderResources(Slot, 1, &SRV);
 }
-
+void FRenderCommand::SetRenderTarget(FRHITexture2D* ColorTarget, FRHITexture2D* DepthStencil, ID3D11DeviceContext* Context)
+{
+	ID3D11DeviceContext* Ctx = Context ? Context : RenderDevice->GetContext();
+	ID3D11RenderTargetView* RTV = ColorTarget ? ColorTarget->GetRTV() : nullptr;
+	ID3D11DepthStencilView* DSV = DepthStencil ? DepthStencil->GetDSV() : nullptr;
+	Ctx->OMSetRenderTargets(RTV ? 1 : 0, &RTV, DSV);
+}

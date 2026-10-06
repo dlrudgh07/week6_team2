@@ -43,9 +43,11 @@ struct FRenderingDesc
 	FClearValue ClearValue = FClearValue();
 };
 
+
 struct FRenderingInfo
 {
 	FViewportSettings ViewportSetting;
 	TArray<FRenderingDesc> ColorRenderTargets;
+	FRenderingDesc SceneColorTarget; // 장면작업텍스처
 	FRenderingDesc DepthSteincil;
 };

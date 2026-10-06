@@ -63,6 +63,7 @@ void FSettingsPanel::OnRender()
 		ImGui::EndDisabled();
 
 	ImGui::Checkbox("Show Axis", &Settings.bDrawAxis);
+	ImGui::Checkbox("FXAA", &Settings.bAntiAliasing);
 
 	//////////////////////////////////////////////////////////
 

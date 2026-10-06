@@ -183,6 +183,8 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 	DepthSceneRenderer = MakeUnique<FDepthSceneRenderer>();
 	DepthSceneRenderer->Init();
 
+	AntiAliasingRenderer = MakeUnique<FAntiAliasingRenderer>();
+	AntiAliasingRenderer-> Init();
 	// Scene
 	UWorld* World = FObjectFactory::ConstructObject<UWorld>();
 	World->Init();
@@ -604,13 +606,20 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 	TArray<FRenderPacket>& RenderPackets,
 	const FScene& SceneData)
 {
+	const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
+	//후처리 유무에 따른 RTV대상 설정
+
 	//Render 초기화
 	FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
-	const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
 	const float FarClip = MultipleViewportsAdapter.GetViewCamera(ViewIndex).Projection.FarClip;
 
 	UWorld* CurrentWorld = ViewportsPanel->IsPIEMode() ? GetPIEWorld() : GetEditorWorld();
+
+	if (EditorSettings.bAntiAliasing)
+		FRenderCommand::BeginRenderPassSceneColor(ViewRenderingInfo);
+	else
+		FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
 	//Grid 렌더링
 	{
@@ -652,18 +661,20 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		if (SceneData.FogSceneData.IsValid())
 		{
 			FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
-
+			
 		}
 
-		// Anti Aliasing 처리
-		{
-
-		}
 	}
 
 	// Text 렌더링
 	{
 		RenderWorldTexts(GetEditorWorld(), ViewProjection);
+	}
+	
+	// Anti Aliasing 처리
+	{
+		if (EditorSettings.bAntiAliasing)
+			AntiAliasingRenderer->OnRender(ViewRenderingInfo);
 	}
 
 	// Line Batch 렌더링
@@ -680,6 +691,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 			OutlineRenderer->OnRender(*Outline, ViewProjection, ViewRenderingInfo.ViewportSetting);
 		}
 	}
+
 	// Gizmo 렌더링
 	{
 		if (Gizmo->GetTarget() && CurrentWorld == Gizmo->GetTarget()->GetOwner()->GetWorld())

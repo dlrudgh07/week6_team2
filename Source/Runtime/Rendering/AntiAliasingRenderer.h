@@ -7,7 +7,9 @@
 
 struct FAntiAliasingConstants
 {
-
+	float Texel[2];
+	float padding1;
+	float padding2;
 };
 
 // Exponential Height Fog Render를 위한 class
@@ -23,7 +25,7 @@ class FAntiAliasingRenderer
 	{
 		return Shader != nullptr;
 	}
-	void OnRender(FRHITexture2D* SceneDepthTexture, const FRenderingInfo& ViewRenderInfo);
+	void OnRender(const FRenderingInfo& ViewRenderingInfo);
 
   private:
 	FShaderProgram* Shader = nullptr;

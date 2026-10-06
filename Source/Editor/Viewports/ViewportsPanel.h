@@ -89,6 +89,7 @@ public:
 		uint32 Height = 0;
 		TUniquePtr<FRHITexture2D> ColorTarget;
 		TUniquePtr<FRHITexture2D> DepthTarget;
+		TUniquePtr<FRHITexture2D> SceneColor; //for post rendering
 		FRenderingInfo RenderingInfo{};
 	};
 

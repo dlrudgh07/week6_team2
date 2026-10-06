@@ -430,7 +430,8 @@ void FViewportsPanel::ResizeSlot(FViewSlot& Slot, const uint32 Width, const uint
 	Desc.SampleDesc.Count = 1;
 	Desc.Usage = D3D11_USAGE_DEFAULT;
 	Desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	Slot.ColorTarget = FRenderCommand::CreateTexture2D(Desc);
+	Slot.ColorTarget = FRenderCommand::	CreateTexture2D(Desc);
+	Slot.SceneColor = FRenderCommand::CreateTexture2D(Desc); //Post Process용 Texture ( 기존ColorTarget과 양식똑같음 )
 
 	Desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	Desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
@@ -442,7 +443,15 @@ void FViewportsPanel::ResizeSlot(FViewSlot& Slot, const uint32 Width, const uint
 	Slot.RenderingInfo.ViewportSetting.Width = Width;
 	Slot.RenderingInfo.ViewportSetting.Height = Height;
 	FRenderingDesc ColorDesc{};
+	FRenderingDesc SceneColorDesc{};
+
 	ColorDesc.Texture = Slot.ColorTarget.get();
 	Slot.RenderingInfo.ColorRenderTargets.Add(ColorDesc);
+
+	SceneColorDesc.Texture = Slot.SceneColor.get();
+	Slot.RenderingInfo.SceneColorTarget = SceneColorDesc;
+
 	Slot.RenderingInfo.DepthSteincil.Texture = Slot.DepthTarget.get();
+
+
 }

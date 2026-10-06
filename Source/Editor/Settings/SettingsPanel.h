@@ -12,6 +12,7 @@ struct FEditorSettings
 {
 	// 에디터 렌더 옵션과 Multiple Viewports 레이아웃의 영구 설정을 한곳에 담는다.
 	// Toggles
+	bool bAntiAliasing = true;
 	bool bDrawPrimitives = true;
 	bool bDrawGrid = true;
 	bool bDrawAxis = true;

@@ -90,11 +90,12 @@ public:
 	static void BindShaderResource(uint32 Slot, UTexture2D* Texture2D, EShaderBindFlagBits FlagBits, ID3D11DeviceContext* Context = nullptr);
 
 	static void BeginRenderPass(const FRenderingInfo& RenderingInfo);
+	static void BeginRenderPassSceneColor(const FRenderingInfo& RenderingInfo);
 	static void EndRenderPass(const FRenderingInfo& RenderingInfo);
 	static void ClearDepthStencil(FRHITexture2D* DepthStencilTexture, float Depth = 1.0f, uint8 Stencil = 0);
 
 	static void SetViewport(uint32 InX, uint32 InY, uint32 InWidth, uint32 InHeight, ID3D11DeviceContext* Context = nullptr);
-
+	static void SetRenderTarget(FRHITexture2D* ColorTarget, FRHITexture2D* DepthStencil = nullptr, ID3D11DeviceContext* Context = nullptr);
 	static void SetRasterizerState(ERasterizerState State, ID3D11DeviceContext* Context = nullptr);
 	static void SetBlendState(EBlendState State, ID3D11DeviceContext* Context = nullptr);
 	static void SetDepthStencilState(EDepthStencilState State, ID3D11DeviceContext* Context = nullptr);

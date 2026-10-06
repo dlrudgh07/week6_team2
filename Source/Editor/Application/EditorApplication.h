@@ -24,6 +24,7 @@
 #include "Rendering/SkyboxRenderer.h"
 #include "Rendering/FogRenderer.h"
 #include "Rendering/FireballRenderer.h"
+#include "Rendering/AntiAliasingRenderer.h"
 #include "Engine/WorldContext.h"
 //Temp
 #include "Engine/Font.h"
@@ -133,6 +134,8 @@ class FEditorApplication : public FApplication
 	TUniquePtr<FFogRenderer> FogRenderer;
 	TUniquePtr<FFireballRenderer> FireballRenderer;
 	TUniquePtr<FDepthSceneRenderer> DepthSceneRenderer;
+	TUniquePtr<FAntiAliasingRenderer> AntiAliasingRenderer;
+
 
 	UFont* SystemFont;
 
