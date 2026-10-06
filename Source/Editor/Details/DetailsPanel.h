@@ -5,6 +5,7 @@
 #include "Engine/TextRenderActor.h"
 #include "Components/RotatingMovementComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
+#include "Components/FireballComponent.h"
 #include "Logging/LogMacros.h"
 
 class UWorld;
