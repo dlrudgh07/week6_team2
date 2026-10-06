@@ -359,7 +359,6 @@ void FPIEViewAdapter::CaptureWorld(UWorld& World)
 
 void FPIEViewAdapter::SetViewCamera(int32 ViewIndex, const FViewCamera& Camera)
 {
-	assert(ViewIndex == 0);
 	ViewCamera = Camera;
 
 	ConstrainOrthographicWidth(ViewCamera.Projection, ViewRect);
@@ -374,7 +373,6 @@ void FPIEViewAdapter::SetViewCamera(int32 ViewIndex, const FViewCamera& Camera)
 
 void FPIEViewAdapter::SetViewRect(int32 ViewIndex, const FRect& Rect)
 {
-	assert(ViewIndex == 0);
 	ViewRect = Rect;
 
 	if (ViewRect.Width > 0.0f && ViewRect.Height > 0.0f)
@@ -391,7 +389,6 @@ void FPIEViewAdapter::SetViewCameraTransform(int32 ViewIndex, const FViewCamera&
 
 FMatrix FPIEViewAdapter::GetEngineViewProjection(int32 ViewIndex) const
 {
-	assert(ViewIndex == 0);
 
 	return PrepareView().EngineViewProjection;
 }
@@ -403,19 +400,16 @@ FMatrix FPIEViewAdapter::GetEnginePerspectiveProjection() const
 
 FVector FPIEViewAdapter::GetEngineCameraLocation(int32 ViewIndex) const
 {
-	assert(ViewIndex == 0);
 	return ViewCamera.Transform.Location;
 }
 
 FVector FPIEViewAdapter::GetEngineCameraForward(int32 ViewIndex) const
 {
-	assert(ViewIndex == 0);
 	return NormalizedOrZero(CameraForward(ViewCamera.Transform.Rotation));
 }
 
 FMatrix FPIEViewAdapter::BuildEngineBillboardMatrix(int32 ViewIndex, const FVector& WorldPosition, float Width, float Height) const
 {
-	assert(ViewIndex == 0);
 	if (ViewCamera.Projection.Mode == ECameraProjectionMode::Orthographic)
 	{
 		const FVector Facing = NormalizedOrZero(CameraForward(ViewCamera.Transform.Rotation)) * -1.0f;
@@ -450,13 +444,11 @@ FMatrix FPIEViewAdapter::BuildEngineBillboardMatrix(int32 ViewIndex, const FVect
 
 bool FPIEViewAdapter::IsOrthographic(int32 ViewIndex) const
 {
-	assert(ViewIndex == 0);
 	return ViewCamera.Projection.Mode == ECameraProjectionMode::Orthographic;
 }
 
 void FPIEViewAdapter::BuildRenderPackets(int32 ViewIndex, TArray<FRenderPacket>& OutPackets)
 {
-	assert(ViewIndex == 0);
 	OutPackets.Reset();
 	if (ViewRect.Width <= 0.0f || ViewRect.Height <= 0.0f)
 		return;

@@ -11,15 +11,19 @@
 #include "UObject/UObjectGlobals.h"
 
 TArray<UObject*> GUObjectArray;
-//TArray<int32> ObjAvailableList;
+
+// 삭제된 오브젝트가 비운 GUObjectArray 슬롯. 다음 생성 때 재사용한다.
+// swap-remove로 다른 오브젝트를 옮기면 그 오브젝트를 가리키던 TWeakObjectPtr(Index + SerialNumber)가 끊어지므로,
+// 살아 있는 오브젝트의 인덱스는 절대 바꾸지 않는다. 재사용된 슬롯은 SerialNumber 검사로 걸러진다.
+static TArray<uint32> ObjAvailableList;
 
 UObject::UObject()
 {
 	static uint32 NextSerialNumber = 1;
 	InternalSerialNumber = NextSerialNumber++;
 	ObjectUUID = FEngineStatics::GetUUID();
-	
-	/*if (ObjAvailableList.IsEmpty())
+
+	if (ObjAvailableList.IsEmpty())
 	{
 		InternalIndex = GUObjectArray.Num();
 		GUObjectArray.Add(this);
@@ -29,11 +33,8 @@ UObject::UObject()
 		InternalIndex = ObjAvailableList.Last();
 		ObjAvailableList.RemoveLast();
 		GUObjectArray[InternalIndex] = this;
-	}*/
+	}
 
-	InternalIndex = GUObjectArray.Num();
-	GUObjectArray.Add(this);
-	
 	LOG(Info, "UUID : {}", ObjectUUID);
 }
 
@@ -60,15 +61,7 @@ UObject::~UObject()
 			UnhashObject(this, ClassPrivate);
 		}
 		GUObjectArray[InternalIndex] = nullptr;
-		/*ObjAvailableList.Add(InternalIndex);*/
-		int32 LastIndex = GUObjectArray.Num() - 1;
-		if (InternalIndex != LastIndex)
-		{
-			UObject* MovedObject = GUObjectArray[LastIndex];
-			GUObjectArray[InternalIndex] = MovedObject;
-			MovedObject->InternalIndex = InternalIndex; // 옮겨간 오브젝트 인덱스 갱신
-		}
-		GUObjectArray.RemoveLast();
+		ObjAvailableList.Add(InternalIndex);
 	}
 }
 
@@ -157,6 +150,15 @@ void UObject::Serialize(json& Handle, bool bIsLoading)
 					Handle[Property.Name] = Value;
 				break;
 			}
+			case EPropertyType::Rotator:
+			{
+				FRotator& Value = *static_cast<FRotator*>(Ptr);
+				if (bIsLoading)
+					Value = Handle[Property.Name].get<FRotator>();
+				else
+					Handle[Property.Name] = Value;
+				break;
+			}
 			case EPropertyType::Vector4:
 			{
 				FVector4& Value = *static_cast<FVector4*>(Ptr);
@@ -190,8 +192,9 @@ void UObject::Serialize(json& Handle, bool bIsLoading)
 
 				if (bIsLoading)
 				{
-					// null로 저장된 건 "되찾을 수 없는 값"이었으므로 기본값을 유지한다
-					if (Handle[Property.Name].is_null())
+					// null로 저장된 건 "되찾을 수 없는 값"이었으므로 기본값을 유지한다.
+					// 문자열이 아닌 값(예: Billboard의 Material 객체)은 하위 클래스 Serialize가 직접 처리한다.
+					if (!Handle[Property.Name].is_string())
 					{
 						break;
 					}

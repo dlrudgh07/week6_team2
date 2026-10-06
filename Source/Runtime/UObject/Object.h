@@ -152,4 +152,3 @@ private:
 };
 
 extern TArray<UObject*> GUObjectArray;
-//extern TArray<int32> ObjAvailableList;

@@ -210,7 +210,8 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 		[this](AActor* Actor)
 		{
 			UPrimitiveComponent* Primitive = Actor ? Cast<UPrimitiveComponent>(Actor->GetRootComponent()) : nullptr;
-			Gizmo->SetTarget(Primitive);
+			USceneComponent* SceneComp = Actor ? Cast<USceneComponent>(Actor->GetRootComponent()) : nullptr;
+			Gizmo->SetTarget(SceneComp);
 			Outline->SetTarget(Primitive);
 			DetailsPanel->SetTarget(Actor);
 		});
@@ -684,7 +685,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		if (Gizmo->GetTarget() && CurrentWorld == Gizmo->GetTarget()->GetOwner()->GetWorld())
 		{
 			auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
-			FBox box = Target->CalcBounds();
+			//FBox box = Target->CalcBounds();
 			FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
 			GizmoRenderer->OnRender(*Gizmo, ViewProjection, ViewCameraLocation, MultipleViewportsAdapter.IsOrthographic(ViewIndex));
 		}
@@ -783,9 +784,14 @@ void FEditorApplication::Shutdown()
 	UAssetManager::Get().Shutdown();
 	FRenderResourceManager::Shutdown();
 
-	while (GUObjectArray.Num() > 0)
+	// 삭제된 슬롯은 nullptr로 남으므로 건너뛴다.
+	// (액터를 지우면 컴포넌트도 같이 지워져 앞쪽 슬롯이 비워질 수 있어 매번 다시 확인한다)
+	for (int32 Index = GUObjectArray.Num() - 1; Index >= 0; --Index)
 	{
-		delete GUObjectArray.Last();
+		if (GUObjectArray[Index])
+		{
+			delete GUObjectArray[Index];
+		}
 	}
 
 	ImGuiRenderer->Shutdown();

@@ -62,8 +62,21 @@ void mainCS(uint3 GroupThreadID : SV_GroupThreadID, uint3 GroupID : SV_GroupID, 
         // HZB 투영보다 싼 거리 기반 LOD를 먼저 판정해 아주 작은 물체는 조기에 제외한다.
         if (bVisible)
         {
-            float Dist = length(Center - CameraPosition);
-            float ScreenDiameter = (Bound.Radius * 2.0f) / max(Dist, 0.001f);
+            // 직교 투영은 w열이 (0,0,0,1)이고 화면 크기가 거리와 무관하므로 OrthoWidth 기준으로 판정한다.
+            // (렌더 카메라를 FarClip 이상 뒤로 물리므로 거리 기반이면 모든 물체가 LOD 0으로 컬링된다.)
+            bool bOrthographic = abs(ViewProjection[0].w) + abs(ViewProjection[1].w) + abs(ViewProjection[2].w) < 1e-6f;
+            float ScreenDiameter;
+            if (bOrthographic)
+            {
+                // Clip X 축척 = 2 / OrthoWidth 이므로 2R / OrthoWidth = R * |X 축척|
+                float3 ClipXAxis = float3(ViewProjection[0].x, ViewProjection[1].x, ViewProjection[2].x);
+                ScreenDiameter = Bound.Radius * length(ClipXAxis);
+            }
+            else
+            {
+                float Dist = length(Center - CameraPosition);
+                ScreenDiameter = (Bound.Radius * 2.0f) / max(Dist, 0.001f);
+            }
 
             if (ScreenDiameter < 0.01f)
             {
