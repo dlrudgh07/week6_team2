@@ -58,7 +58,7 @@ class FMultipleViewportsAdapter : public IViewportAdapter
 	// 프리셋 또는 카메라 Forward 지배축으로 표시할 Grid 평면을 고른다.
 	EGridPlane GetGridPlane(int32 ViewIndex) const;
 
-	void SetViewCameraTransform(int32 ViewIndex, const FViewCamera& Camera) override;
+	void SetViewCameraTransform(int32 ViewIndex, const FCameraTransform& CameraTransform) override;
 
 	// 레이아웃 Rect를 계산하고 마우스 위치로 Hover·활성 View를 갱신한다.
 	void UpdateLayout(FVector2D WindowSize, FVector2D LocalMousePosition);
