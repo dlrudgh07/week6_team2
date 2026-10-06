@@ -70,11 +70,23 @@ void UBillboardComponent::SubmitToRenderPackets(TArray<FRenderPacket>& OutPacket
 
 	FMatrix BillboardWorldMatrix;
 	GetWorldTransformedMatrix(&BillboardWorldMatrix);
-	SubmitToRenderPackets(OutPackets, BillboardWorldMatrix);
+	AddRenderPacket(OutPackets, BillboardWorldMatrix, 0.0f);
+}
+
+// 렌더 중인 View 카메라 기준으로 패킷 배열에 추가. 크기는 피킹과 같은 규약(너비 = Scale.Y, 높이 = Scale.Z)을 따른다.
+void UBillboardComponent::SubmitToRenderPacketsForView(TArray<FRenderPacket>& OutPackets, const FBillboardViewContext& View)
+{
+	if (QuadMesh == nullptr || Material == nullptr)
+		return;
+
+	const FVector WorldPos = GetComponentLocation();
+	const FVector Scale = GetComponentScale();
+	const FVector ToCamera = WorldPos - View.CameraLocation;
+	AddRenderPacket(OutPackets, View.BuildMatrix(WorldPos, Scale.Y, Scale.Z), FVector::Dot(ToCamera, ToCamera));
 }
 
 // 전달받은 행렬 기준으로 패킷 배열에 직접 추가
-void UBillboardComponent::SubmitToRenderPackets(TArray<FRenderPacket>& OutPackets, const FMatrix& BillboardWorldMatrix)
+void UBillboardComponent::AddRenderPacket(TArray<FRenderPacket>& OutPackets, const FMatrix& BillboardWorldMatrix, float CameraDistanceSquared) const
 {
 	if (QuadMesh == nullptr || Material == nullptr)
 		return;
@@ -83,6 +95,7 @@ void UBillboardComponent::SubmitToRenderPackets(TArray<FRenderPacket>& OutPacket
 	Packet.mesh = QuadMesh;
 	Packet.material = Material;
 	Packet.model = BillboardWorldMatrix;
+	Packet.CameraDistanceSquared = CameraDistanceSquared;
 	OutPackets.Add(Packet);
 }
 

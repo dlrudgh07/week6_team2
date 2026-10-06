@@ -49,9 +49,11 @@ public:
 	virtual void TickComponent(float DeltaTime) override;
 
 	virtual void SubmitToRenderPackets(TArray<FRenderPacket>& OutPackets) override;
+	// 파티클마다 렌더 중인 View 카메라를 향하는 행렬로 패킷을 제출한다.
+	virtual void SubmitToRenderPacketsForView(TArray<FRenderPacket>& OutPackets, const FBillboardViewContext& View) override;
 	// Adapter가 View별 거리 정렬 입력을 만들 수 있도록 현재 파티클 배열을 읽기 전용으로 제공한다.
 	const TArray<FParticle>& GetParticlesForView() const { return Particles; }
-	// 프레임의 첫 View 전에 파티클 인덱스별 상수를 준비하고 네 View에서 재사용한다.
+	// 파티클 인덱스별 상수를 준비한다. 패킷이 이 배열 원소를 가리키므로 제출 중에는 재할당하지 않는다.
 	void BeginViewSubmission();
 	// 불투명 파티클의 기존 정렬 경로를 선택한다.
 	bool UsesOpaqueMaterial() const;

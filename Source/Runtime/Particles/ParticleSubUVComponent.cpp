@@ -190,6 +190,39 @@ void UParticleSubUVComponent::SubmitToRenderPackets(TArray<FRenderPacket>& OutPa
 	}
 }
 
+// View 카메라 기준으로 파티클 렌더 패킷을 배열에 직접 수집
+// View는 "패킷 생성 → 렌더" 순서로 하나씩 처리되므로 View마다 상수를 다시 채워도 이전 View 패킷과 충돌하지 않는다.
+void UParticleSubUVComponent::SubmitToRenderPacketsForView(TArray<FRenderPacket>& OutPackets, const FBillboardViewContext& View)
+{
+	if (QuadMesh == nullptr || Material == nullptr)
+	{
+		return;
+	}
+
+	BeginViewSubmission();
+
+	for (int32 i = 0; i < Particles.Num(); ++i)
+	{
+		const FParticle& Particle = Particles[i];
+		if (Particle.bAlive == false)
+		{
+			continue;
+		}
+
+		const FVector ToCamera = Particle.Location - View.CameraLocation;
+
+		FRenderPacket Packet;
+		Packet.model = View.BuildMatrix(Particle.Location, Particle.Scale, Particle.Scale);
+		Packet.mesh = QuadMesh;
+		Packet.material = Material;
+		Packet.MaterialParamData = &Constants[i];
+		Packet.MaterialParamDataSize = sizeof(FSubUVConstants);
+		Packet.CameraDistanceSquared = FVector::Dot(ToCamera, ToCamera);
+
+		OutPackets.Add(Packet);
+	}
+}
+
 // 파티클 위치·속도·수명 등 재생성 상태를 초기화한다.
 void UParticleSubUVComponent::RespawnParticle(FParticle& Particle)
 {
