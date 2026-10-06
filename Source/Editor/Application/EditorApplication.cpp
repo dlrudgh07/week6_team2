@@ -462,7 +462,15 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime)
 void FEditorApplication::RenderMultipleViewports()
 {
 	EMultipleViewportsCameraPreset CameraPresets[4]{};
-	FScene SceneData = GetEditorWorld()->GetScene();
+	FScene SceneData;
+	if (ViewportsPanel->IsPIEMode())
+	{
+		SceneData = GetPIEWorld()->GetScene();
+	}
+	else
+	{
+		SceneData = GetEditorWorld()->GetScene();
+	}
 	for (int32 ViewIndex = 0; ViewIndex < 4; ++ViewIndex)
 	{
 		const bool bActive = MultipleViewportsAdapter.IsViewActive(ViewIndex);
@@ -563,10 +571,16 @@ void FEditorApplication::UpdateGizmoAndPicking()
 	{
 		if (ViewportsPanel->IsPIEMode())
 		{
-			MultipleViewportsAdapter.PickActiveView(LocalMousePosition, *GetPIEWorld());
-			MultipleViewportsAdapter.ApplyLastPickToOutliner(*OutlinerPanel);
-			if (!MultipleViewportsAdapter.GetLastPick().bHit)
-				ViewportsPanel->SetPIE();
+			if (!ViewportsPanel->IsPIEFocused())
+			{
+				MultipleViewportsAdapter.PickActiveView(LocalMousePosition, *GetPIEWorld());
+				MultipleViewportsAdapter.ApplyLastPickToOutliner(*OutlinerPanel);
+				if (!MultipleViewportsAdapter.GetLastPick().bHit)
+				{
+					ViewportsPanel->SetPIE();
+					OutlinerPanel->SelectActor(nullptr);
+				}
+			}
 		}
 		else
 		{
@@ -591,6 +605,8 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
 	const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
 	const float FarClip = MultipleViewportsAdapter.GetViewCamera(ViewIndex).Projection.FarClip;
+
+	UWorld* CurrentWorld = ViewportsPanel->IsPIEMode() ? GetPIEWorld() : GetEditorWorld();
 
 	//Grid 렌더링
 	{
@@ -649,14 +665,14 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 			MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
 			LineBatcher->OnRender(ViewProjection);
 		}
-		if (Outline && Outline->GetTarget() && OutlineRenderer)
+		if (Outline && Outline->GetTarget() && OutlineRenderer && CurrentWorld == Outline->GetTarget()->GetOwner()->GetWorld())
 		{
 			OutlineRenderer->OnRender(*Outline, ViewProjection, ViewRenderingInfo.ViewportSetting);
 		}
 	}
 	// Gizmo 렌더링
 	{
-		if (Gizmo->GetTarget())
+		if (Gizmo->GetTarget() && CurrentWorld == Gizmo->GetTarget()->GetOwner()->GetWorld())
 		{
 			auto Target = Cast<UPrimitiveComponent>(Gizmo->GetTarget());
 			FBox box = Target->CalcBounds();
@@ -670,7 +686,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
 	FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
 
-	if (Gizmo->GetTarget() && SystemFont)
+	if (Gizmo->GetTarget() && CurrentWorld == Gizmo->GetTarget()->GetOwner()->GetWorld() && SystemFont)
 	{
 		if (UPrimitiveComponent* Primitive = Cast<UPrimitiveComponent>(Gizmo->GetTarget()))
 		{
@@ -805,7 +821,12 @@ void FEditorApplication::StartPIE()
 		ViewportsPanel->SetViewportAdapter(&PIEViewAdapter);
 		ViewportsPanel->SetViewportMode(EViewportMode::PIE);
 		ViewportsPanel->SetPIE();
+		OutlinerPanel->SelectActor(nullptr);
 	}
+	OutlinerPanel->SetWorld(PIEWorld);
+	DetailsPanel->SetWorld(PIEWorld);
+	SettingsPanel->SetWorld(PIEWorld);
+	EditorControlsPanel->SetWorld(PIEWorld);
 }
 
 void FEditorApplication::PausePIE() const
@@ -827,6 +848,11 @@ void FEditorApplication::EndPIE()
 	}
 	ViewportsPanel->SetViewportAdapter(&MultipleViewportsAdapter);
 	ViewportsPanel->SetViewportMode(EViewportMode::Editor);
+	UWorld* World = GetEditorWorld(); 
+	OutlinerPanel->SetWorld(World);
+	DetailsPanel->SetWorld(World);
+	SettingsPanel->SetWorld(World);
+	EditorControlsPanel->SetWorld(World);
 }
 
 FWorldContext FEditorApplication::FindWorldContext(EWorldType WorldType)
