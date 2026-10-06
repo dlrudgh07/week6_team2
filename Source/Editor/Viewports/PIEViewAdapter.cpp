@@ -492,6 +492,16 @@ void FPIEViewAdapter::BuildRenderPackets(int32 ViewIndex, TArray<FRenderPacket>&
 
 	const TArray<uint8>& VisibleLODs = SoftwareOcclusion.GetVisibleLODs(0);
 	const UClass* StaticMeshClass = UStaticMeshComponent::StaticClass();
+	const UClass* BillboardClass = UBillboardComponent::StaticClass();
+
+	// Billboard·Particle이 PIE View 카메라를 향하도록 피킹과 같은 행렬 함수를 넘긴다
+	FBillboardViewContext BillboardView;
+	BillboardView.ViewContext = this;
+	BillboardView.CameraLocation = GetEngineCameraLocation(0);
+	BillboardView.BuildMatrixFn = [](const void* Context, const FVector& WorldPosition, float Width, float Height) -> FMatrix
+	{
+		return static_cast<const FPIEViewAdapter*>(Context)->BuildEngineBillboardMatrix(0, WorldPosition, Width, Height);
+	};
 
 	Tasks::ParallelFor(TotalPrimitives,
 		ChunkSize,
@@ -518,7 +528,15 @@ void FPIEViewAdapter::BuildRenderPackets(int32 ViewIndex, TArray<FRenderPacket>&
 					}
 
 					const int32 PrevCount = LocalList.Num();
-					Primitive->SubmitToRenderPackets(LocalList);
+					// 대다수인 StaticMesh는 클래스 비교만으로 빠르게 기본 경로로 보낸다
+					if (Primitive->GetClass() != StaticMeshClass && Primitive->IsA(BillboardClass))
+					{
+						static_cast<UBillboardComponent*>(Primitive)->SubmitToRenderPacketsForView(LocalList, BillboardView);
+					}
+					else
+					{
+						Primitive->SubmitToRenderPackets(LocalList);
+					}
 					if (LocalList.Num() > PrevCount)
 					{
 						for (int32 p = PrevCount; p < LocalList.Num(); ++p)

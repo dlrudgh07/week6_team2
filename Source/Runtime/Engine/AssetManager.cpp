@@ -229,6 +229,7 @@ void UAssetManager::Init(std::function<void(float, const FString&)> OnProgress)
 	ScanAssets("Assets", OnProgress);
 	CreateDefaultMeshes();
 	CreateParticleMaterial();
+	CreateBillboardMaterial();
 }
 
 void UAssetManager::CreateDefaultTextures()
@@ -346,6 +347,15 @@ void UAssetManager::CreateParticleMaterial()
 	ParticleMat->Textures.Add(GetAssetByKey<UTexture2D>("Assets/SubUV/StarParticle.png"));
 	ParticleMat->ParamBuffer = FRenderCommand::CreateConstantBuffer(256);
 	RegisterAsset("SubUVMaterial", ParticleMat);
+}
+
+void UAssetManager::CreateBillboardMaterial()
+{
+	UMaterial* BillboardMat = FObjectFactory::ConstructObject<UMaterial>();
+	BillboardMat->PSOType = EPSOType::Billboard;
+	BillboardMat->Textures.Add(GetAssetByKey<UTexture2D>("Assets/Checker.png"));
+	BillboardMat->ParamBuffer = FRenderCommand::CreateConstantBuffer(256);
+	RegisterAsset("BillboardMaterial", BillboardMat);
 }
 
 void UAssetManager::Shutdown()

@@ -11,7 +11,6 @@ public:
 	static bool SaveScene(UWorld* World);
 	static bool SaveSceneAs(UWorld* World);
 	static bool LoadScene(UWorld* World);
-	static bool LoadCompetitionScene(UWorld* World);
 
 private:
 	static FString OpenSaveSceneDialog();

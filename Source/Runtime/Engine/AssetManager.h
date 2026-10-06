@@ -35,6 +35,7 @@ public:
 	void CreateDefaultMeshes();
 	void CreateDefaultMaterial();
 	void CreateParticleMaterial();
+	void CreateBillboardMaterial();
 	void Shutdown();
 
 	template <typename T> static T* GetAssetByKey(const FString& Key)
