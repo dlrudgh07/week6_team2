@@ -53,7 +53,9 @@ void FPIEViewportPanel::OnRender()
 	{
 		RECT rect = {ContentOrigin.x + Rect.X, ContentOrigin.y + Rect.Y, ContentOrigin.x + Rect.X + Rect.Width, ContentOrigin.y + Rect.Y + Rect.Height};
 
-		while(ShowCursor(FALSE) >= 0)
+		while (ShowCursor(FALSE) >= 0);
+		
+			
 		bFocus = true;
 
 		SetCursorPos(centerX, centerY);
@@ -70,14 +72,14 @@ void FPIEViewportPanel::OnRender()
 		SetCursorPos(centerX, centerY);
 	}
 
-	if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
+	/*if (bFocus && ImGui::IsKeyPressed(ImGuiKey_F8, false))
 	{
 		ClipCursor(NULL);
 		while(ShowCursor(TRUE) < 0);
 		bFocus = false;
 		DeltaX = 0;
 		DeltaY = 0;
-	}
+	}*/
 
 	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 	{
