@@ -41,7 +41,6 @@
 #include "Stats/Stats.h"
 #include "Stats/StatDefinitions.h"
 
-#include "Serialization/DefaultSceneLoader.h"
 #include "Serialization/JsonArchive.h"
 
 #include "Tasks/Tasks.h"

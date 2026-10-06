@@ -154,7 +154,6 @@ class FEditorApplication : public FApplication
 
 	void CreateNewScene();
 	void OpenScene();
-	void OpenCompetitionScene();
 	void SaveCurrentScene();
 	void SaveSceneAs();
 };
