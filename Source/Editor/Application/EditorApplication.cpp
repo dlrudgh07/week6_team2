@@ -450,7 +450,7 @@ void FEditorApplication::TickWorldAndEditor(const float DeltaTime)
 		else
 		{
 			ViewportsPanel->SetViewportAdapter(&PIEViewAdapter);
-			MultipleViewportsAdapter.SetViewCameraTransform(0, PIEViewAdapter.GetViewCamera(0));
+			MultipleViewportsAdapter.SetViewCameraTransform(0, PIEViewAdapter.GetViewCamera(0).Transform);
 		}
 	}
 	else
@@ -830,7 +830,6 @@ void FEditorApplication::StartPIE()
 	WorldContexts.Add({PIEWorld, EWorldType::PIE});
 
 	PIEViewAdapter.InitializeFromWorld(*PIEWorld);
-
 	if (PIEPanel->GetMode() == ETypePIEMode::Selected)
 	{
 		ViewportsPanel->SetViewportAdapter(&PIEViewAdapter);
@@ -842,6 +841,7 @@ void FEditorApplication::StartPIE()
 	DetailsPanel->SetWorld(PIEWorld);
 	SettingsPanel->SetWorld(PIEWorld);
 	EditorControlsPanel->SetWorld(PIEWorld);
+	PIEViewAdapter.SetViewCameraTransform(0, PIEPanel->GetPlayerStart());
 }
 
 void FEditorApplication::PausePIE() const

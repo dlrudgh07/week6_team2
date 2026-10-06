@@ -34,7 +34,7 @@ enum class ELayoutMode { Single, QuadSplit };
 struct FCameraTransform
 {
     FVector Location;
-    FQuat Rotation{0.0f, 0.0f, 0.0f, 0.0f};
+    FQuat Rotation{0.0f, 0.0f, 0.0f, 1.0f};
 };
 
 // 원근·직교 투영에 필요한 모드와 절두체 값을 담는다.

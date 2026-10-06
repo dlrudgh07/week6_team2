@@ -43,6 +43,8 @@ public:
 	ETypePIEMode GetMode() const { return Mode; }
 	void SetMode(ETypePIEMode InMode) { Mode = InMode; }
 
+	void SetPlayerStart(FCameraTransform Input){ PlayerStart = Input; }
+	FCameraTransform GetPlayerStart() const { return PlayerStart; }
   private:
 	FRect Rect{};
 	bool bActive = false;
@@ -62,4 +64,6 @@ public:
 	bool bIsPause = false;
 
 	ETypePIEMode Mode = ETypePIEMode::Selected;
+
+	FCameraTransform PlayerStart{};
 };

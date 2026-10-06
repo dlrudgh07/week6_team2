@@ -273,6 +273,21 @@ void FEditorControlsPanel::OnRender()
 
 	//////////////////////////////////////////////////////
 
+	ImGui::Dummy(ImVec2(0.0f, SectionGap));
+	ImGui::SeparatorText("PlayerStart");
+	FCameraTransform Value = PIEPanel->GetPlayerStart();
+	if (ImGui::DragFloat3("Location", Value.Location.V, 0.1f))
+	{
+		PIEPanel->SetPlayerStart(Value);
+	}
+
+	FRotator Rotation = FQuat(Value.Rotation.X, Value.Rotation.Y, Value.Rotation.Z, Value.Rotation.W).ToFRotator();
+
+	if (ImGui::DragFloat3("Rotation", Rotation.V, 0.1f))
+	{
+		Value.Rotation = Rotation.Quaternion();
+		PIEPanel->SetPlayerStart(Value);
+	}
 	//////////////////////////////////////////////////////
 
 	ImGui::End();
