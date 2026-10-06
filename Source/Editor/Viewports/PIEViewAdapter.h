@@ -29,6 +29,8 @@ class FPIEViewAdapter : public IViewportAdapter
 
 	void SetViewRect(int32 ViewIndex, const FRect& Rect) override;
 
+	void SetViewCameraTransform(int32 ViewIndex, const FViewCamera& Camera) override;
+
 	// 현재 PIE View 카메라를 반환한다.
 	const FViewCamera& GetViewCamera(int32 ViewIndex) const override
 	{

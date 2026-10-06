@@ -28,12 +28,8 @@ void FPIEViewportPanel::OnRender()
 {
 	if (!bActive)
 		return;
-
 	if (Mode == ETypePIEMode::Selected)
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.0f);
-	}
-
+		return;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
 
 	ImGui::Begin("PIE", nullptr, ImGuiWindowFlags_NoScrollbar);
@@ -116,11 +112,6 @@ void FPIEViewportPanel::OnRender()
 	ImGui::End();
 
 	ImGui::PopStyleVar();
-
-	if (Mode == ETypePIEMode::Selected)
-	{
-		ImGui::PopStyleVar();
-	}
 }
 
 // Core에서 전달된 PIE View Rect와 활성 상태를 반영하고,
