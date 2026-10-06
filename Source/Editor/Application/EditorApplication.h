@@ -135,6 +135,7 @@ class FEditorApplication : public FApplication
 	TUniquePtr<FFireballRenderer> FireballRenderer;
 	TUniquePtr<FDepthSceneRenderer> DepthSceneRenderer;
 	TUniquePtr<FAntiAliasingRenderer> AntiAliasingRenderer;
+	TUniquePtr<FSkyboxRenderer> SkyboxRenderer;
 
 
 	UFont* SystemFont;

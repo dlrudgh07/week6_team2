@@ -185,12 +185,17 @@ bool FEditorApplication::Init(HINSTANCE hInstance)
 
 	AntiAliasingRenderer = MakeUnique<FAntiAliasingRenderer>();
 	AntiAliasingRenderer-> Init();
+
+	SkyboxRenderer = MakeUnique<FSkyboxRenderer>();
+	SkyboxRenderer->Init("Assets/SkySphere/Sky.jpg");
+
 	// Scene
 	UWorld* World = FObjectFactory::ConstructObject<UWorld>();
 	World->Init();
 
 	FWorldContext WorldContext = {World, EWorldType::Editor};
 	WorldContexts.Add(WorldContext);
+
 
 	// 투영 행렬 생성
 	MultipleViewportsAdapter.InitializeFromWorld(*World);
@@ -620,6 +625,8 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		FRenderCommand::BeginRenderPassSceneColor(ViewRenderingInfo);
 	else
 		FRenderCommand::BeginRenderPass(ViewRenderingInfo);
+
+	SkyboxRenderer->OnRender(ViewProjection, ViewCameraLocation);
 
 	//Grid 렌더링
 	{
