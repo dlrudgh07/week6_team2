@@ -10,6 +10,7 @@ class UProjectileMovementComponent : public UMovementComponent
     DECLARE_CLASS(UProjectileMovementComponent, UMovementComponent)
 
     REFLECT_START(ClassName)
+	PROPERTY(ProjectileGravityScale)
     REFLECT_END()
 
 public:
