@@ -495,7 +495,7 @@ void FEditorApplication::RenderMultipleViewports()
 		RenderFrame(ViewIndex,
 			ViewportsPanel->GetRenderingInfo(ViewIndex),
 			ViewportsPanel->GetViewportAdapter()->GetEngineViewProjection(ViewIndex),
-			ViewportsPanel->GetViewportAdapter()->GetEnginePerspectiveProjection(),
+			ViewportsPanel->GetViewportAdapter()->GetEnginePerspectiveProjection(ViewIndex),
 			ViewportsPanel->GetViewportAdapter()->GetEngineCameraLocation(ViewIndex),
 			ViewportsPanel->GetViewportAdapter()->GetEngineCameraForward(ViewIndex),
 			SceneRenderPackets,
