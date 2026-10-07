@@ -703,11 +703,11 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		if (EditorSettings.bDrawBoundingBox || bDrawOcclusionBounds)
 		{
 			LineBatcher->BeginFrame();
-			if (EditorSettings.bDrawBoundingBox)
+			if (EditorSettings.bDrawBoundingBox && !PIEPanel->IsPlay())
 			{
 				LineBatcher->BuildVertexBuffer();
 			}
-			if (bDrawOcclusionBounds)
+			if (bDrawOcclusionBounds && !PIEPanel->IsPlay())
 			{
 				MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
 			}
