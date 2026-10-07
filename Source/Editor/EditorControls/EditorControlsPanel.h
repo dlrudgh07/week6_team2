@@ -8,6 +8,7 @@
 #include "Engine/SpotLight.h"
 #include "Engine/TextRenderActor.h"
 #include "Components/ExponentialHeightFog.h"
+#include "Engine/PlayerStart.h"
 class FMultipleViewportsAdapter;
 class FPIEViewportPanel;
 
@@ -30,7 +31,7 @@ public:
 
 	int32 SelectedIndex = 0;
 
-	const char* Items[5] = {"StaticMesh", "Particle", "Text", "Light", "Fog"};
+	const char* Items[6] = {"StaticMesh", "Particle", "Text", "Light", "Fog", "PlayerStart"};
 
 	const char* PIEMode[2] = {"Selected", "NewEditor"};
 	int32 SelectedPIEModIndex = 0;
@@ -49,6 +50,7 @@ public:
 		ATextRenderActor::StaticClass(),
 		ASpotLight::StaticClass(), 
 		AExponentialHeightFog::StaticClass(),
+		APlayerStart::StaticClass()
 	};
 
     void SetViewportAdapter(FMultipleViewportsAdapter* InAdapter) { ViewportAdapter = InAdapter; }
