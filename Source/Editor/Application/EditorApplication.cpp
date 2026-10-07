@@ -860,7 +860,7 @@ void FEditorApplication::StartPIE()
 	DetailsPanel->SetWorld(PIEWorld);
 	SettingsPanel->SetWorld(PIEWorld);
 	EditorControlsPanel->SetWorld(PIEWorld);
-	PIEViewAdapter.SetViewCameraTransform(0, PIEPanel->GetPlayerStart());
+	SetPlayerStart();
 }
 
 void FEditorApplication::PausePIE() const
@@ -887,6 +887,25 @@ void FEditorApplication::EndPIE()
 	DetailsPanel->SetWorld(World);
 	SettingsPanel->SetWorld(World);
 	EditorControlsPanel->SetWorld(World);
+}
+
+AActor* FEditorApplication::SetPlayerStart()
+{
+	UWorld* EditorWorld = GetEditorWorld();
+	if (EditorWorld)
+	{
+		TObjectIterator<APlayerStart> Itr;
+		if(Itr)
+		{
+			USceneComponent* SceneComp = Itr->GetRootComponent();
+			PIEViewAdapter.SetViewCameraTransform(0, {SceneComp->GetComponentLocation(), SceneComp->GetComponentRotation().Quaternion()});
+		}
+		else
+		{
+			PIEViewAdapter.SetViewCameraTransform(0, MultipleViewportsAdapter.GetViewCamera(0).Transform);
+		}
+	}
+	return nullptr;
 }
 
 FWorldContext FEditorApplication::FindWorldContext(EWorldType WorldType)

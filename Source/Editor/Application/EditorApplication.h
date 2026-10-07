@@ -82,6 +82,9 @@ class FEditorApplication : public FApplication
 	void PausePIE() const; // 월드 정지
 	void EndPIE();         // 월드 삭제
 
+	
+	AActor* SetPlayerStart(); 
+
 	FWorldContext FindWorldContext(EWorldType WorldType);
 	UWorld* GetEditorWorld();
 	UWorld* GetPIEWorld();
