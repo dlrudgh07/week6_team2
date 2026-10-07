@@ -1,0 +1,123 @@
+{
+    "Version": 2,
+    "Actors": [
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_217",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_219",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                5.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_221",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "Color": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.5,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_249",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": true,
+                        "Transform": {
+                            "Location": [
+                                -1.2084373235702515,
+                                0.0,
+                                5.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        }
+    ]
+}
