@@ -27,6 +27,7 @@ class UPrimitiveComponent :public USceneComponent
 	// (빌보드는 단일 머티리얼, 스태틱 메시는 슬롯별 덮어쓰기) 각자 등록한다.
 	REFLECT_START(ClassName)
 		PROPERTY(bVisible)
+		PROPERTY(bCollisionEnabled)
 		REFLECT_END()
 public:
 	UPrimitiveComponent();
@@ -50,6 +51,7 @@ public:
 	// FRHIShader* GetShader() const { return Shader.get(); };
 
 	bool IsVisible() const { return bVisible; }
+	bool IsCollisionEnabled() const	{ return bCollisionEnabled; }
 	void SetVisibility(bool bInVisible)
 	{
 		if (bVisible == bInVisible)
@@ -76,6 +78,7 @@ protected:
 	virtual void OnBoundsMarkedDirty() override;
 	bool TraceMesh(const FRay& WorldRay, const FStaticMeshRenderData& Mesh, const FMatrix& WorldMatrix, FHitResult& OutResult, float MaxT = FLT_MAX);
 	bool bVisible = true;
+	bool bCollisionEnabled = false;
 
 	/*TArray<UMaterial* MaterialOverride = nullptr;*/
 

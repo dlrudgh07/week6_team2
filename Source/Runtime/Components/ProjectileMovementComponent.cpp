@@ -7,10 +7,10 @@ UProjectileMovementComponent::~UProjectileMovementComponent() = default;
 
 void UProjectileMovementComponent::ResolveAABBCollision()
 {
-    USceneComponent* Target = GetUpdatedComponent();
-    UPrimitiveComponent* Self = Cast<UPrimitiveComponent>(Target);
-    AActor* Owner = GetOwner();
-    if (!Self || !Owner) return;
+	USceneComponent* Target = GetUpdatedComponent();
+	UPrimitiveComponent* Self = Cast<UPrimitiveComponent>(Target);
+	AActor* Owner = GetOwner();
+	if (!Self || !Owner || !Self->IsCollisionEnabled()) return;
 
     UWorld* World = Owner->GetWorld();
     if (!World) return;
@@ -19,8 +19,9 @@ void UProjectileMovementComponent::ResolveAABBCollision()
     {
         UPrimitiveComponent* Other = WeakOther.Get();
         if (!Other || Other->GetOwner() == GetOwner()) continue;    // 자기 자신과의 충돌검사는 하지 않음.
+		if (!Other->IsCollisionEnabled()) continue;
 
-        const FBox A = Self->GetWorldBounds();
+        const FBox A = Target->GetWorldBounds();
         const FBox B = Other->GetWorldBounds();
 
         // x, y, z 축별 겹친 길이

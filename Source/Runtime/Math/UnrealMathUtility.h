@@ -58,4 +58,14 @@ namespace FMath
 	{
 		return (A > B) ? A : B;
 	}
+
+	static inline float Min(float A, float B)
+	{
+		return (A < B) ? A : B;
+	}
+
+	static inline float Max(float A, float B)
+	{
+		return (A > B) ? A : B;
+	}
 }
