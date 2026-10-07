@@ -650,13 +650,6 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		MultipleViewportsAdapter.PostRenderOpaque(ViewIndex, ViewRenderingInfo.DepthSteincil.Texture);
 	}
 
-	// SceneDepth Rendering
-	{
-		if (MultipleViewportsAdapter.IsViewSceneDepthMode(ViewIndex))
-		{
-			DepthSceneRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, Projection);
-		}
-	}
 
 	// Multi pass 렌더링
 	{
@@ -740,6 +733,13 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		}
 	}
 
+	// SceneDepth Rendering
+	{
+		if (MultipleViewportsAdapter.IsViewSceneDepthMode(ViewIndex))
+		{
+			DepthSceneRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, Projection);
+		}
+	}
 
 
 
