@@ -53,4 +53,9 @@ namespace FMath
 	{
 		return (A < B)? A : B;
 	}
+
+	static inline int32 Max(int32 A, int32 B)
+	{
+		return (A > B) ? A : B;
+	}
 }
