@@ -759,8 +759,8 @@ FMatrix FMultipleViewportsAdapter::GetEngineViewProjection(
   assert(IsViewActive(ViewIndex));
   return PrepareView(ViewIndex).EngineViewProjection;
 }
-FMatrix FMultipleViewportsAdapter::GetEnginePerspectiveProjection() const {
-	return BuildProjectionMatrix(Views.Cameras[0].Projection, ViewRects[0].Width / ViewRects[0].Height);
+FMatrix FMultipleViewportsAdapter::GetEnginePerspectiveProjection(const int32 ViewIndex) const {
+	return BuildProjectionMatrix(Views.Cameras[ViewIndex].Projection, ViewRects[ViewIndex].Width / ViewRects[ViewIndex].Height);
 }
 
 // Native 카메라 위치를 엔진 FVector 그대로 반환한다.

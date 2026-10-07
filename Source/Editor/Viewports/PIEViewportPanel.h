@@ -5,7 +5,7 @@
 #include "Editor/Viewports/MultipleViewportsAdapterTypes.h"
 #include "../../Runtime/Engine/World.h"
 
-enum ETypePIEMode
+enum class ETypePIEMode
 {
 	Selected,
 	NewEditor

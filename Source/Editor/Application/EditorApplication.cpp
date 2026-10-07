@@ -495,7 +495,7 @@ void FEditorApplication::RenderMultipleViewports()
 		RenderFrame(ViewIndex,
 			ViewportsPanel->GetRenderingInfo(ViewIndex),
 			ViewportsPanel->GetViewportAdapter()->GetEngineViewProjection(ViewIndex),
-			ViewportsPanel->GetViewportAdapter()->GetEnginePerspectiveProjection(),
+			ViewportsPanel->GetViewportAdapter()->GetEnginePerspectiveProjection(ViewIndex),
 			ViewportsPanel->GetViewportAdapter()->GetEngineCameraLocation(ViewIndex),
 			ViewportsPanel->GetViewportAdapter()->GetEngineCameraForward(ViewIndex),
 			SceneRenderPackets,
@@ -617,8 +617,6 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 	//Render 초기화
 	FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
-	const float FarClip = MultipleViewportsAdapter.GetViewCamera(ViewIndex).Projection.FarClip;
-
 	UWorld* CurrentWorld = ViewportsPanel->IsPIEMode() ? GetPIEWorld() : GetEditorWorld();
 
 	if (EditorSettings.bAntiAliasing)
@@ -627,12 +625,6 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
 	SkyboxRenderer->OnRender(ViewProjection, ViewCameraLocation);
-
-	//Grid 렌더링
-	{
-		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
-		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting, FarClip);
-	}
 
 	// Opaque(불투명) 렌더링
 	{
@@ -673,6 +665,26 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
 	}
 
+	// Grid 렌더링
+	// 반투명 Grid는 깊이를 쓰지 않으므로 장면 깊이가 완성되고 Fog가 끝난 뒤 그 위에 합성한다.
+	// SceneDepth 모드는 화면 전체를 깊이 시각화로 덮으므로 Grid를 그리지 않는다.
+	if (!MultipleViewportsAdapter.IsViewSceneDepthMode(ViewIndex))
+	{
+		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
+		if (MultipleViewportsAdapter.IsOrthographic(ViewIndex))
+		{
+			// 직교 View는 프리셋 방향에 맞는 평면(XY/YZ/XZ)에 Grid를 그린다.
+			GridRenderer->OnRenderBatchGrid(ViewProjection, ViewCameraLocation, ViewCameraForward,
+				MultipleViewportsAdapter.GetGridPlane(ViewIndex), EditorSettings,
+				MultipleViewportsAdapter.GetCameraPreset(ViewIndex) == EMultipleViewportsCameraPreset::OrthographicView,
+				ViewRenderingInfo.ViewportSetting);
+		}
+		else
+		{
+			GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting);
+		}
+	}
+
 	// Text 렌더링
 	{
 		RenderWorldTexts(GetEditorWorld(), ViewProjection);
@@ -691,11 +703,11 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		if (EditorSettings.bDrawBoundingBox || bDrawOcclusionBounds)
 		{
 			LineBatcher->BeginFrame();
-			if (EditorSettings.bDrawBoundingBox)
+			if (EditorSettings.bDrawBoundingBox && !PIEPanel->IsPlay())
 			{
 				LineBatcher->BuildVertexBuffer();
 			}
-			if (bDrawOcclusionBounds)
+			if (bDrawOcclusionBounds && !PIEPanel->IsPlay())
 			{
 				MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
 			}
@@ -756,17 +768,18 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 	FRenderCommand::BeginRenderPass(ViewRenderingInfo);
 
 	const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
-	const float FarClip = PIEViewAdapter.GetViewCamera(0).Projection.FarClip;
-	{
-		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
-		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting, FarClip);
-	}
 
 	const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
 	if (bDrawPrimitives)
 	{
 		const bool bWireframe = false;
 		Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
+	}
+
+	// 반투명 Grid는 깊이를 쓰지 않으므로 불투명 장면 위에 합성한다.
+	{
+		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
+		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting);
 	}
 
 	PIEViewAdapter.PostRenderOpaque(0, ViewRenderingInfo.DepthSteincil.Texture);

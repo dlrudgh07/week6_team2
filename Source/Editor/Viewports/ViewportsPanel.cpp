@@ -326,21 +326,23 @@ void FViewportsPanel::OnRender()
 				ImGui::SameLine();
 			}
         }
-
-        if (CurrentLayoutMode == ELayoutMode::QuadSplit)
+		if (!IsPIEMode())
 		{
-			if (ImGui::SmallButton("Single"))
+			if (CurrentLayoutMode == ELayoutMode::QuadSplit)
 			{
-				RequestedLayoutMode = ELayoutMode::Single;
+				if (ImGui::SmallButton("Single"))
+				{
+					RequestedLayoutMode = ELayoutMode::Single;
+					RequestedSingleViewIndex = ViewIndex;
+					bHasLayoutRequest = true;
+				}
+			}
+			else if (ViewIndex == CurrentSingleViewIndex && ImGui::SmallButton("Quad"))
+			{
+				RequestedLayoutMode = ELayoutMode::QuadSplit;
 				RequestedSingleViewIndex = ViewIndex;
 				bHasLayoutRequest = true;
 			}
-		}
-		else if (ViewIndex == CurrentSingleViewIndex && ImGui::SmallButton("Quad"))
-		{
-			RequestedLayoutMode = ELayoutMode::QuadSplit;
-			RequestedSingleViewIndex = ViewIndex;
-			bHasLayoutRequest = true;
 		}
 
 		ImGui::PopID();

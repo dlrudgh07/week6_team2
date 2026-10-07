@@ -394,7 +394,7 @@ FMatrix FPIEViewAdapter::GetEngineViewProjection(int32 ViewIndex) const
 	return PrepareView().EngineViewProjection;
 }
 
-FMatrix FPIEViewAdapter::GetEnginePerspectiveProjection() const
+FMatrix FPIEViewAdapter::GetEnginePerspectiveProjection(const int32 ViewIndex) const
 {
 	return BuildProjectionMatrix(ViewCamera.Projection, ViewRect.Width / ViewRect.Height);
 }

@@ -13,6 +13,13 @@
 
 namespace
 {
+// 원근 Grid·축이 사라지는 반경을 카메라 높이에 비례시켜 멀리 촘촘해진 선이 보이기 전에 지운다.
+// GridShader의 Quad(±200)보다 작게 유지해야 사각형 경계가 드러나지 않는다.
+float ComputeGridFadeRadius(const FVector& CameraPos)
+{
+    return std::clamp(std::fabs(CameraPos.Z) * 25.0f, 5.0f, 200.0f);
+}
+
 // 역 VP로 복원한 절두체 꼭짓점과 월드 축별 최대 가시 범위를 담는다.
 struct FGridFrustum
 {
@@ -146,13 +153,14 @@ bool FGridRenderer::Init(FRenderer* InRenderer)
     BatchGridPipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     BatchGridPipelineState.RasterizerState = ERasterizerState::SolidNone;
     BatchGridPipelineState.BlendState = EBlendState::AlphaBlend;
-    BatchGridPipelineState.DepthStencilState = EDepthStencilState::Default;
+    // 반투명 선이 깊이를 쓰면 뒤 물체가 가려지므로 깊이 검사만 한다.
+    BatchGridPipelineState.DepthStencilState = EDepthStencilState::ReadOnly;
 
     PSGridPipelineState.Shader = PSGridShader;
     PSGridPipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
     PSGridPipelineState.RasterizerState = ERasterizerState::SolidNone;
     PSGridPipelineState.BlendState = EBlendState::AlphaBlend;
-	PSGridPipelineState.DepthStencilState = EDepthStencilState::Default;
+    PSGridPipelineState.DepthStencilState = EDepthStencilState::ReadOnly;
     return true;
 }
 
@@ -214,19 +222,22 @@ void FGridRenderer::DrawWorldLines(uint32 VertexCount, const FMatrix& ViewProj, 
 
 // 직교 Grid를 평면에 고정하고 Current의 평면 관통 축은 뒤쪽·Grid·앞쪽 순서로 합성한다.
 void FGridRenderer::OnRenderBatchGrid(const FMatrix& ViewProj, const FVector& CameraPos,
-    const FVector& CameraForward, EGridPlane Plane, float GridSpacing,
+    const FVector& CameraForward, EGridPlane Plane, const FEditorSettings& InEditorSettings,
     bool bDrawAllWorldAxes, const FViewportSettings& Viewport)
 {
+    if (!InEditorSettings.bDrawGrid && !InEditorSettings.bDrawAxis) return;
     if (Viewport.Width == 0 || Viewport.Height == 0) return;
     FGridFrustum Frustum{};
     if (!BuildGridFrustum(ViewProj, Frustum)) return;
-    const float Spacing = GridSpacing > 0.0f ? GridSpacing : 1.0f;
+    const float Spacing = static_cast<float>(std::max(1, InEditorSettings.GridSpacing));
+    // 평면 관통 축은 Show Axis 설정을 따른다.
+    bDrawAllWorldAxes = bDrawAllWorldAxes && InEditorSettings.bDrawAxis;
     const FVector Normal = Plane == EGridPlane::XY ? FVector(0, 0, 1)
         : Plane == EGridPlane::XZ ? FVector(0, 1, 0) : FVector(1, 0, 0);
     const bool Orthographic = std::fabs(ViewProj.M[0][3]) + std::fabs(ViewProj.M[1][3])
         + std::fabs(ViewProj.M[2][3]) < 1.0e-6f;
     const FVector FadeOrigin(CameraPos.X, CameraPos.Y, 0);
-    const float FadeRadius = Orthographic ? 0.0f : std::clamp(std::fabs(CameraPos.Z) * 25.0f, 5.0f, 100.0f);
+    const float FadeRadius = Orthographic ? 0.0f : ComputeGridFadeRadius(CameraPos);
     const float CameraSide = Orthographic ? -CameraForward.Dot(Normal) : CameraPos.Dot(Normal);
     // Grid는 월드 원점에 고정하고 생성 범위만 절두체와 평면의 교차 영역을 따른다.
     const auto Position = [Plane](float U, float V) {
@@ -252,7 +263,8 @@ void FGridRenderer::OnRenderBatchGrid(const FMatrix& ViewProj, const FVector& Ca
         Count = 0;
     }
     float MinU, MaxU, MinV, MaxV;
-    bool bHasVisibleGrid = GetVisibleGridBounds(Frustum, Plane, MinU, MaxU, MinV, MaxV);
+    bool bHasVisibleGrid = InEditorSettings.bDrawGrid
+        && GetVisibleGridBounds(Frustum, Plane, MinU, MaxU, MinV, MaxV);
     if (bHasVisibleGrid && !Orthographic)
     {
         // 거리 페이드 밖의 선은 보이지 않으므로 해당 영역을 제외해 회전에 따른 간격 급변을 막는다.
@@ -291,7 +303,8 @@ void FGridRenderer::OnRenderBatchGrid(const FMatrix& ViewProj, const FVector& Ca
         AddGridDirection(true, MinU, MaxU);
         AddGridDirection(false, MinV, MaxV);
     }
-    AddWorldAxes(Plane, false, Frustum.AxisExtent, Count);
+    if (InEditorSettings.bDrawAxis)
+        AddWorldAxes(Plane, false, Frustum.AxisExtent, Count);
     DrawWorldLines(Count, ViewProj, Viewport, FadeOrigin, FadeRadius);
     if (bDrawAllWorldAxes)
     {
@@ -302,7 +315,7 @@ void FGridRenderer::OnRenderBatchGrid(const FMatrix& ViewProj, const FVector& Ca
 }
 
 // 반투명 XY Grid를 기준으로 Z축을 나눠 뒤쪽 축·Grid·앞쪽 축 순서로 합성한다.
-void FGridRenderer::OnRenderPSGrid(const FMatrix& ViewProj, const FVector& CameraPos, const FEditorSettings& InEditorSettings, const FViewportSettings& Viewport, float FarClip)
+void FGridRenderer::OnRenderPSGrid(const FMatrix& ViewProj, const FVector& CameraPos, const FEditorSettings& InEditorSettings, const FViewportSettings& Viewport)
 {
 	if (!InEditorSettings.bDrawGrid && !InEditorSettings.bDrawAxis)
 		return;
@@ -312,11 +325,11 @@ void FGridRenderer::OnRenderPSGrid(const FMatrix& ViewProj, const FVector& Camer
 
     // 원근 축은 Grid의 거리 페이드를 공유하고 직교의 무한 가시 범위 정책과 분리한다.
     const FVector FadeOrigin(CameraPos.X, CameraPos.Y, 0);
-	const float FadeRadius = FarClip * 0.9f;
+	const float FadeRadius = ComputeGridFadeRadius(CameraPos);
     FPSGridData Data{};
 
-    // GridShader cbuffer가 row_major이므로 전치 없이 올린다. (필드명과 달리 역행렬이 아닌 VP)
-    Data.invViewProj = ViewProj;
+    // GridShader cbuffer가 row_major이므로 전치 없이 올린다.
+    Data.ViewProj = ViewProj;
     Data.CameraPos = CameraPos;
     Data.CellSize = std::max(1, InEditorSettings.GridSpacing);
     Data.SubCellSize = Data.CellSize * 0.1f;

@@ -4,9 +4,8 @@ cbuffer GridCB : register(b0)
     float3 CameraPos;
     int CellSize;
     float SubCellSize;
-    int GridPlaneType;
     float FadeRadius;
-    float Padding;
+    float2 Padding;
 };
 
 static const float GridSize = 400.0f; 
