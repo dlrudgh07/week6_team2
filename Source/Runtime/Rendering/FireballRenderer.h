@@ -26,7 +26,11 @@ struct FFireballConstants
     
     float Intensity;              // 4
     float RadiusFallOff;          // 4
-    FVector2D Padding;            // 8
+	int SplitLevel;				  // 4
+	float Padding2;			      // 4
+
+    FVector CameraPosition;            // 12
+	float AirLightIntensity; //4
 };
 
 class FFireballRenderer
@@ -38,7 +42,7 @@ public:
     bool Init();
     bool IsValid();
 
-    void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const TArray<FFireballSceneData>& Fireballs, const FViewportSettings& Viewport);
+    void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const TArray<FFireballSceneData>& Fireballs, const FViewportSettings& Viewport, const FVector& CameraLocation);
 
 private:
     FShaderProgram* Shader = nullptr;

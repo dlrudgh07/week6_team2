@@ -7,6 +7,7 @@ bool FFogRenderer::Init()
 {
 	// 셰이더 가져오기
 	Shader = FRenderResourceManager::GetShaderProgram("Resources/Shader/HeightFogShader.hlsl");
+	//Shader = FRenderResourceManager::GetShaderProgram("Resources/Shader/CubemapFogShader.hlsl");
 	if (!Shader)
 	{
 		LOG(Error, "[Fog] shader not found");
@@ -28,10 +29,11 @@ bool FFogRenderer::Init()
 	return true;
 }
 
-void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation, const FFogSceneData& FogData)
+void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation, const FFogSceneData& FogData, FRHITexture2D* FogPanorama)
 {
-	if (!IsValid()) return;
-
+	//if (!IsValid()) return;
+	if (!IsValid() || !FogPanorama)
+		return;
 
 	ID3D11DeviceContext* Context = FRenderCommand::GetContext();
 	if (!Context)
@@ -72,6 +74,10 @@ void FFogRenderer::OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& Vie
 	FRenderCommand::BindConstantBuffer(0, ConstantBuffer.get(), EShaderBindFlagBits::Pixel);
 	FRenderCommand::BindSamplerState(0, ESamplerState::PointClamp, EShaderBindFlagBits::Pixel);
 	// 정점 버퍼 없이 3개. VS가 SV_VertexID로 삼각형을 만든다.
+
+	//임시 cubemap 테스트용
+	//FRenderCommand::BindShaderResource(1, FogPanorama, EShaderBindFlagBits::Pixel);
+	//FRenderCommand::BindSamplerState(1, ESamplerState::LinearWrap, EShaderBindFlagBits::Pixel);
 	FRenderCommand::Draw(3);
 	
 	//원상복구단계

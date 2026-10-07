@@ -11,6 +11,7 @@ class UFireballComponent : public UProjectileMovementComponent
     PROPERTY(Intensity)
     PROPERTY(Radius)
     PROPERTY(RadiusFallOff)
+	PROPERTY(SplitLevel)
     PROPERTY_TYPE(Color, Color)
     REFLECT_END()
 
@@ -22,6 +23,7 @@ private:
     float Intensity;            // 불빛 밝기
     float Radius;               // 불빛이 영향을 끼치는 범위
     float RadiusFallOff;        // 밝기가 감소하는 정도
+	int SplitLevel = 1;			// 공기를 자르는 정도
     FLinearColor Color;         // 불빛 색상
 
 public:
@@ -35,5 +37,9 @@ public:
     float GetIntensity() { return Intensity; }
     float GetRadius() { return Radius; }
     float GetRadiusFallOff() { return RadiusFallOff; }
+	int GetSplitLevel()
+	{
+		return SplitLevel;
+	}
     FLinearColor GetColor() { return Color; }
 };

@@ -29,7 +29,7 @@ bool FFireballRenderer::Init()
     // Pipeline Set
     PipelineState.Shader = Shader;
     PipelineState.Topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    PipelineState.RasterizerState = ERasterizerState::SolidFront;
+    PipelineState.RasterizerState = ERasterizerState::SolidNone;
     PipelineState.BlendState = EBlendState::Additive;
     PipelineState.DepthStencilState = EDepthStencilState::Disabled;
     
@@ -41,7 +41,7 @@ bool FFireballRenderer::Init()
 void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
                                 const FMatrix& ViewProj,
                                 const TArray<FFireballSceneData>& Fireballs,
-                                const FViewportSettings& Viewport)
+                                const FViewportSettings& Viewport, const FVector& CameraLocation)
 {
     if (!IsValid() || Fireballs.Num() == 0) return;
 
@@ -95,7 +95,11 @@ void FFireballRenderer::OnRender(FRHITexture2D* SceneDepthTexture,
         C.Radius = F.Radius;
         C.Color = F.Color;
         C.Intensity = F.Intensity;
-        C.RadiusFallOff = F.RadiusFallOff;
+		C.RadiusFallOff = F.RadiusFallOff;
+		C.CameraPosition = CameraLocation;
+		C.AirLightIntensity = 1.0f;
+		C.SplitLevel = F.SplitLevel;
+
         FRenderCommand::UpdateBufferData(FireBallCB.get(), &C);
         FRenderCommand::BindConstantBuffer(2, FireBallCB.get(), EShaderBindFlagBits::Pixel);
 

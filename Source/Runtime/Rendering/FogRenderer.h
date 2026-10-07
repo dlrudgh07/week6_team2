@@ -44,7 +44,7 @@ class FFogRenderer
 	bool Init();
 
 	bool IsValid() const{ return Shader != nullptr;}
-	void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation, const FFogSceneData& FogData);
+	void OnRender(FRHITexture2D* SceneDepthTexture, const FMatrix& ViewProj, const FVector& CameraLocation, const FFogSceneData& FogData, FRHITexture2D* FogPanorama);
 
 private:
 	FShaderProgram* Shader = nullptr;

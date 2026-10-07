@@ -519,6 +519,7 @@ void UWorld::UpdateSceneData()
 													FireballComp->GetIntensity(),
 													FireballComp->GetRadius(),
 													FireballComp->GetRadiusFallOff(),
+													FireballComp->GetSplitLevel(),
 													FireballComp->GetColor() }
 		);
 	} 

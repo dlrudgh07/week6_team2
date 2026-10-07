@@ -27,8 +27,9 @@ public:
 	void OnRender(const FMatrix& ViewProjection, const FVector& CameraPosition);
 
 	bool IsValid() const { return Shader != nullptr && PanoramaTexture != nullptr; }
+	FRHITexture2D* GetPanoramaTexture() const{return PanoramaTexture.get();}
 
-private:
+  private:
 	FShaderProgram* Shader = nullptr;
 	TUniquePtr<FRHIUniformBuffer> ConstantBuffer;
 	TUniquePtr<FRHITexture2D> PanoramaTexture;

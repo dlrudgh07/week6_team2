@@ -626,6 +626,16 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 
 	SkyboxRenderer->OnRender(ViewProjection, ViewCameraLocation);
 
+	//Sky 렌더링
+	{
+		SkyboxRenderer->OnRender(ViewProjection, ViewCameraLocation);
+	}
+	//Grid 렌더링
+	{
+		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
+		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting, FarClip);
+	}
+
 	// Opaque(불투명) 렌더링
 	{
 		const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
@@ -653,13 +663,13 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 		// fireball 렌더링
 		if (!SceneData.Fireballs.IsEmpty())
 		{
-			FireballRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, SceneData.Fireballs, ViewRenderingInfo.ViewportSetting);
+			FireballRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, SceneData.Fireballs, ViewRenderingInfo.ViewportSetting, ViewCameraLocation);
 		}
 
 		// fog 렌더링
 		if (SceneData.FogSceneData.IsValid())
 		{
-			FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
+			FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData, SkyboxRenderer->GetPanoramaTexture());
 			
 		}
 
