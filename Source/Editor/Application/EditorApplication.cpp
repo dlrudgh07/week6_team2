@@ -633,7 +633,7 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 	//Grid 렌더링
 	{
 		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
-		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting, FarClip);
+		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting);
 	}
 
 	// Opaque(불투명) 렌더링
