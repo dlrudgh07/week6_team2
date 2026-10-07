@@ -804,13 +804,13 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 
 	if (!SceneData.Fireballs.IsEmpty())
 	{
-		FireballRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, SceneData.Fireballs, ViewRenderingInfo.ViewportSetting);
+		FireballRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, SceneData.Fireballs, ViewRenderingInfo.ViewportSetting, ViewCameraLocation);
 	}
 
 	// fog 렌더링
 	if (SceneData.FogSceneData.IsValid())
 	{
-		FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
+		FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData, SkyboxRenderer->GetPanoramaTexture());
 	}
 
 
@@ -975,6 +975,7 @@ AActor* FEditorApplication::SetPlayerStart()
 		{
 			USceneComponent* SceneComp = Itr->GetRootComponent();
 			PIEViewAdapter.SetViewCameraTransform(0, {SceneComp->GetComponentLocation(), SceneComp->GetComponentRotation().Quaternion()});
+			PIEViewAdapter.UpdateInput(0, {0,0}, 0, 0);
 		}
 		else
 		{
