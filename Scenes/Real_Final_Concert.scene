@@ -1,0 +1,2561 @@
+{
+    "Version": 2,
+    "Actors": [
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_217",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Nijika/Nijika.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                0.0726156234741211,
+                                -3.5336828231811523,
+                                2.701115369796753
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_219",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.0,
+                        "Radius": 0.0,
+                        "RadiusFallOff": 0.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            1.9607843160629272,
+                            1.9607843160629272,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_220",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_221",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Ikuyo/Ikuyo.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -2.0159144401550293,
+                                1.1879502534866333,
+                                2.700000047683716
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_223",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.0,
+                        "Radius": 0.0,
+                        "RadiusFallOff": 0.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            1.9607843160629272,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_224",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "UStaticMeshComponent_225",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Guitar/Guiltartexturing.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                2.0999999046325684
+                            ],
+                            "Rotation": [
+                                -45.0,
+                                -72.0,
+                                80.0
+                            ],
+                            "Scale": [
+                                0.07999999821186066,
+                                0.07999999821186066,
+                                0.07999999821186066
+                            ]
+                        },
+                        "OverrideMaterials": [
+                            null,
+                            {
+                                "Base": "DefaultMaterial",
+                                "PSOType": 0,
+                                "BaseColor": [
+                                    0.37858033180236816,
+                                    0.6370995044708252,
+                                    0.6715686321258545,
+                                    1.0
+                                ],
+                                "UVScrollSpeed": [
+                                    0.0,
+                                    0.0
+                                ],
+                                "SamplerState": "LinearClamp",
+                                "Textures": [
+                                    "WhiteTexture"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_227",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Hitori/Hitori.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -1.7516875267028809,
+                                -0.4140653610229492,
+                                2.700000047683716
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_229",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.0,
+                        "Radius": 0.0,
+                        "RadiusFallOff": 0.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            1.9607843160629272,
+                            0.0,
+                            1.9607843160629272,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_230",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "UStaticMeshComponent_231",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Guitar/Guiltartexturing.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                2.0999999046325684
+                            ],
+                            "Rotation": [
+                                -45.0,
+                                -72.0,
+                                80.0
+                            ],
+                            "Scale": [
+                                0.07999999821186066,
+                                0.07999999821186066,
+                                0.07999999821186066
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_232",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Shiba/Shiba.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                -1.7300000190734863,
+                                1.0,
+                                8.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                120.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_234",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            100.0,
+                            100.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            -1.1200000047683716,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_235",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 2.0,
+                        "Radius": 5.0,
+                        "RadiusFallOff": 5.0,
+                        "SplitLevel": 30,
+                        "Color": [
+                            0.0,
+                            1.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.0,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_236",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Shiba/Shiba.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                -1.7300000190734863,
+                                -1.0,
+                                8.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                -120.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_238",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 2.0,
+                        "Radius": 5.0,
+                        "RadiusFallOff": 5.0,
+                        "SplitLevel": 30,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            1.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.0,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_239",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            100.0,
+                            100.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            -1.1200000047683716,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_240",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Shiba/Shiba.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0063037872314453125,
+                                0.002664029598236084,
+                                8.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_242",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            100.0,
+                            100.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            -1.1200000047683716,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_243",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 2.0,
+                        "Radius": 5.0,
+                        "RadiusFallOff": 5.0,
+                        "SplitLevel": 30,
+                        "Color": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.0,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AExponentialHeightFog",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UExponentialHeightFogComponent_244",
+                    "Class": "UExponentialHeightFogComponent",
+                    "Properties": {
+                        "FogDensity": 0.019999999552965164,
+                        "FogHeightFalloff": -100.0,
+                        "FogMaxOpacity": 0.20000000298023224,
+                        "StartDistance": 0.0,
+                        "FogCutoffDistance": 999999.625,
+                        "FogInscatteringColor": [
+                            1.0,
+                            0.20000000298023224,
+                            0.6000000238418579,
+                            0.0
+                        ],
+                        "Transform": {
+                            "Location": [
+                                -44.70258331298828,
+                                3.1487059593200684,
+                                13.302559852600098
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_246",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Sphere",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                -20.0,
+                                -20.0,
+                                -20.0
+                            ]
+                        },
+                        "OverrideMaterials": [
+                            {
+                                "Base": "DefaultMaterial",
+                                "PSOType": 0,
+                                "BaseColor": [
+                                    1.0,
+                                    0.8941176533699036,
+                                    0.8823529481887817,
+                                    1.0
+                                ],
+                                "UVScrollSpeed": [
+                                    0.0,
+                                    0.0
+                                ],
+                                "SamplerState": "LinearClamp",
+                                "Textures": [
+                                    "WhiteTexture"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AEmitter",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_249",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                -4.0,
+                                5.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AEmitter",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UParticleSubUVComponent_251",
+                    "Class": "UParticleSubUVComponent",
+                    "Properties": {
+                        "ColSize": 8,
+                        "RowSize": 8,
+                        "FrameRate": 12.0,
+                        "Material": {
+                            "Asset": "SubUVMaterial"
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                4.0,
+                                5.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UBillboardComponent_254",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                -19.512069702148438,
+                                -26.975025177001953,
+                                7.272961616516113
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                30.0,
+                                30.0,
+                                30.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "ATextRenderActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "TextRenderComponent_256",
+                    "Class": "UTextRenderComponent",
+                    "Properties": {
+                        "Text": "고척돔",
+                        "TextSize": 10.0,
+                        "Font": "Assets/Fonts/NanumWild.json",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                21.700851440429688
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_258",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Sphere",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                20.0,
+                                20.0,
+                                20.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_260",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 562.7999877929688,
+                        "Radius": 43.79999923706055,
+                        "RadiusFallOff": 15.0,
+                        "SplitLevel": 33,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.0,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_261",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Rocket/rocket.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                -27.373998641967773,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                10.0,
+                                10.0,
+                                10.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_263",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 2.0,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 7.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            1.0,
+                            1.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.0,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            50.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_264",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            500.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_265",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Rocket/rocket.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                27.3700008392334,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                10.0,
+                                10.0,
+                                10.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_267",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 2.0,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 7.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            1.0,
+                            1.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.0,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            50.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_268",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            500.0,
+                            0.0
+                        ],
+                        "PivotTranslation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_269",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Rocket/rocket.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                -23.0,
+                                -10.003857612609863,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                5.0,
+                                5.0,
+                                5.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_271",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 1.600000023841858,
+                        "Radius": 9.800000190734863,
+                        "RadiusFallOff": 6.5,
+                        "SplitLevel": 1,
+                        "Color": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.20000000298023224,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            25.0,
+                            90.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_272",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            0.0,
+                            -190.0
+                        ],
+                        "PivotTranslation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_273",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Rocket/rocket.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                -23.0,
+                                10.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                5.0,
+                                5.0,
+                                5.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_275",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 1.600000023841858,
+                        "Radius": 9.800000190734863,
+                        "RadiusFallOff": 6.5,
+                        "SplitLevel": 1,
+                        "Color": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.20000000298023224,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            -25.0,
+                            90.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_276",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            0.0,
+                            190.0
+                        ],
+                        "PivotTranslation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_277",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cylinder",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.10000000149011612
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                20.0,
+                                20.0,
+                                0.05000000074505806
+                            ]
+                        },
+                        "OverrideMaterials": [
+                            {
+                                "Base": "DefaultMaterial",
+                                "PSOType": 0,
+                                "BaseColor": [
+                                    0.7843137383460999,
+                                    0.7843137383460999,
+                                    0.7843137383460999,
+                                    1.0
+                                ],
+                                "UVScrollSpeed": [
+                                    0.0,
+                                    0.0
+                                ],
+                                "SamplerState": "LinearClamp",
+                                "Textures": [
+                                    "WhiteTexture"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_280",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Concert/model.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                90.0,
+                                90.0,
+                                -90.0
+                            ],
+                            "Scale": [
+                                0.05000000074505806,
+                                0.05000000074505806,
+                                0.05000000074505806
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_282",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                3.6751699447631836,
+                                0.012281715869903564,
+                                5.196579933166504
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                0.16389550268650055,
+                                11.314777374267578,
+                                7.724822998046875
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_284",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": true,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                2.299999952316284
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                7.282948017120361,
+                                11.34619426727295,
+                                0.054446637630462646
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UStaticMeshComponent_287",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Ryo/Ryo.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                0.03217935562133789,
+                                3.0103189945220947,
+                                2.700000047683716
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UStaticMeshComponent_288",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Models/Guitar/Guiltartexturing.obj",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                2.0999999046325684
+                            ],
+                            "Rotation": [
+                                -45.0,
+                                -72.0,
+                                80.0
+                            ],
+                            "Scale": [
+                                0.07999999821186066,
+                                0.07999999821186066,
+                                0.07999999821186066
+                            ]
+                        },
+                        "OverrideMaterials": [
+                            null,
+                            {
+                                "Base": "DefaultMaterial",
+                                "PSOType": 0,
+                                "BaseColor": [
+                                    1.0,
+                                    0.987889289855957,
+                                    0.7941176295280457,
+                                    1.0
+                                ],
+                                "UVScrollSpeed": [
+                                    0.0,
+                                    0.0
+                                ],
+                                "SamplerState": "LinearClamp",
+                                "Textures": [
+                                    "WhiteTexture"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_290",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_291",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -3.381129264831543,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                16.3956241607666,
+                                20.390024185180664,
+                                0.09243804216384888
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_293",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -7.0,
+                                -4.0,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                -1.4693379402160645,
+                                0.0
+                            ],
+                            "Scale": [
+                                0.20000000298023224,
+                                2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_295",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_297",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9700000286102295,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_298",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -7.687304496765137,
+                                -3.0,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                0.20000000298023224,
+                                2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_300",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_302",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9900000095367432,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_303",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -7.0,
+                                -2.0,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                0.20000000298023224,
+                                2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_305",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_307",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9900000095367432,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_308",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -8.573749542236328,
+                                -1.9473226070404053,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                0.20000000298023224,
+                                2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_310",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_312",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9700000286102295,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_313",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -7.834429740905762,
+                                -0.9089040160179138,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                0.20000000298023224,
+                                2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_315",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_317",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 1.0,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_318",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -7.0,
+                                1.7114338874816895,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                -0.20000000298023224,
+                                -2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_320",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_322",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9800000190734863,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_323",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -7.68118953704834,
+                                0.645134687423706,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                -0.20000000298023224,
+                                -2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_325",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_327",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9700000286102295,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_328",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -9.084586143493652,
+                                1.0416593551635742,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                -0.20000000298023224,
+                                -2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_330",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.00800000037997961,
+                        "Bounciness": 0.9800000190734863,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_331",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_333",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -8.238504409790039,
+                                2.30769419670105,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                -0.20000000298023224,
+                                -2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_335",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_337",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9900000095367432,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_338",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Cube",
+                        "bVisible": false,
+                        "bCollisionEnabled": true,
+                        "Transform": {
+                            "Location": [
+                                -7.639850616455078,
+                                3.3087401390075684,
+                                2.5
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                -0.20000000298023224,
+                                -2.0,
+                                2.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_340",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 0.8999999761581421,
+                        "Radius": 15.0,
+                        "RadiusFallOff": 6.0,
+                        "SplitLevel": 1,
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.009999999776482582,
+                        "Bounciness": 0.9700000286102295,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "UBillboardComponent_341",
+                    "Class": "UBillboardComponent",
+                    "Properties": {
+                        "Material": {
+                            "Base": "BillboardMaterial",
+                            "PSOType": 9,
+                            "BaseColor": [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            "UVScrollSpeed": [
+                                0.0,
+                                0.0
+                            ],
+                            "SamplerState": "LinearClamp",
+                            "Textures": [
+                                "Assets/hitori.png"
+                            ]
+                        },
+                        "QuadMesh": "ParticleQuad",
+                        "bVisible": true,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "APlayerStart",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "USceneComponent_921",
+                    "Class": "USceneComponent",
+                    "Properties": {
+                        "Transform": {
+                            "Location": [
+                                -100.0,
+                                -4.0,
+                                32.0
+                            ],
+                            "Rotation": [
+                                -0.10000000149011612,
+                                0.0,
+                                11.0
+                            ],
+                            "Scale": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "Class": "AStaticMeshActor",
+            "Properties": null,
+            "Components": [
+                {
+                    "Name": "UPrimitiveComponent_923",
+                    "Class": "UStaticMeshComponent",
+                    "Properties": {
+                        "StaticMesh": "Sphere",
+                        "bVisible": false,
+                        "bCollisionEnabled": false,
+                        "Transform": {
+                            "Location": [
+                                100.0,
+                                -80.0,
+                                25.0
+                            ],
+                            "Rotation": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "Scale": [
+                                10.0,
+                                10.0,
+                                10.0
+                            ]
+                        },
+                        "OverrideMaterials": []
+                    }
+                },
+                {
+                    "Name": "UFireballComponent_925",
+                    "Class": "UFireballComponent",
+                    "Properties": {
+                        "Intensity": 1000.0,
+                        "Radius": 20.0,
+                        "RadiusFallOff": 8.5,
+                        "SplitLevel": 30,
+                        "Color": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ProjectileGravityScale": 0.0,
+                        "Bounciness": -0.699999988079071,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "Name": "URotatingMovementComponent_926",
+                    "Class": "URotatingMovementComponent",
+                    "Properties": {
+                        "RotationRate": [
+                            0.0,
+                            0.0,
+                            -30.0
+                        ],
+                        "PivotTranslation": [
+                            -100.0,
+                            80.0,
+                            -25.0
+                        ],
+                        "bRotationInLocalSpace": true,
+                        "Velocity": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

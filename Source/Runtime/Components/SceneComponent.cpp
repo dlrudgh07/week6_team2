@@ -108,6 +108,12 @@ FRotator USceneComponent::GetComponentRotation() const
 
 		return (ParentQuat * LocalQuat).ToFRotator();
 	}
+	else
+	{
+		FQuat LocalQuat = Transform.GetOrientation();
+
+		return LocalQuat.ToFRotator();
+	}
 
 	return Transform.Rotation;
 }
