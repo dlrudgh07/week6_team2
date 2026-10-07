@@ -779,6 +779,13 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 
 	const FEditorSettings& EditorSettings = SettingsPanel ? SettingsPanel->GetSettings() : FEditorSettings{};
 
+	if (EditorSettings.bAntiAliasing)
+		FRenderCommand::BeginRenderPassSceneColor(ViewRenderingInfo);
+	else
+		FRenderCommand::BeginRenderPass(ViewRenderingInfo);
+
+	SkyboxRenderer->OnRender(ViewProjection, ViewCameraLocation);
+
 	const bool bDrawPrimitives = EditorSettings.bDrawPrimitives;
 	if (bDrawPrimitives)
 	{
@@ -786,17 +793,55 @@ void FEditorApplication::RenderPIEFrame(const FRenderingInfo& ViewRenderingInfo,
 		Renderer->RenderOpaque(RenderPackets, ViewProjection, bWireframe);
 	}
 
-	// 반투명 Grid는 깊이를 쓰지 않으므로 불투명 장면 위에 합성한다.
+	PIEViewAdapter.PostRenderOpaque(0, ViewRenderingInfo.DepthSteincil.Texture);
+
+
+	if (MultipleViewportsAdapter.IsViewSceneDepthMode(0))
+	{
+		DepthSceneRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, PIEViewAdapter.GetEnginePerspectiveProjection(0));
+	}
+	FScene SceneData = GetPIEWorld()->GetScene();
+
+	if (!SceneData.Fireballs.IsEmpty())
+	{
+		FireballRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, SceneData.Fireballs, ViewRenderingInfo.ViewportSetting);
+	}
+
+	// fog 렌더링
+	if (SceneData.FogSceneData.IsValid())
+	{
+		FogRenderer->OnRender(ViewRenderingInfo.DepthSteincil.Texture, ViewProjection, ViewCameraLocation, SceneData.FogSceneData);
+	}
+
+
+	if (!MultipleViewportsAdapter.IsViewSceneDepthMode(0))
 	{
 		FGPUStatScope GridScope(StatIds::GpuGrid(), L"Grid");
-		GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting);
+		if (MultipleViewportsAdapter.IsOrthographic(0))
+		{
+			// 직교 View는 프리셋 방향에 맞는 평면(XY/YZ/XZ)에 Grid를 그린다.
+			GridRenderer->OnRenderBatchGrid(ViewProjection,
+				ViewCameraLocation,
+				ViewCameraForward,
+				MultipleViewportsAdapter.GetGridPlane(0),
+				EditorSettings,
+				MultipleViewportsAdapter.GetCameraPreset(0) == EMultipleViewportsCameraPreset::OrthographicView,
+				ViewRenderingInfo.ViewportSetting);
+		}
+		else
+		{
+			GridRenderer->OnRenderPSGrid(ViewProjection, ViewCameraLocation, EditorSettings, ViewRenderingInfo.ViewportSetting);
+		}
 	}
 
 	PIEViewAdapter.PostRenderOpaque(0, ViewRenderingInfo.DepthSteincil.Texture);
 
 	RenderWorldTexts(GetPIEWorld(), ViewProjection);
 
-	FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
+	if (EditorSettings.bAntiAliasing)
+		AntiAliasingRenderer->OnRender(ViewRenderingInfo);
+
+	FRenderCommand::ClearDepthStencil(ViewRenderingInfo.DepthSteincil.Texture);
 
 	FRenderCommand::EndRenderPass(ViewRenderingInfo);
 }
