@@ -687,10 +687,18 @@ void FEditorApplication::RenderFrame(const int32 ViewIndex,
 	// Line Batch 렌더링
 	{
 		FGPUStatScope EditorScope(StatIds::GpuEditor(), L"Editor Overlays");
-		if (MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds)
+		const bool bDrawOcclusionBounds = MultipleViewportsAdapter.GetSoftwareOcclusionSettings().bDebugBounds;
+		if (EditorSettings.bDrawBoundingBox || bDrawOcclusionBounds)
 		{
 			LineBatcher->BeginFrame();
-			MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
+			if (EditorSettings.bDrawBoundingBox)
+			{
+				LineBatcher->BuildVertexBuffer();
+			}
+			if (bDrawOcclusionBounds)
+			{
+				MultipleViewportsAdapter.AppendSoftwareOcclusionDebugBounds(*LineBatcher);
+			}
 			LineBatcher->OnRender(ViewProjection);
 		}
 		if (Outline && Outline->GetTarget() && OutlineRenderer && CurrentWorld == Outline->GetTarget()->GetOwner()->GetWorld())

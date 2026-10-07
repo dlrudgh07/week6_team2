@@ -43,6 +43,7 @@ void FSettingsPanel::OnRender()
 	ImGui::Spacing();
 
 	ImGui::Checkbox("Draw Primitives", &Settings.bDrawPrimitives);
+	ImGui::Checkbox("Draw BoundingBox", &Settings.bDrawBoundingBox);
 
 	ImGui::Spacing();
 	ImGui::SeparatorText("Viewport Guides");

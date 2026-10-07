@@ -17,6 +17,7 @@ struct FEditorSettings
 	bool bDrawGrid = true;
 	bool bDrawAxis = true;
 	bool bSceneDepthMode = false;
+	bool bDrawBoundingBox = false;
 
 	int32 SoftwareOcclusionMode = 0;
 	int32 SoftwareOccluderGeometry = 0;
