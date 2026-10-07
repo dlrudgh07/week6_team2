@@ -11,6 +11,7 @@ class UProjectileMovementComponent : public UMovementComponent
 
     REFLECT_START(ClassName)
 	PROPERTY(ProjectileGravityScale)
+    PROPERTY(Bounciness)
     REFLECT_END()
 
 public:
@@ -27,9 +28,11 @@ public:
 
 protected:
     FVector LimitVelocity(FVector NewVelocity) const;
+    float Bounciness = 1.0f;        // 1이면 같은 속도로 반사함.
 
     virtual FVector ComputeMoveDelta(const FVector& InVelocity, float DeltaTime) const;
 
 private:
     float MaxSpeed = 0.f;
+    void ResolveAABBCollision();
 };

@@ -7,13 +7,12 @@
 struct FPSGridData
 {
 	// 원근 Grid Shader가 월드 평면을 복원하고 거리별 간격을 계산할 상수를 담는다.
-	FMatrix invViewProj;
+	FMatrix ViewProj;
 	FVector CameraPos;
 	int32 CellSize;
 	float SubCellSize;
-	int32 GridPlaneType;
 	float FadeRadius;
-	float Padding;
+	float Padding[2];
 };
 
 enum class EGridPlane : int32
@@ -54,13 +53,11 @@ public:
 
 	// Grid·축 Shader와 정점·상수 버퍼 및 깊이·블렌드 상태를 준비한다.
 	bool Init(FRenderer* InRenderer);
-	// 기존 렌더 진입점 선언이며 현재 호출은 원근·직교 전용 함수를 사용한다.
-	void OnRender(const FMatrix& ViewProj, const FVector& CameraPos);
 
 	// 원근 Grid 앞뒤로 Z축을 나눠 합성하고 음수 Z는 낮은 불투명도로 그린다.
-	void OnRenderPSGrid(const FMatrix& ViewProj, const FVector& CameraPos, const FEditorSettings& InEditorSettings, const FViewportSettings& Viewport, float FarClip);
+	void OnRenderPSGrid(const FMatrix& ViewProj, const FVector& CameraPos, const FEditorSettings& InEditorSettings, const FViewportSettings& Viewport);
 	// 직교 Grid와 축에 픽셀 두께·보간을 적용하고 평면 관통 축은 앞뒤로 나눠 합성한다.
-	void OnRenderBatchGrid(const FMatrix& ViewProj, const FVector& CameraPos, const FVector& CameraForward, EGridPlane Plane, float GridSpacing, bool bDrawAllWorldAxes, const FViewportSettings& Viewport);
+	void OnRenderBatchGrid(const FMatrix& ViewProj, const FVector& CameraPos, const FVector& CameraForward, EGridPlane Plane, const FEditorSettings& InEditorSettings, bool bDrawAllWorldAxes, const FViewportSettings& Viewport);
 
 private:
 	// 투영하지 않은 월드 선과 두께를 재사용 버퍼에 담아 GPU에 전달한다.
@@ -83,5 +80,4 @@ private:
 	FShaderProgram*			PSGridShader;
 	FPipelineState									PSGridPipelineState;
 	TUniquePtr<FRHIUniformBuffer>						PSGridConstantBuffer;
-	ComPtr<ID3D11RasterizerState>	RasterizerState;
 };
